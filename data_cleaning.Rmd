@@ -1,0 +1,98 @@
+---
+title: "data_cleaning"
+author: "Rebecca Shyu"
+date: "2024-11-20"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+```{r import_data, message=FALSE}
+slams = c("Australian Open", "Roland Garros", "Wimbledon", "Us Open", "US Open")
+
+df_2014 = read_csv("data/atp_matches_2014.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2015 = read_csv("data/atp_matches_2015.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2016 = read_csv("data/atp_matches_2016.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2017 = read_csv("data/atp_matches_2017.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2018 = read_csv("data/atp_matches_2018.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2019 = read_csv("data/atp_matches_2019.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2020 = read_csv("data/atp_matches_2020.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  ) #wimbledon was cancelled this year due to COVID
+
+df_2021 = read_csv("data/atp_matches_2021.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  ) 
+
+df_2022 = read_csv("data/atp_matches_2022.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+df_2023 = read_csv("data/atp_matches_2023.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  )
+
+seed_types = c("WC", "Q", "LL")
+
+df_2024 = read_csv("data/atp_matches_2024.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  ) %>% 
+  mutate(
+    winner_entry = ifelse(winner_seed %in% seed_types, winner_seed, winner_entry),
+    winner_seed = ifelse(winner_seed %in% seed_types, NA, winner_seed),
+    winner_seed = as.double(winner_seed),
+    loser_entry = ifelse(loser_seed %in% seed_types, loser_seed, loser_entry),
+    loser_seed = ifelse(loser_seed %in% seed_types, NA, loser_seed),
+    loser_seed = as.double(loser_seed)
+  )# only australian open since it goes up until april
+
+
+total_df = bind_rows(df_2014, df_2015, df_2016, df_2017, df_2018, df_2019, df_2020, df_2021, df_2022, df_2023, df_2024)
+
+summary(total_df)
+```
+
