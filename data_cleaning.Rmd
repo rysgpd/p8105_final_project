@@ -91,8 +91,23 @@ df_2024 = read_csv("data/atp_matches_2024.csv") %>%
   )# only australian open since it goes up until april
 
 
-total_df = bind_rows(df_2014, df_2015, df_2016, df_2017, df_2018, df_2019, df_2020, df_2021, df_2022, df_2023, df_2024)
+total_df = bind_rows(df_2014, df_2015, df_2016, df_2017, df_2018, df_2019, df_2020, df_2021, df_2022, df_2023, df_2024) %>% 
+  mutate(
+    tourney_name = ifelse(tourney_name == "Us Open", "US Open", tourney_name),
+    tourney_date = as.Date(as.character(tourney_date), format = "%Y%m%d"),
+    tourney_name = as.factor(tourney_name),
+    winner_hand = as.factor(winner_hand),
+    winner_ioc = as.factor(winner_ioc),
+    loser_hand = as.factor(loser_hand),
+    loser_ioc = as.factor(loser_ioc),
+    round = as.factor(round)
+  ) %>% 
+  select(-c(tourney_id, surface, draw_size, tourney_level, match_num, best_of))
 
 summary(total_df)
+```
+
+```{r}
+
 ```
 
