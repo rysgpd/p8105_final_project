@@ -105,6 +105,8 @@ total_df = bind_rows(df_2014, df_2015, df_2016, df_2017, df_2018, df_2019, df_20
   select(-c(tourney_id, surface, draw_size, tourney_level, match_num, best_of))
 
 summary(total_df)
+
+write_csv(total_df, "data/cleaned_df.csv")
 ```
 
 ```{r}
