@@ -1,0 +1,17 @@
+---
+title: "About"
+---
+
+## Data Sources:
+
+There exists a Github database with all of the matches information, alongside match statistics and player information in CSV form by year. In addition, there is a page of suspension/doping cases of players that can be webscraped.
+
+## Planned Analyses and Visualizations:
+
+Examples of potential analyses and visualization (but are not limited to):
+
+Geographic Information Systems (GIS): map and visualize player information (home countries)
+Visualize/analyze trends of winners/matches over multiple years
+Statistic Analysis: Rankings by score, player age information; Compare seed scores to final score
+Look at which tournament a player/country is winning in more
+Track players and their performances with suspensions (doping)
