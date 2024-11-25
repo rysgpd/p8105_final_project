@@ -1,0 +1,6 @@
+---
+title: "Geographic Information Systems (GIS)"
+---
+
+## Map and visualize player information (home countries)
+

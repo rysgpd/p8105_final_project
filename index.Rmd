@@ -2,6 +2,7 @@
 title: "Challengers: P8105 Edition"
 ---
 ## Welcome to Challengers (p8105 Edition) !
+<img src="images/tennis.jpeg" style="width:50%">
 
 ### Group Member 
 Laura Henze (lah2231)

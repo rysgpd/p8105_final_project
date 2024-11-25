@@ -1,0 +1,5 @@
+---
+title: "Trends"
+---
+
+## Visualize/analyze trends of winners/matches over multiple years

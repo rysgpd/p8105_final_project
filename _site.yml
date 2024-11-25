@@ -5,9 +5,18 @@ navbar:
   right:
     - text: "About"
       href: about.html
-    - 
+    - text: "Demographics"
+      href: demographics.html
+    - text: "Trends"
+      href: trends.html
+    - text: "Rankings"
+      href: ranking.html
+    - text: "Wins"
+      href: wins.html
+    - text: "Suspensions"
+      href: suspensions.html
     - icon: fa-github fa-lg
-      href: http://github.com/rysgpd/p8105_final_project
+      href: https://github.com/rysgpd/p8105_final_project.github.io
 output:
   html_document:
     theme: cosmo

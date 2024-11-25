@@ -1,0 +1,5 @@
+---
+title: "Statistic Analysis"
+---
+
+## Rankings by score, player age information; Compare seed scores to final score
