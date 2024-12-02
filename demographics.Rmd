@@ -68,11 +68,22 @@ player_df =
 
 ```
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+manual_mapping <- tibble(
+  player_ioc = c("BAR", "BUL", "CHI", "CRO", "DEN", "GER", "GRE", "LAT", "NED", "POR", "RSA", "SLO", "SUI", "TPE", "URU"),
+  country_name = c("Barbados", "Bulgaria", "Chile", "Croatia", "Denmark", "Germany", "Greece", "Latvia", "Netherlands", "Portugal", 
+                   "South Africa", "Slovenia", "Switzerland", "Taiwan", "Uruguay")
+)
+
 player_df = 
   player_df |>
   mutate(
     country_name = countrycode(player_ioc, "iso3c", "country.name"),
+  ) |>
+  left_join(manual_mapping, by = "player_ioc", suffix = c("_countrycode", "_manual")) |>
+  mutate(
+    country_name = ifelse(!is.na(country_name_manual), country_name_manual, country_name_countrycode), 
     player_info = paste(
       "<b>Name:</b>", player_name, "<br>",
       "<b>Hand:</b>", player_hand, "<br>",
@@ -80,6 +91,15 @@ player_df =
       "<b>Height:</b>", player_ht, "<br>",
       "<b>Country:</b>", country_name
   ))
+
+player_df = player_df |>
+  mutate(
+    country_name = case_when(
+      country_name == "United States" ~ "USA",
+      country_name == "United Kingdom" ~ "UK",
+      TRUE ~ country_name
+    )
+  )
 
 country_coords =
   map_data("world") |>
@@ -108,5 +128,15 @@ leaflet(player_coords) |>
     fillOpacity = 0.8
   ) |> 
   setView(lng = 0, lat = 20, zoom = 2)  
-  
 ```
+```{r}
+head(player_df$country_name)
+```
+
+```{r}
+unique(player_df$country_name)
+```
+```{r}
+unique(map_data("world")$region)
+```
+
