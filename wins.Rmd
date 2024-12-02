@@ -2,4 +2,43 @@
 title: "Wins"
 ---
 
-## Look at which tournament a player/country is winning in more
+## Country/Player winning the most
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+library(ggplot2)
+library(dplyr)
+
+tennis_data <- read.csv("data/cleaned_df_webscraping_data_added.csv")
+
+top_countries <- tennis_data %>%
+  filter(!is.na(winner_ioc) & winner_ioc != "NA") %>% # Exclude missing or "NA" countries
+  count(winner_ioc) %>%
+  top_n(7, n) %>%
+  pull(winner_ioc)
+
+filtered_data <- tennis_data %>%
+  filter(winner_ioc %in% top_countries)
+
+ggplot(filtered_data, aes(x = winner_ioc, fill = tourney_name)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Top 7 Countries by Wins Across Major Tournaments",
+    x = "Country",
+    y = "Number of Wins",
+    fill = "Tournament"
+  ) +
+  theme_minimal()
+```
+
+We can see that the French Open was won by players from `r filtered_data %>% filter(tourney_name == 'Roland Garros') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, the Australian Open was also won by `r filtered_data %>% filter(tourney_name == 'Australian Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, as well as the US Open which was also won by players representing `r filtered_data %>% filter(tourney_name == 'US Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, finally Wimbledon was won the most often by players from the `r filtered_data %>% filter(tourney_name == 'Wimbledon') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)`. This is due to `r filtered_data %>% count(winner_name, winner_ioc, sort = TRUE) %>% slice(2) %>% summarise(names = paste(winner_name, '(', winner_ioc, ')', collapse = ', ')) %>% pull(names)` having won the second most tournaments in the past 10 years after Novak Djokovic, in addition to other spanish players having won several titles..
+
+
+
+
+
+
+
+
+
+
+
