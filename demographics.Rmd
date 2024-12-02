@@ -4,3 +4,109 @@ title: "Geographic Information Systems (GIS)"
 
 ## Map and visualize player information (home countries)
 
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(dplyr)
+
+library(leaflet)
+library(countrycode)
+library(maps)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+```{r include=FALSE}
+# data cleaning
+df = 
+  read.csv("data/cleaned_df.csv") |>
+  janitor::clean_names()
+
+winner_df <- 
+  df |> 
+  select(winner_id, winner_name, winner_hand, winner_ht, winner_ioc, winner_age) |> 
+  rename(
+    player_id = winner_id,
+    player_name = winner_name,
+    player_hand = winner_hand,
+    player_ht = winner_ht,
+    player_ioc = winner_ioc,
+    player_age = winner_age
+  )
+
+loser_df <- 
+  df |> 
+  select(loser_id, loser_name, loser_hand, loser_ht, loser_ioc, loser_age) |> 
+  rename(
+    player_id = loser_id,
+    player_name = loser_name,
+    player_hand = loser_hand,
+    player_ht = loser_ht,
+    player_ioc = loser_ioc,
+    player_age = loser_age
+  )
+
+player_df =
+  bind_rows(winner_df, loser_df) |> 
+  distinct(player_id, .keep_all = TRUE)
+
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+player_df = 
+  player_df |>
+  mutate(
+    country_name = countrycode(player_ioc, "iso3c", "country.name"),
+    player_info = paste(
+      "<b>Name:</b>", player_name, "<br>",
+      "<b>Hand:</b>", player_hand, "<br>",
+      "<b>Age:</b>", player_age, "<br>",
+      "<b>Height:</b>", player_ht, "<br>",
+      "<b>Country:</b>", country_name
+  ))
+
+country_coords =
+  map_data("world") |>
+  group_by(region) |>
+  summarise(lat = mean(range(lat)), long = mean(range(long)))
+
+player_coords =
+  player_df |>
+  left_join(country_coords, by = c("country_name" = "region"))
+
+set.seed(42) 
+player_coords <- player_coords |> 
+  mutate(
+    lat = lat + runif(n(), -0.5, 0.5),  
+    long = long + runif(n(), -0.5, 0.5)
+  )
+
+leaflet(player_coords) |>
+  addTiles() |>  
+  addCircleMarkers(
+    ~long, ~lat,  
+    radius = 6, 
+    color = "firebrick",  
+    popup = ~player_info,  
+    label = ~player_name, 
+    fillOpacity = 0.8
+  ) |> 
+  setView(lng = 0, lat = 20, zoom = 2)  
+  
+```
