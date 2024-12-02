@@ -1,0 +1,170 @@
+---
+title: "web_scraping_additional_2024_data"
+author: "Laura Henze"
+output: github_document
+date: "2024-11-26"
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+```
+
+
+```{r}
+cleaned_data <- read.csv("data/cleaned_df.csv")
+
+head(cleaned_data)
+```
+
+```{r}
+
+library(dplyr)
+library(readr)
+library(stringr)
+
+
+url <- "http://www.tennis-data.co.uk/2024/frenchopen.csv"
+tennis_data <- read_csv(url, show_col_types = FALSE)
+
+
+processed_data <- tennis_data %>%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, "-", L1, " "), ""),
+      ifelse(!is.na(W2), paste0(W2, "-", L2, " "), ""),
+      ifelse(!is.na(W3), paste0(W3, "-", L3, " "), ""),
+      ifelse(!is.na(W4), paste0(W4, "-", L4, " "), ""),
+      ifelse(!is.na(W5), paste0(W5, "-", L5, " "), "")
+    ) %>% str_trim(),
+    tourney_date = as.Date(Date, "%d/%m/%Y") %>% format("%Y-%m-%d"),  # Format date to match your existing data
+    tourney_name = str_replace(Tournament, "French Open", "Roland Garros")  # Rename tournament
+  ) %>%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+print(processed_data)
+#View(processed_data)
+
+```
+
+```{r}
+library(dplyr)
+library(readr)
+library(stringr)
+
+
+url <- "http://www.tennis-data.co.uk/2024/usopen.csv"
+us_open_data <- read_csv(url, show_col_types = FALSE)
+
+
+processed_us_open_data <- us_open_data %>%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, "-", L1, " "), ""),
+      ifelse(!is.na(W2), paste0(W2, "-", L2, " "), ""),
+      ifelse(!is.na(W3), paste0(W3, "-", L3, " "), ""),
+      ifelse(!is.na(W4), paste0(W4, "-", L4, " "), ""),
+      ifelse(!is.na(W5), paste0(W5, "-", L5, " "), "")
+    ) %>% str_trim(),
+    tourney_date = as.Date(Date, "%d/%m/%Y") %>% format("%Y-%m-%d"),  # Format date to match your existing data
+    tourney_name = str_replace(Tournament, "US Open", "US Open")  # Ensure tournament name is consistent
+  ) %>%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+
+print(processed_us_open_data)
+#View(processed_us_open_data)
+```
+
+```{r}
+library(dplyr)
+library(readr)
+library(stringr)
+
+
+url <- "http://www.tennis-data.co.uk/2024/wimbledon.csv"
+wimbledon_data <- read_csv(url, show_col_types = FALSE)
+
+
+processed_wimbledon_data <- wimbledon_data %>%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, "-", L1, " "), ""),
+      ifelse(!is.na(W2), paste0(W2, "-", L2, " "), ""),
+      ifelse(!is.na(W3), paste0(W3, "-", L3, " "), ""),
+      ifelse(!is.na(W4), paste0(W4, "-", L4, " "), ""),
+      ifelse(!is.na(W5), paste0(W5, "-", L5, " "), "")
+    ) %>% str_trim(),
+    tourney_date = as.Date(Date, "%d/%m/%Y") %>% format("%Y-%m-%d"),  # Format date to match your existing data
+    tourney_name = str_replace(Tournament, "Wimbledon", "Wimbledon")  # Ensure tournament name is consistent
+  ) %>%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+print(processed_wimbledon_data)
+#View(processed_wimbledon_data)
+
+```
+
+
+
+```{r}
+
+library(dplyr)
+
+
+cleaned_df <- read.csv("data/cleaned_df.csv")
+
+
+cleaned_df_webscraping_data_added <- cleaned_df %>%
+  bind_rows(
+    processed_data,  # Roland Garros data
+    processed_us_open_data,  # US Open data
+    processed_wimbledon_data  # Wimbledon data
+  )
+
+
+print(head(cleaned_df_webscraping_data_added))
+write.csv(cleaned_df_webscraping_data_added, "data/cleaned_df_webscraping_data_added.csv", row.names = FALSE)
+#View(cleaned_df_webscraping_data_added)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
