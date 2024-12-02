@@ -2,7 +2,9 @@
 title: "Geographic Information Systems (GIS)"
 ---
 
-## Map and visualize player information (home countries)
+## Map and Visualize Player By Home Countries
+
+Please click for more information!
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -106,6 +108,12 @@ country_coords =
   group_by(region) |>
   summarise(lat = mean(range(lat)), long = mean(range(long)))
 
+country_coords = country_coords |>
+  mutate(
+    lat = ifelse(region == "USA", 39.8283, lat),
+    long = ifelse(region == "USA", -98.5795, long)
+  )
+
 player_coords =
   player_df |>
   left_join(country_coords, by = c("country_name" = "region"))
@@ -129,14 +137,6 @@ leaflet(player_coords) |>
   ) |> 
   setView(lng = 0, lat = 20, zoom = 2)  
 ```
-```{r}
-head(player_df$country_name)
-```
 
-```{r}
-unique(player_df$country_name)
-```
-```{r}
-unique(map_data("world")$region)
-```
 
+Note: The point is based on the player's home country only and does not reflect their city or specific location details.
