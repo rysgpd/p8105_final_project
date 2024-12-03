@@ -11,7 +11,7 @@ library(flexdashboard)
 library(tidyverse)
 library(viridis)
 library(dplyr)
-
+library(ggplot2)
 library(leaflet)
 library(countrycode)
 library(maps)
@@ -140,3 +140,54 @@ leaflet(player_coords) |>
 
 
 Note: The point is based on the player's home country only and does not reflect their city or specific location details.
+
+### Number of Players by Country
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
+player_counts = player_df |>
+  count(country_name, name = "player_count") 
+
+
+ggplot(player_counts, aes(y = reorder(country_name, player_count), x = player_count)) +
+  geom_bar(stat = "identity", fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Number of Players"
+  ) 
+
+```
+
+
+The chart reveals that the top five countries producing the most players in the past ten years are the USA, France, Australia, Spain, and Italy.
+
+### Age Distribution of Players by Country
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
+ggplot(player_df, aes(y = reorder(country_name, player_age, median), x = player_age)) +
+  geom_boxplot(fill = "firebrick", color = "black", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Age"
+  ) 
+
+```
+
+
+The plot indicates that the majority of players fall within the age range of 20 to 35. Countries such as Norway, Greece, Mexico, South Korea, Finland, Sweden, and Bulgaria are notable for having the youngest players. In contrast, the Dominican Republic, Romania, Luxembourg, and Tunisia are represented by older players on average.
+
+
+### Height Distribution of Players by Country
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
+
+ggplot(player_df, aes(y = reorder(country_name, player_ht, median), x = player_ht)) +
+  geom_violin( fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Height (cm)"
+  ) 
+
+```
+
+
+The chart shows that players' heights range from 170 cm to 210 cm. The USA stands out with the widest range of heights and the highest median height. Countries such as the UK, Switzerland, Spain, and the Netherlands also have higher median heights. On the other hand, countries like the Dominican Republic, Israel, Lithuania, Moldova, Japan, and Taiwan have players with shorter median heights.
