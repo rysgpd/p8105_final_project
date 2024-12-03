@@ -52,3 +52,23 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
   theme(legend.position = "right") +
   scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
 ```
+
+### Top Player's Performance
+
+```{r top, echo = FALSE, warning = FALSE, message = FALSE}
+top_player_trends = matches_grand_slam %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  group_by(winner_name, year) %>%
+  summarise(wins = n(), .groups = "drop") %>%
+  group_by(winner_name) %>%
+  summarise(total_wins = sum(wins), yearly_data = list(tibble(year = year, wins = wins)), .groups = "drop") %>%
+  slice_max(order_by = total_wins, n = 10) %>%
+  unnest(yearly_data)
+
+ggplot(top_player_trends, aes(x = as.integer(year), y = wins, color = winner_name)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Top 10 ATP Players' Wins Over Time",
+       x = "Year", y = "Number of Wins") +
+  theme(legend.position = "right")
+```
