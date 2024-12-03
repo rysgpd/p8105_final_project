@@ -287,10 +287,14 @@ $(document).ready(function () {
 
 <div id="data-sources" class="section level2">
 <h2>Data Sources:</h2>
-<p>There exists a Github database with all of the matches information,
-alongside match statistics and player information in CSV form by year.
-In addition, there is a page of suspension/doping cases of players that
-can be webscraped.</p>
+<p>There exists a Github <a
+href="https://github.com/JeffSackmann/tennis_atp">database</a> with all
+of the matches information, alongside match statistics and player
+information in CSV form by year. The compiled data is mostly complete
+from 1985 to the present, with intermittent rankings from 1973 to
+1984.</p>
+<p>In addition, there is a page of suspension/doping cases of players
+that can be webscraped.</p>
 </div>
 <div id="planned-analyses-and-visualizations" class="section level2">
 <h2>Planned Analyses and Visualizations:</h2>
@@ -302,6 +306,85 @@ over multiple years Statistic Analysis: Rankings by score, player age
 information; Compare seed scores to final score Look at which tournament
 a player/country is winning in more Track players and their performances
 with suspensions (doping)</p>
+</div>
+<div id="data-dictionary" class="section level2">
+<h2>Data Dictionary</h2>
+<ul>
+<li>tourney_id: a unique identifier for each tournament, such as
+2020-888. The exact formats are borrowed from several different sources,
+so while the first four characters are always the year, the rest of the
+ID doesn’t follow a predictable structure.</li>
+<li>tourney_name: name of tournament</li>
+<li>surface: type of court surface</li>
+<li>draw_size: number of players in the draw, often rounded up to the
+nearest power of 2. (For instance, a tournament with 28 players may be
+shown as 32.)</li>
+<li>tourney_level: For men: ‘G’ = Grand Slams, ‘M’ = Masters 1000s, ‘A’
+= other tour-level events, ‘C’ = Challengers, ‘S’ = Satellites/ITFs, ‘F’
+= Tour finals and other season-ending events, and ‘D’ = Davis Cup
+<ul>
+<li>Others, eventually for both genders: ‘E’ = exhibition (events not
+sanctioned by the tour, though the definitions can be ambiguous), ‘J’ =
+juniors, and ‘T’ = team tennis, which does yet appear anywhere in the
+dataset but will at some point.</li>
+</ul></li>
+<li>tourney_date: eight digits, YYYYMMDD, usually the Monday of the
+tournament week.</li>
+<li>match_num: a match-specific identifier. Often starting from 1,
+sometimes counting down from 300, and sometimes arbitrary.</li>
+<li>winner_id: the player_id used in this repo for the winner of the
+match</li>
+<li>winner_seed</li>
+<li>winner_entry: ‘WC’ = wild card, ‘Q’ = qualifier, ‘LL’ = lucky loser,
+‘PR’ = protected ranking, ‘ITF’ = ITF entry, and there are a few others
+that are occasionally used.</li>
+<li>winner_name</li>
+<li>winner_hand: R = right, L = left, U = unknown. For ambidextrous
+players, this is their serving hand.</li>
+<li>winner_ht: height in centimeters, where available</li>
+<li>winner_ioc: three-character country code</li>
+<li>winner_age: age, in years, as of the tourney_date</li>
+<li>Loser_id
+<ul>
+<li>Loser_seed</li>
+<li>Loser_entry</li>
+<li>Loser_name</li>
+<li>Loser_hand</li>
+<li>Loser_ht</li>
+<li>Loser_ioc</li>
+<li>loser_age</li>
+</ul></li>
+<li>score</li>
+<li>best_of: ‘3’ or ‘5’, indicating the the number of sets for this
+match</li>
+<li>round</li>
+<li>minutes: match length, where available</li>
+<li>w_ace: winner’s number of aces
+<ul>
+<li>w_df: winner’s number of doubles faults</li>
+<li>w_svpt: winner’s number of serve points</li>
+<li>w_1stIn: winner’s number of first serves made</li>
+<li>w_1stWon: winner’s number of first-serve points won</li>
+<li>w_2ndWon: winner’s number of second-serve points won</li>
+<li>w_SvGms: winner’s number of serve games</li>
+<li>w_bpSaved: winner’s number of break points saved</li>
+<li>w_bpFaced: winner’s number of break points faced</li>
+</ul></li>
+<li>L_ace
+<ul>
+<li>L_df</li>
+<li>L_svpt</li>
+<li>l_1stIn</li>
+<li>l_1stWon</li>
+<li>l_2ndWon</li>
+<li>l_SvGms</li>
+<li>l_bpSaved</li>
+<li>l_bpFaced</li>
+</ul></li>
+<li>winner_rank: winner’s ATP or WTA rank, as of the tourney_date, or
+the most recent ranking date before the tourney_date</li>
+<li>winner_rank_points: number of ranking points, where available</li>
+</ul>
 </div>
 
 
