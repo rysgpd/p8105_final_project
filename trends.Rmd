@@ -20,3 +20,35 @@ tennis_data$winner_age = as.numeric(tennis_data$winner_age)
 tennis_data$loser_age = as.numeric(tennis_data$loser_age)
 tennis_data$minutes = as.numeric(tennis_data$minutes)
 ```
+
+### Trends of Winners Over Time
+
+```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+
+tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
+
+grand_slams = c("Australian Open", "Roland Garros", "Wimbledon", "US Open")
+
+matches_grand_slam = tennis_data %>%
+  filter(tourney_name %in% grand_slams) %>%
+  drop_na(winner_name)
+
+yearly_wins = matches_grand_slam %>%
+  group_by(year = format(tourney_date, "%Y"), winner_name) %>%
+  summarise(wins = n(), .groups = "drop")
+
+top_winners_per_year = yearly_wins %>%
+  group_by(year) %>%
+  slice_max(order_by = wins, n = 1) %>%
+  ungroup()
+
+ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_name)) +
+  geom_line() +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(title = "Trends of ATP Winners Over Time in Grand Slams",
+       x = "Year", y = "Number of Wins") +
+  theme(legend.position = "right") +
+  scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
+```
