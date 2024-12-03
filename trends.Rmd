@@ -3,3 +3,20 @@ title: "Trends"
 ---
 
 ## Visualize/analyze trends of winners/matches over multiple years
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+tennis_data = read.csv("data/cleaned_df_webscraping_data_added.csv")
+
+tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
+
+tennis_data$winner_age = as.numeric(tennis_data$winner_age)
+tennis_data$loser_age = as.numeric(tennis_data$loser_age)
+tennis_data$minutes = as.numeric(tennis_data$minutes)
+```
