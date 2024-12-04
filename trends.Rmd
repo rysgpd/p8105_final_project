@@ -3,7 +3,6 @@ title: "Trends"
 ---
 
 ## Visualize/analyze trends of winners/matches over multiple years
-
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
 library(ggplot2)
@@ -22,7 +21,6 @@ tennis_data$minutes = as.numeric(tennis_data$minutes)
 ```
 
 ### Trends of Winners Over Time
-
 ```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
 
@@ -53,22 +51,79 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
   scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
 ```
 
-### Top Player's Performance
+### Match Duration by Year
+```{r matchduration, echo = FALSE, message = FALSE, warning = FALSE}
+match_length <- matches_grand_slam %>%
+  group_by(year = as.numeric(format(tourney_date, "%Y"))) %>%
+  summarise(avg_minutes = mean(minutes, na.rm = TRUE)) %>%
+  arrange(year)
 
-```{r top, echo = FALSE, warning = FALSE, message = FALSE}
-top_player_trends = matches_grand_slam %>%
-  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
-  group_by(winner_name, year) %>%
-  summarise(wins = n(), .groups = "drop") %>%
-  group_by(winner_name) %>%
-  summarise(total_wins = sum(wins), yearly_data = list(tibble(year = year, wins = wins)), .groups = "drop") %>%
-  slice_max(order_by = total_wins, n = 10) %>%
-  unnest(yearly_data)
-
-ggplot(top_player_trends, aes(x = as.integer(year), y = wins, color = winner_name)) +
-  geom_line() +
+p <- ggplot(match_length, aes(x = year, y = avg_minutes)) +
+  geom_line(color = "blue") +
   theme_minimal() +
-  labs(title = "Top 10 ATP Players' Wins Over Time",
-       x = "Year", y = "Number of Wins") +
-  theme(legend.position = "right")
+  scale_x_continuous(breaks = match_length$year) +
+  labs(title = "Average Match Length (Minutes) by Year",
+       x = "Year", y = "Average Match Length (Minutes)")
+
+plotly_plot <- ggplotly(p)
+
+plotly_plot
+```
+
+### Age Trends of Winners and Losers
+```{r age, echo = FALSE, message = FALSE, warning = FALSE}
+player_ages <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  select(year, winner_age, loser_age) %>%
+  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
+
+ggplot(player_ages, aes(x = year, y = age, fill = role)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Winners and Losers by Year",
+       x = "Year", y = "Age") +
+  theme_minimal()
+```
+
+### Distribution of Aces
+```{r serve, echo = FALSE, message = FALSE, warning = FALSE}
+serve_stats <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  group_by(year) %>%
+  summarize(total_aces = sum(w_ace, na.rm = TRUE))
+
+ggplot(serve_stats, aes(x = year, y = total_aces)) +
+  geom_bar(stat = "identity", fill = "darkblue") +
+  labs(title = "Aces per Year in Grand Slams",
+       x = "Year", y = "Total Aces") +
+  theme_minimal()
+```
+
+### Match Duration by Round
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+slam_comparison <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y"),
+         tournament = tourney_name) %>%
+  filter(tournament %in% c("Australian Open", "Wimbledon", "US Open", "Roland Garros"))
+
+ggplot(slam_comparison, aes(x = round, y = minutes, color = tournament)) +
+  geom_point(alpha = 0.7) +
+  facet_wrap(~ tournament) +
+  labs(title = "Match Duration by Round for Each Grand Slam",
+       x = "Round", y = "Minutes") +
+  theme_minimal()
+```
+
+### Wins by Seed
+```{r seed, echo = FALSE, message = FALSE, warning = FALSE}
+seed_performance <- tennis_data %>%
+  group_by(winner_seed) %>%
+  summarize(total_wins = n(), .groups = 'drop') %>%
+  filter(!is.na(winner_seed))
+
+ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
+  geom_tile(aes(fill = total_wins)) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(title = "Win Counts by Seeds",
+       x = "Seed", y = "Total Wins") +
+  theme_minimal()
 ```
