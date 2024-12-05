@@ -51,6 +51,20 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
   scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
 ```
 
+### Age Trends of Winners and Losers
+```{r age, echo = FALSE, message = FALSE, warning = FALSE}
+player_ages <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  select(year, winner_age, loser_age) %>%
+  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
+
+ggplot(player_ages, aes(x = year, y = age, fill = role)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Winners and Losers by Year",
+       x = "Year", y = "Age") +
+  theme_minimal()
+```
+
 ### Match Duration by Year
 ```{r matchduration, echo = FALSE, message = FALSE, warning = FALSE}
 match_length <- matches_grand_slam %>%
@@ -68,49 +82,6 @@ p <- ggplot(match_length, aes(x = year, y = avg_minutes)) +
 plotly_plot <- ggplotly(p)
 
 plotly_plot
-```
-
-### Age Trends of Winners and Losers
-```{r age, echo = FALSE, message = FALSE, warning = FALSE}
-player_ages <- tennis_data %>%
-  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
-  select(year, winner_age, loser_age) %>%
-  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
-
-ggplot(player_ages, aes(x = year, y = age, fill = role)) +
-  geom_boxplot() +
-  labs(title = "Age Distribution of Winners and Losers by Year",
-       x = "Year", y = "Age") +
-  theme_minimal()
-```
-
-### Distribution of Aces
-```{r serve, echo = FALSE, message = FALSE, warning = FALSE}
-serve_stats <- tennis_data %>%
-  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
-  group_by(year) %>%
-  summarize(total_aces = sum(w_ace, na.rm = TRUE))
-
-ggplot(serve_stats, aes(x = year, y = total_aces)) +
-  geom_bar(stat = "identity", fill = "darkblue") +
-  labs(title = "Aces per Year in Grand Slams",
-       x = "Year", y = "Total Aces") +
-  theme_minimal()
-```
-
-### Match Duration by Round
-```{r, echo = FALSE, message = FALSE, warning = FALSE}
-slam_comparison <- tennis_data %>%
-  mutate(year = format(as.Date(tourney_date), "%Y"),
-         tournament = tourney_name) %>%
-  filter(tournament %in% c("Australian Open", "Wimbledon", "US Open", "Roland Garros"))
-
-ggplot(slam_comparison, aes(x = round, y = minutes, color = tournament)) +
-  geom_point(alpha = 0.7) +
-  facet_wrap(~ tournament) +
-  labs(title = "Match Duration by Round for Each Grand Slam",
-       x = "Round", y = "Minutes") +
-  theme_minimal()
 ```
 
 ### Wins by Seed
