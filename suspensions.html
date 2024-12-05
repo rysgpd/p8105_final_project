@@ -322,7 +322,7 @@ doping_data &lt;- full_join(wiki_doping, itia_sanctions) %&gt;%
 <pre><code>## Joining with `by = join_by(player_name)`</code></pre>
 <pre class="r"><code>tennis_data &lt;- read_csv(&quot;data/cleaned_df_webscraping_data_added.csv&quot;)</code></pre>
 <pre><code>## Rows: 5461 Columns: 43
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ─────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr  (11): tourney_name, winner_entry, winner_name, winner_hand, winner_ioc,...
 ## dbl  (31): winner_id, winner_seed, winner_ht, winner_age, loser_id, loser_se...
@@ -410,13 +410,14 @@ ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date)))
     x = &quot;Date&quot;,
     y = &quot;Player Name&quot;) +
   theme_minimal()</code></pre>
-<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in
+## ggplot2 3.4.0.
 ## ℹ Please use `linewidth` instead.
 ## This warning is displayed once every 8 hours.
-## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-## generated.</code></pre>
-<pre><code>## Warning: Removed 14 rows containing missing values or values outside the scale range
-## (`geom_segment()`).</code></pre>
+## Call `lifecycle::last_lifecycle_warnings()` to see
+## where this warning was generated.</code></pre>
+<pre><code>## Warning: Removed 14 rows containing missing values or values
+## outside the scale range (`geom_segment()`).</code></pre>
 <p><img src="suspensions_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre class="r"><code># Calculate sanction durations
 sanction_analysis &lt;- doping_data %&gt;%
