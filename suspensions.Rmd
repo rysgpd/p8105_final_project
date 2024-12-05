@@ -4,7 +4,23 @@ editor_options:
   chunk_output_type: console
 ---
 
-## Track players and their performances with suspensions (doping)
+## A Track of Players and Their Performances With Suspensions (Doping)
+
+Our analysis focuses on the impact of doping sanctions on player performance in professional tennis. We've collected data from both the International Tennis Integrity Agency (ITIA) and Wikipedia to create a comprehensive dataset of doping cases.
+
+
+## Methods
+
+We faced several challenges in data collection:
+* Lack of a centralized database for tennis doping cases
+* Inconsistent reporting of suspension dates and details across sources
+* Difficulty in matching player names between doping data and match results
+
+We scraped data from two primary sources:
+1. The International Tennis Integrity Agency (ITIA) website, using web scraping techniques.
+2. Wikipedia's list of doping cases in tennis.
+
+Then, we merged the doping dataset with our existing ATP match data. This process required careful cleaning and standardization of player names and dates.
 
 ```{r lib, echo = FALSE, warning = FALSE, message = FALSE}
 
@@ -15,6 +31,11 @@ library(dplyr)
 library(stringr)
 library(ggplot2)
 library(maps)
+library(plotly)
+library(leaflet)
+library(sf)
+
+#install.packages("rnaturalearthdata")
 
 ```
 
@@ -22,16 +43,15 @@ library(maps)
 
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
 
-doping = read.csv("data/cleaned_df.csv")
-
-# Load url 
+# Scrape data from ITIA sanctions page
 url <- "https://www.itia.tennis/sanctions/"
 page <- read_html(url)
 
-# Create dataframe 
+# Extract and process sanction data
 itia_sanctions <- page %>%
   html_nodes(".accordion__item") %>%
   map_df(function(item) {
+    # Extract player name
     name_element <- item %>% 
       html_node(".accordion__column:nth-child(1)")
     
@@ -43,6 +63,7 @@ itia_sanctions <- page %>%
       html_text(trim = TRUE)
     player_name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
     
+    # Extract program, sanction, and dates
     program <- item %>% 
       html_node(".accordion__column:nth-child(2)") %>% 
       html_text(trim = TRUE)
@@ -69,13 +90,6 @@ itia_sanctions <- page %>%
   })
 
 
-
-```
-
-
-
-```{r clean, echo = FALSE, warning = FALSE, message = FALSE}
-
 # Function to convert words to numbers
 words_to_numbers <- function(word) {
   word_map <- c("one" = 1, "two" = 2, "three" = 3, "four" = 4, "five" = 5,
@@ -90,7 +104,7 @@ words_to_numbers <- function(word) {
 }
 
 
-# Clean data
+# Clean and process ITIA sanctions data
 itia_sanctions <- itia_sanctions %>%
   # Only include TADP sanctions
   filter(program == "TADP") %>%
@@ -121,11 +135,7 @@ itia_sanctions <- itia_sanctions %>%
 print(head(itia_sanctions))
 
 
-```
-
-
-```{r wiki}
-
+# Scrape doping cases from Wikipedia
 url <- "https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis"
 page <- read_html(url)
 
@@ -138,29 +148,24 @@ wiki_doping<- data.frame(player_name = players)
 head(wiki_doping)
 
 
-
-# Combine and clean doping data
+# Merge ITIA and Wikipedia doping data
 doping_data <- full_join(wiki_doping, itia_sanctions) %>%
   distinct() %>%
   mutate(sanction_start = as.Date(start_date),
     sanction_end = as.Date(end_date))
 
 
-```
-
-
-```{r}
-
+# Read tennis match data
 tennis_data <- read_csv("data/cleaned_df_webscraping_data_added.csv")
 
 # Extract unique player names from the cleaned tennis data
 tennis_players <- unique(c(tennis_data$winner_name, tennis_data$loser_name))
 
-# Filter the doping data to include only players who appear in the cleaned tennis data
+# Filter doping data to include only players in tennis data
 filtered_doping_data <- doping_data %>%
   filter(player_name %in% tennis_players)
 
-# Use this filtered doping data to merge with the cleaned tennis data
+# Merge doping data with tennis match data
 merged_data <- tennis_data %>%
   left_join(doping_data, by = c("winner_name" = "player_name")) %>%
   rename(winner_doping_start = start_date, 
@@ -179,14 +184,15 @@ final_data <- merged_data %>%
 ```
 
 
-```{r}
 
-# Filter matches where either winner or loser is in the doping dataset
+```{r playerstats, echo = FALSE, warning = FALSE, message = FALSE}
+
+## Player performance statistics
+# Filter for matches involving players with doping records
 doping_matches <- final_data %>%
   filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name)
 
-
-# Add a flag to indicate if a player is in the doping dataset
+# Calculate player performance statistics
 all_player_performance <- final_data %>%
   pivot_longer(cols = c(winner_name, loser_name), names_to = "role", values_to = "player_name") %>%
   group_by(player_name) %>%
@@ -198,7 +204,67 @@ all_player_performance <- final_data %>%
   distinct()
 
 
+```
 
+
+## Timeline of Doping Cases
+
+```{r timeline, echo = FALSE, warning = FALSE, message = FALSE}
+
+## Timeline Data
+# Prepare timeline data for doping cases
+timeline_data <- doping_data %>%
+  filter(!is.na(start_date)) %>%
+  arrange(start_date)
+
+# Plot timeline of doping cases
+timeline_plot <- ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date))) +
+  geom_point(color = "#AF125A", size = 3) +
+  geom_segment(aes(xend = end_date, yend = player_name), color = "#F390BE", size = 1) +
+  labs(title = "Timeline of Doping Cases in Tennis",
+    x = "Date",
+    y = "Player Name") +
+  theme_minimal(base_size = 12) + 
+  aes(text = paste("Player:", player_name, "<br>Sanction Start Date:", start_date, "<br>Sanction End Date:", end_date))
+
+ggplotly(timeline_plot, tooltip = "text")
+
+
+```
+
+
+## Sanction Durations
+
+```{r sanctionduration, echo = FALSE, warning = FALSE, message = FALSE}
+
+## Sanction Durations
+# Analyze sanction durations
+sanction_analysis <- doping_data %>%
+  mutate(sanction_duration_days = as.numeric(end_date - start_date)) %>%
+  filter(!is.na(sanction_duration_days))
+
+# Visualize sanction durations
+sanction_plot <- ggplot(sanction_analysis, aes(x = reorder(player_name, -sanction_duration_days), y = sanction_duration_days)) +
+  geom_bar(stat = "identity", fill = "#AF125A") +
+  labs(title = "Sanction Durations for Doping Cases",
+    x = "Player Name",
+    y = "Duration (Days)") +
+  theme_classic(base_size = 12) +
+  coord_flip() +
+  aes(text = paste("Player:", player_name, "<br>Sanction Duration:", sanction_duration_days, "days"))
+
+ggplotly(sanction_plot, tooltip = "text")
+
+
+```
+
+
+## Case Study: Mikael Ymer
+
+```{r ymer, echo = FALSE, warning = FALSE, message = FALSE}
+
+## Analyze Mikael Ymer's performance
+# Look at Mikael Ymer's performance stats 
 pre_sanction_performance <- final_data %>%
   filter((winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") & 
          tourney_date < as.Date("2023-07-18")) %>%
@@ -218,55 +284,29 @@ ymer_performance_over_time <- final_data %>%
   arrange(tourney_date) %>%
   mutate(cumulative_win_rate = cummean(won))
 
+# Plot Mikael Ymer's performance over time
 ggplot(ymer_performance_over_time, aes(x = tourney_date, y = cumulative_win_rate)) +
-  geom_line() +
-  geom_vline(xintercept = as.Date("2023-07-18"), color = "red", linetype = "dashed") +
+  geom_line(color = "blue", size = 0.4) +
+  geom_vline(xintercept = as.Date("2023-07-18"), color = "#AF125A", linetype = "dashed") +
   labs(title = "Mikael Ymer's Cumulative Win Rate Over Time",
-       x = "Date",
-       y = "Cumulative Win Rate",
-       caption = "Red dashed line indicates start of sanction") +
-  theme_minimal()
+    x = "Date",
+    y = "Cumulative Win Rate",
+    caption = "Red dashed line indicates start of sanction") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
-
-```{r}
-
-# Prepare data for timeline
-timeline_data <- doping_data %>%
-  filter(!is.na(start_date)) %>%
-  arrange(start_date)
-
-# Timeline plot
-ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date))) +
-  geom_point(color = "red", size = 3) +
-  geom_segment(aes(xend = end_date, yend = player_name), color = "blue", size = 1) +
-  labs(title = "Timeline of Doping Cases in Tennis",
-    x = "Date",
-    y = "Player Name") +
-  theme_minimal()
+In the case of Mikael Ymer, we noticed a slight decline in performance leading up to his sanction, which could be an interesting area for further study. 
 
 
+## Mapping Doping Cases by Country
 
+```{r mapdoping, echo = FALSE, warning = FALSE, message = FALSE}
 
-
-# Calculate sanction durations
-sanction_analysis <- doping_data %>%
-  mutate(sanction_duration_days = as.numeric(end_date - start_date)) %>%
-  filter(!is.na(sanction_duration_days))
-
-# Visualize sanction durations
-ggplot(sanction_analysis, aes(x = reorder(player_name, -sanction_duration_days), y = sanction_duration_days)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  coord_flip() +
-  labs(title = "Sanction Durations for Doping Cases",
-    x = "Player Name",
-    y = "Duration (Days)") +
-  theme_minimal()
-
-
-
-# Prepare data for mapping
+## Mapping Doping Cases
+# Prepare data for geographic distribution of doping cases
 ioc_country_mapping <- c(
   "USA" = "United States",
   "GBR" = "United Kingdom",
@@ -278,7 +318,7 @@ ioc_country_mapping <- c(
   "JPN" = "Japan",
   "CHN" = "China",
   "RUS" = "Russia",
-  "SRB" = "Serbia",
+  "SRB" = "Republic of Serbia",
   "SWE" = "Sweden",
   "SVK" = "Slovakia")
 
@@ -298,19 +338,42 @@ country_data <- merged_data %>%
   )))
 
 # Join with world map data
-world_map <- map_data("world")
+world_map <- st_as_sf(rnaturalearth::ne_countries(scale = "medium", 
+  type = "countries",
+  continent = NULL,
+  country = NULL,
+  geounit = NULL,
+  sovereignty = NULL,
+  returnclass = "sf"))
 map_data <- world_map %>%
-  left_join(country_data, by = c("region" = "country"))
+  left_join(country_data, by = c("subunit" = "country"))
 
-# Plot world map with doping cases
-ggplot(map_data, aes(long, lat, group = group)) +
-  geom_polygon(aes(fill = cases_count), color = "white") +
-  scale_fill_gradient(low = "lightblue", high = "red", na.value = "gray") +
-  labs(title = "Geographic Distribution of Doping Cases in Tennis",
-    fill = "# of Cases") +
-  theme_void()
+pal <- colorNumeric(palette = "PRGn", domain = map_data$cases_count, na.color = "transparent")
+
+leaflet(map_data) %>%
+  addTiles() %>%
+  addPolygons(fillColor = ~pal(cases_count),
+    weight = 0.5,
+    color = "black",
+    opacity = 0.4,
+    fillOpacity = 0.7,
+    label = ~paste(name, ": ", cases_count, " cases"),
+    labelOptions = labelOptions(
+      style = list("font-size" = "12px", "font-weight" = "bold"),
+      direction = "auto")) %>%
+  addLegend(position = "bottomright",
+    pal = pal,
+    values = map_data$cases_count,
+    title = "Doping Cases",
+    opacity = 1)
 
 ```
 
+We observed a higher concentration of doping cases in Italy and the United States, which may warrant further investigation into training practices or anti-doping measures in these countries. However, our sample was limited with only 8 countries. 
+
+
+## Conclusion
+
+Doping in professional sports remains a pervasive issue, with significant implications for player performance and career trajectory. Our analysis of doping cases in professional tennis reveals a complex landscape of sanctions, performance impacts, and geographic patterns. While the data is limited, it suggests that doping sanctions can have significant effects on players' careers and the sport as a whole. Further research is needed to fully understand the long-term implications of doping in tennis, including a profile of the specific substances, the fine amount, etc. 
 
 
