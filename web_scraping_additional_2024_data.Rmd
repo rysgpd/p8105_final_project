@@ -143,7 +143,7 @@ cleaned_df_webscraping_data_added <- cleaned_df %>%
 
 print(head(cleaned_df_webscraping_data_added))
 write.csv(cleaned_df_webscraping_data_added, "data/cleaned_df_webscraping_data_added.csv", row.names = FALSE)
-#View(cleaned_df_webscraping_data_added)
+View(cleaned_df_webscraping_data_added)
 ```
 
 
