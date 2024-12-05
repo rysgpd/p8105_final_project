@@ -13,11 +13,8 @@ library(rvest)
 library(httr)
 library(dplyr)
 library(stringr)
-
 library(ggplot2)
-library(lubridate)
-library(plotly)
-library(leaflet)
+library(maps)
 
 ```
 
@@ -32,7 +29,7 @@ url <- "https://www.itia.tennis/sanctions/"
 page <- read_html(url)
 
 # Create dataframe 
-sanctions <- page %>%
+itia_sanctions <- page %>%
   html_nodes(".accordion__item") %>%
   map_df(function(item) {
     name_element <- item %>% 
@@ -44,7 +41,7 @@ sanctions <- page %>%
     
     full_name <- name_element %>%
       html_text(trim = TRUE)
-    name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
+    player_name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
     
     program <- item %>% 
       html_node(".accordion__column:nth-child(2)") %>% 
@@ -63,13 +60,14 @@ sanctions <- page %>%
     start_date <- if(length(dates) >= 1) dates[1] else NA
     end_date <- if(length(dates) >= 2) dates[2] else NA
     
-    tibble(name = name, 
+    tibble(player_name = player_name, 
       program = program, 
       sanction = sanction, 
       start_date = start_date,
       end_date = end_date
     )
   })
+
 
 
 ```
@@ -93,7 +91,7 @@ words_to_numbers <- function(word) {
 
 
 # Clean data
-sanctions <- sanctions %>%
+itia_sanctions <- itia_sanctions %>%
   # Only include TADP sanctions
   filter(program == "TADP") %>%
   
@@ -120,7 +118,7 @@ sanctions <- sanctions %>%
     })
   )
 
-print(head(sanctions))
+print(head(itia_sanctions))
 
 
 ```
@@ -128,18 +126,191 @@ print(head(sanctions))
 
 ```{r wiki}
 
-wiki_url <- "https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis"
-wiki_page <- read_html(wiki_url)
+url <- "https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis"
+page <- read_html(url)
 
 # Extract the list of players
 players <- page %>%
   html_nodes(".mw-category-group li a") %>%
   html_text()
 
-wiki_doping <- data.frame(player = players)
+wiki_doping<- data.frame(player_name = players)
 head(wiki_doping)
 
 
+
+# Combine and clean doping data
+doping_data <- full_join(wiki_doping, itia_sanctions) %>%
+  distinct() %>%
+  mutate(sanction_start = as.Date(start_date),
+    sanction_end = as.Date(end_date))
+
+
 ```
+
+
+```{r}
+
+tennis_data <- read_csv("data/cleaned_df_webscraping_data_added.csv")
+
+# Extract unique player names from the cleaned tennis data
+tennis_players <- unique(c(tennis_data$winner_name, tennis_data$loser_name))
+
+# Filter the doping data to include only players who appear in the cleaned tennis data
+filtered_doping_data <- doping_data %>%
+  filter(player_name %in% tennis_players)
+
+# Use this filtered doping data to merge with the cleaned tennis data
+merged_data <- tennis_data %>%
+  left_join(doping_data, by = c("winner_name" = "player_name")) %>%
+  rename(winner_doping_start = start_date, 
+         winner_doping_end = end_date,
+         winner_sanction = sanction) %>%
+  left_join(doping_data, by = c("loser_name" = "player_name")) %>%
+  rename(loser_doping_start = start_date,
+         loser_doping_end = end_date,
+         loser_sanction = sanction)
+
+# Remove rows where there's no doping data for either player
+final_data <- merged_data %>%
+  filter(!is.na(winner_doping_start) | !is.na(loser_doping_start))
+
+
+```
+
+
+```{r}
+
+# Filter matches where either winner or loser is in the doping dataset
+doping_matches <- final_data %>%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name)
+
+
+# Add a flag to indicate if a player is in the doping dataset
+all_player_performance <- final_data %>%
+  pivot_longer(cols = c(winner_name, loser_name), names_to = "role", values_to = "player_name") %>%
+  group_by(player_name) %>%
+  reframe(matches_total = n(),
+    wins = sum(role == "winner_name"),
+    losses = sum(role == "loser_name"),
+    win_rate = wins / matches_total,
+    in_doping_dataset = player_name %in% doping_data$player_name) %>%
+  distinct()
+
+
+
+pre_sanction_performance <- final_data %>%
+  filter((winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") & 
+         tourney_date < as.Date("2023-07-18")) %>%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == "Mikael Ymer"),
+    win_rate = wins / matches_played)
+
+ymer_career_performance <- final_data %>%
+  filter(winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") %>%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == "Mikael Ymer"),
+    win_rate = wins / matches_played)
+
+ymer_performance_over_time <- final_data %>%
+  filter(winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") %>%
+  mutate(won = winner_name == "Mikael Ymer") %>%
+  arrange(tourney_date) %>%
+  mutate(cumulative_win_rate = cummean(won))
+
+ggplot(ymer_performance_over_time, aes(x = tourney_date, y = cumulative_win_rate)) +
+  geom_line() +
+  geom_vline(xintercept = as.Date("2023-07-18"), color = "red", linetype = "dashed") +
+  labs(title = "Mikael Ymer's Cumulative Win Rate Over Time",
+       x = "Date",
+       y = "Cumulative Win Rate",
+       caption = "Red dashed line indicates start of sanction") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+# Prepare data for timeline
+timeline_data <- doping_data %>%
+  filter(!is.na(start_date)) %>%
+  arrange(start_date)
+
+# Timeline plot
+ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date))) +
+  geom_point(color = "red", size = 3) +
+  geom_segment(aes(xend = end_date, yend = player_name), color = "blue", size = 1) +
+  labs(title = "Timeline of Doping Cases in Tennis",
+    x = "Date",
+    y = "Player Name") +
+  theme_minimal()
+
+
+
+
+
+# Calculate sanction durations
+sanction_analysis <- doping_data %>%
+  mutate(sanction_duration_days = as.numeric(end_date - start_date)) %>%
+  filter(!is.na(sanction_duration_days))
+
+# Visualize sanction durations
+ggplot(sanction_analysis, aes(x = reorder(player_name, -sanction_duration_days), y = sanction_duration_days)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "Sanction Durations for Doping Cases",
+    x = "Player Name",
+    y = "Duration (Days)") +
+  theme_minimal()
+
+
+
+# Prepare data for mapping
+ioc_country_mapping <- c(
+  "USA" = "United States",
+  "GBR" = "United Kingdom",
+  "FRA" = "France",
+  "ESP" = "Spain",
+  "ITA" = "Italy",
+  "GER" = "Germany",
+  "AUS" = "Australia",
+  "JPN" = "Japan",
+  "CHN" = "China",
+  "RUS" = "Russia",
+  "SRB" = "Serbia",
+  "SWE" = "Sweden",
+  "SVK" = "Slovakia")
+
+country_data <- merged_data %>%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name) %>%
+  mutate(winner_doping = winner_name %in% doping_data$player_name,
+    loser_doping = loser_name %in% doping_data$player_name) %>%
+  pivot_longer(cols = c(winner_ioc, loser_ioc),
+    names_to = "player_type",
+    values_to = "ioc") %>%
+  filter((player_type == "winner_ioc" & winner_doping) | (player_type == "loser_ioc" & loser_doping)) %>%
+  mutate(country = ioc_country_mapping[ioc]) %>%
+  group_by(country) %>%
+  summarize(cases_count = n_distinct(case_when(
+    player_type == "winner_ioc" ~ winner_name,
+    player_type == "loser_ioc" ~ loser_name
+  )))
+
+# Join with world map data
+world_map <- map_data("world")
+map_data <- world_map %>%
+  left_join(country_data, by = c("region" = "country"))
+
+# Plot world map with doping cases
+ggplot(map_data, aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = cases_count), color = "white") +
+  scale_fill_gradient(low = "lightblue", high = "red", na.value = "gray") +
+  labs(title = "Geographic Distribution of Doping Cases in Tennis",
+    fill = "# of Cases") +
+  theme_void()
+
+```
+
 
 

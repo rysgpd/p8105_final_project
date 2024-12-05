@@ -3,6 +3,8 @@ title: "web_scraping_additional_2024_data"
 author: "Laura Henze"
 output: github_document
 date: "2024-11-26"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
