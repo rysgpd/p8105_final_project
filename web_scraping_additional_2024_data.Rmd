@@ -10,13 +10,13 @@ library(tidyverse)
 library(rvest)
 ```
 
-
+## loading cleaned data
 ```{r}
 cleaned_data <- read.csv("data/cleaned_df.csv")
 
 head(cleaned_data)
 ```
-
+## getting roland garros data
 ```{r}
 
 library(dplyr)
@@ -53,6 +53,7 @@ print(processed_data)
 
 ```
 
+## getting us open data
 ```{r}
 library(dplyr)
 library(readr)
@@ -88,6 +89,7 @@ print(processed_us_open_data)
 #View(processed_us_open_data)
 ```
 
+## getting wimbledon data
 ```{r}
 library(dplyr)
 library(readr)
@@ -124,7 +126,7 @@ print(processed_wimbledon_data)
 ```
 
 
-
+## combining roland garros, us open and wimbledon
 ```{r}
 
 library(dplyr)
@@ -145,11 +147,130 @@ print(head(cleaned_df_webscraping_data_added))
 write.csv(cleaned_df_webscraping_data_added, "data/cleaned_df_webscraping_data_added.csv", row.names = FALSE)
 View(cleaned_df_webscraping_data_added)
 ```
+## Finding Seed and full name data
+```{r}
+library(rvest)
+
+url <- "https://en.wikipedia.org/wiki/2024_Wimbledon_Championships_–_Men%27s_singles"
+dl_data <- read_html(url) %>% html_nodes("dl") %>% html_text(trim = TRUE)
+
+print(dl_data)
+```
+## seeds with full names
+```{r}
+library(tidyverse)
+
+# Process the dl_data into a clean table
+seed_table <- str_split(dl_data, "\n") %>%  # Split by lines
+  unlist() %>%                             # Convert list to vector
+  tibble(raw = .) %>%                      # Create a tibble
+  mutate(
+    Seed = str_extract(raw, "^\\d+"),                        # Extract the seed number
+    Player_Info = str_remove(raw, "^\\d+\\.\\s+"),           # Remove the seed and leading text
+    Player_Info = str_remove(Player_Info, "\\(.*\\)"),       # Remove the round/result info
+    Player_Info = str_trim(Player_Info)                     # Trim any extra spaces
+  ) %>%
+  select(Seed, Player_Info)                                  # Keep only relevant columns
+
+# View the table
+print(seed_table)
+```
 
 
+```{r}
+library(tidyverse)
 
+# Input data for Last Name and Initial
+last_initial <- c(
+  "Fognini F.", "Shang J.", "Ruud C.", "Coric B.", "Struff J.L.", "Dimitrov G.",
+  "Shapovalov D.", "Tiafoe F.", "Thompson J.", "Zhang Zh.", "Berrettini M.",
+  "Nakashima B.", "Monfils G.", "Medvedev D.", "Wawrinka S.", "Muller A.",
+  "Altmaier D.", "Alcaraz C.", "Harris L.", "Cazaux A.", "Humbert U.",
+  "Vukic A.", "Bublik A.", "Van De Zandschulp B.", "Bautista Agut R.",
+  "Sonego L.", "Griekspoor T.", "Sinner J.", "Virtanen O.", "Paul T.",
+  "Kecmanovic M.", "Nishioka Y.", "Seyboth Wild T.", "Mpetshi G.", 
+  "Musetti L.", "Darderi L.", "Hurkacz H.", "De Minaur A.", "Munar J.", 
+  "Popyrin A.", "Etcheverry T.", "Comesana F.", "Shelton B.", "Fearnley J.", 
+  "Walton A.", "Zverev A.", "Djokovic N.", "Fils A.", "Tsitsipas S.", 
+  "Rune H.", "Giron M.", "Draper J.", "Cobolli F.", "Norrie C.", "Fritz T.", 
+  "Halys Q.", "Khachanov K.", "Safiullin R.", "Ruusuvuori E.", "Pouille L.", 
+  "Rinderknech A.", "Machac T.", "Tabilo A.", "Kokkinakis T."
+)
 
+# Full Name mapping
+full_name <- c(
+  "Fabio Fognini", "Shang Juncheng", "Casper Ruud", "Borna Coric", "Jan-Lennard Struff", 
+  "Grigor Dimitrov", "Denis Shapovalov", "Frances Tiafoe", "Jordan Thompson", 
+  "Zhang Zhizhen", "Matteo Berrettini", "Brandon Nakashima", "Gaël Monfils", 
+  "Daniil Medvedev", "Stan Wawrinka", "Alexandre Müller", "Daniel Altmaier", 
+  "Carlos Alcaraz", "Lloyd Harris", "Arthur Cazaux", "Ugo Humbert", "Aleksandar Vukic", 
+  "Alexander Bublik", "Botic van de Zandschulp", "Roberto Bautista Agut", 
+  "Lorenzo Sonego", "Tallon Griekspoor", "Jannik Sinner", "Otto Virtanen", 
+  "Tommy Paul", "Miomir Kecmanovic", "Yoshihito Nishioka", "Thiago Seyboth Wild", 
+  "Giovanni Mpetshi Perricard", "Lorenzo Musetti", "Luciano Darderi", "Hubert Hurkacz", 
+  "Alex de Minaur", "Jaume Munar", "Alexei Popyrin", "Tomás Martín Etcheverry", 
+  "Francisco Comesaña", "Ben Shelton", "Jacob Fearnley", "Adam Walton", 
+  "Alexander Zverev", "Novak Djokovic", "Arthur Fils", "Stefanos Tsitsipas", 
+  "Holger Rune", "Marcos Giron", "Jack Draper", "Flavio Cobolli", "Cameron Norrie", 
+  "Taylor Fritz", "Quentin Halys", "Karen Khachanov", "Roman Safiullin", 
+  "Emil Ruusuvuori", "Lucas Pouille", "Arthur Rinderknech", "Tomas Machac", 
+  "Alejandro Tabilo", "Thanasi Kokkinakis"
+)
 
+# Country Code mapping
+country_code <- c(
+  "ITA", "CHN", "NOR", "CRO", "GER", "BUL", "CAN", "USA", "AUS", "CHN", "ITA", 
+  "USA", "FRA", "RUS", "SUI", "FRA", "GER", "ESP", "RSA", "FRA", "FRA", "AUS", 
+  "KAZ", "NED", "ESP", "ITA", "NED", "ITA", "FIN", "USA", "SRB", "JPN", "BRA", 
+  "FRA", "ITA", "ITA", "POL", "AUS", "ESP", "AUS", "ARG", "ARG", "USA", "GBR", 
+  "AUS", "GER", "SRB", "FRA", "GRE", "DEN", "USA", "GBR", "ITA", "GBR", "USA", 
+  "FRA", "RUS", "FIN", "FRA", "FRA", "CZE", "CHI", "AUS"
+)
+
+# Pad shorter vectors with NA
+while (length(country_code) < length(last_initial)) {
+  country_code <- c(country_code, NA)
+}
+while (length(full_name) < length(last_initial)) {
+  full_name <- c(full_name, NA)
+}
+
+# Create the final table
+full_names_for_wimbledon <- tibble(
+  last_initial = last_initial,
+  full_name = full_name,
+  country_code = country_code
+)
+
+# View final table
+print(full_names_for_wimbledon)
+
+# Save as CSV
+write_csv(full_names_for_wimbledon, "full_names_for_wimbledon.csv")
+
+```
+
+```{r}
+library(tidyverse)
+
+# Perform the replacement
+cleaned_df_updated <- cleaned_df_webscraping_data_added %>%
+  # Update winner_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c("winner_name" = "last_initial")) %>%
+  mutate(winner_name = if_else(!is.na(full_name), full_name, winner_name)) %>%
+  select(-full_name) %>% # Remove the temporary full_name column
+  # Update loser_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c("loser_name" = "last_initial")) %>%
+  mutate(loser_name = if_else(!is.na(full_name), full_name, loser_name)) %>%
+  select(-full_name) # Remove the temporary full_name column
+
+# View the updated table
+print(cleaned_df_updated)
+View(cleaned_df_updated)
+
+# Save the updated table as a CSV file
+write_csv(cleaned_df_updated, "cleaned_df_updated.csv")
+```
 
 
 
