@@ -286,10 +286,126 @@ $(document).ready(function () {
 
 
 <div
-id="rankings-by-score-player-age-information-compare-seed-scores-to-final-score"
+id="statistical-and-exploratory-analyses-on-match-winners-seeding-ages-etc"
 class="section level2">
-<h2>Rankings by score, player age information; Compare seed scores to
-final score</h2>
+<h2>Statistical and Exploratory Analyses on Match Winners (Seeding,
+Ages, etc)</h2>
+<div
+id="distribution-of-seeds-of-grand-slam-final-winners-from-2014-2024"
+class="section level3">
+<h3>Distribution of Seeds of Grand Slam Final Winners from
+2014-2024</h3>
+<ul>
+<li>As an initial exploratory analysis, we display the distribution of
+overall grand slam winners and their seeds. Not surprisingly, the
+majority of the winners were seeded #1 coming into the tournament, so
+they were expected to win. For this analysis, being “seeded higher”
+means that you are closer to 1 and have higher expectations of winning
+while “seeded lower” means you are further away from 1.</li>
+<li>It is notable that there were no winners that were not unseeded in
+the past 10 years for men.</li>
+</ul>
+<p><img src="ranking_files/figure-html/seed_distrib-1.png" width="100%" /></p>
+<ul>
+<li>There were, however, many ranked past the top 5, which were
+definitely surprises. We show the players who were seeded beyond 5 and
+ended up winning the tournament in the table below.</li>
+<li>These are all very familiar tennis favorites. Roger Federer, Novak
+Djokovic, and Rafael Nadal are all amongst the three greatest male
+players in tennis, so although they were seeded low, they were still
+favorites amongst the audience to win. At this point, some were close to
+retirement or came back from injuries and didn’t play many tournaments
+prior to the Grand Slams, so their rankings would have been lower.</li>
+<li>Stan Wawrinka and Marin Cilic were two players who were always
+competitive and fan favorites, so while seeded lower, not completely a
+shock.</li>
+</ul>
+<table>
+<caption>Grand Slam Winners with Low Seeds</caption>
+<thead>
+<tr class="header">
+<th align="center">Tournament</th>
+<th align="center">Year</th>
+<th align="center">Seed</th>
+<th align="center">Name</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Australian Open</td>
+<td align="center">2014</td>
+<td align="center">8</td>
+<td align="center">Stan Wawrinka</td>
+</tr>
+<tr class="even">
+<td align="center">US Open</td>
+<td align="center">2014</td>
+<td align="center">14</td>
+<td align="center">Marin Cilic</td>
+</tr>
+<tr class="odd">
+<td align="center">Roland Garros</td>
+<td align="center">2015</td>
+<td align="center">8</td>
+<td align="center">Stan Wawrinka</td>
+</tr>
+<tr class="even">
+<td align="center">Australian Open</td>
+<td align="center">2017</td>
+<td align="center">17</td>
+<td align="center">Roger Federer</td>
+</tr>
+<tr class="odd">
+<td align="center">Wimbledon</td>
+<td align="center">2018</td>
+<td align="center">12</td>
+<td align="center">Novak Djokovic</td>
+</tr>
+<tr class="even">
+<td align="center">US Open</td>
+<td align="center">2018</td>
+<td align="center">6</td>
+<td align="center">Novak Djokovic</td>
+</tr>
+<tr class="odd">
+<td align="center">Australian Open</td>
+<td align="center">2022</td>
+<td align="center">6</td>
+<td align="center">Rafael Nadal</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="seed-match-types-and-winners" class="section level3">
+<h3>Seed Match Types and Winners</h3>
+<ul>
+<li>Now, we want to look at all matches and see the breakdown of
+matchups. The figure below shows the breakdown by round (for all
+tournaments and years) of whether both oppoenents were unseeded or if
+the winner was projected to win or lose (seeded lower/higher).</li>
+<li>As expected, the first few rounds had many matches with both
+opponents unseeded and the majority was won otherwise by the higher
+seeded player. The turqoise and yellow categories are the most
+interesting because that means that the winner was projected to win, but
+lost the match.
+<img src="ranking_files/figure-html/match_types-1.png" width="100%" /></li>
+</ul>
+</div>
+<div id="ages-of-winners" class="section level3">
+<h3>Ages of Winners</h3>
+<ul>
+<li>This plot shows the ages of all match winners across all years and
+tournaments. From 2014-2019, the upper limit of ages is slowly
+increasing, which checks out with the “older” generation (Federer,
+Djokovic, Nadal) but the lower limit stays about the same with new
+talent coming in each year.</li>
+<li>After the pandemic, however, it seems like the majority of ages
+dropped to mid to upper 20’s and has continued climbing since.</li>
+<li>2023 was interesting because it has two higher density areas,
+similar to how it was 2014-2016.</li>
+</ul>
+<p><img src="ranking_files/figure-html/age_dist-1.png" width="100%" /></p>
+</div>
 </div>
 
 

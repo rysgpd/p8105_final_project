@@ -2,4 +2,143 @@
 title: "Statistic Analysis"
 ---
 
-## Rankings by score, player age information; Compare seed scores to final score
+## Statistical and Exploratory Analyses on Match Winners (Seeding, Ages, etc)
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "100%",
+	dpi=300
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+df = read.csv("data/cleaned_df_webscraping_data_added.csv")
+df2 = read.csv("data/cleaned_df.csv")
+
+```
+
+
+### Distribution of Seeds of Grand Slam Final Winners from 2014-2024
+
+* As an initial exploratory analysis, we display the distribution of overall grand slam winners and their seeds. Not surprisingly, the majority of the winners were seeded #1 coming into the tournament, so they were expected to win. For this analysis, being "seeded higher" means that you are closer to 1 and have higher expectations of winning while "seeded lower" means you are further away from 1. 
+* It is notable that there were no winners that were not unseeded in the past 10 years for men. 
+
+```{r seed_distrib, echo = FALSE, warning = FALSE, message = FALSE}
+
+df2 %>% 
+  filter(
+    round == "F"
+  ) %>% 
+  ggplot(aes(x = winner_seed, fill = as.factor(winner_seed))) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks=seq(1,20,1))+
+  scale_y_continuous(breaks=seq(1,20,1))+
+  labs(
+    title = "Distribution of Seeds of Grand Slam Winners from 2014-2024",
+    x = "Seed",
+    y = "Number of Winners"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+  
+
+```
+
+
+* There were, however, many ranked past the top 5, which were definitely surprises. We show the players who were seeded beyond 5 and ended up winning the tournament in the table below.
+* These are all very familiar tennis favorites. Roger Federer, Novak Djokovic, and Rafael Nadal are all amongst the three greatest male players in tennis, so although they were seeded low, they were still favorites amongst the audience to win. At this point, some were close to retirement or came back from injuries and didn't play many tournaments prior to the Grand Slams, so their rankings would have been lower. 
+* Stan Wawrinka and Marin Cilic were two players who were always competitive and fan favorites, so while seeded lower, not completely a shock. 
+
+```{r seed_table, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  filter(
+    round == "F",
+    winner_seed > 5
+  ) %>% 
+  mutate(
+    tourney_year = substr(tourney_date, start = 1, stop = 4)
+  ) %>% 
+  select(tourney_name, tourney_year, winner_seed, winner_name) %>% 
+  knitr::kable(
+    col.names = c("Tournament", "Year", "Seed", "Name"),
+    caption = "Grand Slam Winners with Low Seeds",
+    align = "c"
+  )
+```
+
+### Seed Match Types and Winners
+* Now, we want to look at all matches and see the breakdown of matchups. The figure below shows the breakdown by round (for all tournaments and years) of whether both oppoenents were unseeded or if the winner was projected to win or lose (seeded lower/higher). 
+* As expected, the first few rounds had many matches with both opponents unseeded and the majority was won otherwise by the higher seeded player. The turqoise and yellow categories are the most interesting because that means that the winner was projected to win, but lost the match. 
+```{r match_types, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    seed_diff = case_when(
+      is.na(winner_seed) & is.na(loser_seed) ~ "Both Unseeded",
+      !is.na(winner_seed) & is.na(loser_seed) ~ "Winner Seeded, Loser Unseeded",
+      is.na(winner_seed) & !is.na(loser_seed) ~ "Winner Unseeded, Loser Seeded",
+      winner_seed > loser_seed ~ "Winner Seeded Lower",
+      winner_seed < loser_seed ~ "Winner Seeded Higher"
+    ),
+    seed_diff = as.factor(seed_diff),
+    round = fct_relevel(round, "R128", "R64", "R32", "R16", "QF", "SF", "F")
+  ) %>% 
+  group_by(round, seed_diff) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  group_by(round) %>%
+  mutate(percent = count / sum(count) * 100) %>% 
+  ggplot(
+    aes(x = round, y = percent, fill = seed_diff)
+  ) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Percentage of Match Types per Round",
+    x = "Round",
+    y = "Percentage of Matches"
+    ) +
+  theme(legend.title=element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  guides(fill = guide_legend(nrow = 2)) 
+
+```
+
+### Ages of Winners
+
+* This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
+* After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
+* 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
+
+```{r age_dist, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  ggplot(aes(x = tourney_year, y = winner_age, fill = tourney_year)) +
+  geom_violin()+
+  labs(
+    title = "Distribution of Age of Match Winners from 2014-2024",
+    x = "Year",
+    y = "Age"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+```
+
