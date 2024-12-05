@@ -288,6 +288,194 @@ $(document).ready(function () {
 <div id="track-players-and-their-performances-with-suspensions-doping"
 class="section level2">
 <h2>Track players and their performances with suspensions (doping)</h2>
+<pre><code>## # A tibble: 6 × 7
+##   player_name    program sanction start_date end_date   sanction_type time_frame
+##   &lt;chr&gt;          &lt;chr&gt;   &lt;chr&gt;    &lt;date&gt;     &lt;date&gt;     &lt;chr&gt;         &lt;chr&gt;     
+## 1 Valeria Bhunu  TADP    3 years… 2021-09-29 2024-12-28 Ban           3 years   
+## 2 Mikael Ymer    TADP    18 mont… 2023-07-16 2025-01-17 Suspension    18 months 
+## 3 Elizaveta Dem… TADP    Three y… 2022-01-21 2025-01-21 Ban           3 years   
+## 4 Igor Marcondes TADP    3 years… 2022-03-04 2025-03-04 Ban           3 years   
+## 5 Danylo Kaleni… TADP    3 years… 2021-11-09 2025-05-08 Ban           3 years a…
+## 6 Luis Patino    TADP    Three y… 2022-07-15 2025-07-14 Suspension    3 years</code></pre>
+<pre class="r"><code>url &lt;- &quot;https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis&quot;
+page &lt;- read_html(url)
+
+# Extract the list of players
+players &lt;- page %&gt;%
+  html_nodes(&quot;.mw-category-group li a&quot;) %&gt;%
+  html_text()
+
+wiki_doping&lt;- data.frame(player_name = players)
+head(wiki_doping)</code></pre>
+<pre><code>##             player_name
+## 1       Maximilian Abel
+## 2      Franco Agamenone
+## 3          Andre Agassi
+## 4 Khrystyna Antoniichuk
+## 5       Kateryna Baindl
+## 6     Nikola Bartůňková</code></pre>
+<pre class="r"><code># Combine and clean doping data
+doping_data &lt;- full_join(wiki_doping, itia_sanctions) %&gt;%
+  distinct() %&gt;%
+  mutate(sanction_start = as.Date(start_date),
+    sanction_end = as.Date(end_date))</code></pre>
+<pre><code>## Joining with `by = join_by(player_name)`</code></pre>
+<pre class="r"><code>tennis_data &lt;- read_csv(&quot;data/cleaned_df_webscraping_data_added.csv&quot;)</code></pre>
+<pre><code>## Rows: 5461 Columns: 43
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (11): tourney_name, winner_entry, winner_name, winner_hand, winner_ioc,...
+## dbl  (31): winner_id, winner_seed, winner_ht, winner_age, loser_id, loser_se...
+## date  (1): tourney_date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Extract unique player names from the cleaned tennis data
+tennis_players &lt;- unique(c(tennis_data$winner_name, tennis_data$loser_name))
+
+# Filter the doping data to include only players who appear in the cleaned tennis data
+filtered_doping_data &lt;- doping_data %&gt;%
+  filter(player_name %in% tennis_players)
+
+# Use this filtered doping data to merge with the cleaned tennis data
+merged_data &lt;- tennis_data %&gt;%
+  left_join(doping_data, by = c(&quot;winner_name&quot; = &quot;player_name&quot;)) %&gt;%
+  rename(winner_doping_start = start_date, 
+         winner_doping_end = end_date,
+         winner_sanction = sanction) %&gt;%
+  left_join(doping_data, by = c(&quot;loser_name&quot; = &quot;player_name&quot;)) %&gt;%
+  rename(loser_doping_start = start_date,
+         loser_doping_end = end_date,
+         loser_sanction = sanction)
+
+# Remove rows where there&#39;s no doping data for either player
+final_data &lt;- merged_data %&gt;%
+  filter(!is.na(winner_doping_start) | !is.na(loser_doping_start))</code></pre>
+<pre class="r"><code># Filter matches where either winner or loser is in the doping dataset
+doping_matches &lt;- final_data %&gt;%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name)
+
+
+# Add a flag to indicate if a player is in the doping dataset
+all_player_performance &lt;- final_data %&gt;%
+  pivot_longer(cols = c(winner_name, loser_name), names_to = &quot;role&quot;, values_to = &quot;player_name&quot;) %&gt;%
+  group_by(player_name) %&gt;%
+  reframe(matches_total = n(),
+    wins = sum(role == &quot;winner_name&quot;),
+    losses = sum(role == &quot;loser_name&quot;),
+    win_rate = wins / matches_total,
+    in_doping_dataset = player_name %in% doping_data$player_name) %&gt;%
+  distinct()
+
+
+
+pre_sanction_performance &lt;- final_data %&gt;%
+  filter((winner_name == &quot;Mikael Ymer&quot; | loser_name == &quot;Mikael Ymer&quot;) &amp; 
+         tourney_date &lt; as.Date(&quot;2023-07-18&quot;)) %&gt;%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == &quot;Mikael Ymer&quot;),
+    win_rate = wins / matches_played)
+
+ymer_career_performance &lt;- final_data %&gt;%
+  filter(winner_name == &quot;Mikael Ymer&quot; | loser_name == &quot;Mikael Ymer&quot;) %&gt;%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == &quot;Mikael Ymer&quot;),
+    win_rate = wins / matches_played)
+
+ymer_performance_over_time &lt;- final_data %&gt;%
+  filter(winner_name == &quot;Mikael Ymer&quot; | loser_name == &quot;Mikael Ymer&quot;) %&gt;%
+  mutate(won = winner_name == &quot;Mikael Ymer&quot;) %&gt;%
+  arrange(tourney_date) %&gt;%
+  mutate(cumulative_win_rate = cummean(won))
+
+ggplot(ymer_performance_over_time, aes(x = tourney_date, y = cumulative_win_rate)) +
+  geom_line() +
+  geom_vline(xintercept = as.Date(&quot;2023-07-18&quot;), color = &quot;red&quot;, linetype = &quot;dashed&quot;) +
+  labs(title = &quot;Mikael Ymer&#39;s Cumulative Win Rate Over Time&quot;,
+       x = &quot;Date&quot;,
+       y = &quot;Cumulative Win Rate&quot;,
+       caption = &quot;Red dashed line indicates start of sanction&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="suspensions_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code># Prepare data for timeline
+timeline_data &lt;- doping_data %&gt;%
+  filter(!is.na(start_date)) %&gt;%
+  arrange(start_date)
+
+# Timeline plot
+ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date))) +
+  geom_point(color = &quot;red&quot;, size = 3) +
+  geom_segment(aes(xend = end_date, yend = player_name), color = &quot;blue&quot;, size = 1) +
+  labs(title = &quot;Timeline of Doping Cases in Tennis&quot;,
+    x = &quot;Date&quot;,
+    y = &quot;Player Name&quot;) +
+  theme_minimal()</code></pre>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre><code>## Warning: Removed 14 rows containing missing values or values outside the scale range
+## (`geom_segment()`).</code></pre>
+<p><img src="suspensions_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code># Calculate sanction durations
+sanction_analysis &lt;- doping_data %&gt;%
+  mutate(sanction_duration_days = as.numeric(end_date - start_date)) %&gt;%
+  filter(!is.na(sanction_duration_days))
+
+# Visualize sanction durations
+ggplot(sanction_analysis, aes(x = reorder(player_name, -sanction_duration_days), y = sanction_duration_days)) +
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;steelblue&quot;) +
+  coord_flip() +
+  labs(title = &quot;Sanction Durations for Doping Cases&quot;,
+    x = &quot;Player Name&quot;,
+    y = &quot;Duration (Days)&quot;) +
+  theme_minimal()</code></pre>
+<p><img src="suspensions_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code># Prepare data for mapping
+ioc_country_mapping &lt;- c(
+  &quot;USA&quot; = &quot;United States&quot;,
+  &quot;GBR&quot; = &quot;United Kingdom&quot;,
+  &quot;FRA&quot; = &quot;France&quot;,
+  &quot;ESP&quot; = &quot;Spain&quot;,
+  &quot;ITA&quot; = &quot;Italy&quot;,
+  &quot;GER&quot; = &quot;Germany&quot;,
+  &quot;AUS&quot; = &quot;Australia&quot;,
+  &quot;JPN&quot; = &quot;Japan&quot;,
+  &quot;CHN&quot; = &quot;China&quot;,
+  &quot;RUS&quot; = &quot;Russia&quot;,
+  &quot;SRB&quot; = &quot;Serbia&quot;,
+  &quot;SWE&quot; = &quot;Sweden&quot;,
+  &quot;SVK&quot; = &quot;Slovakia&quot;)
+
+country_data &lt;- merged_data %&gt;%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name) %&gt;%
+  mutate(winner_doping = winner_name %in% doping_data$player_name,
+    loser_doping = loser_name %in% doping_data$player_name) %&gt;%
+  pivot_longer(cols = c(winner_ioc, loser_ioc),
+    names_to = &quot;player_type&quot;,
+    values_to = &quot;ioc&quot;) %&gt;%
+  filter((player_type == &quot;winner_ioc&quot; &amp; winner_doping) | (player_type == &quot;loser_ioc&quot; &amp; loser_doping)) %&gt;%
+  mutate(country = ioc_country_mapping[ioc]) %&gt;%
+  group_by(country) %&gt;%
+  summarize(cases_count = n_distinct(case_when(
+    player_type == &quot;winner_ioc&quot; ~ winner_name,
+    player_type == &quot;loser_ioc&quot; ~ loser_name
+  )))
+
+# Join with world map data
+world_map &lt;- map_data(&quot;world&quot;)
+map_data &lt;- world_map %&gt;%
+  left_join(country_data, by = c(&quot;region&quot; = &quot;country&quot;))
+
+# Plot world map with doping cases
+ggplot(map_data, aes(long, lat, group = group)) +
+  geom_polygon(aes(fill = cases_count), color = &quot;white&quot;) +
+  scale_fill_gradient(low = &quot;lightblue&quot;, high = &quot;red&quot;, na.value = &quot;gray&quot;) +
+  labs(title = &quot;Geographic Distribution of Doping Cases in Tennis&quot;,
+    fill = &quot;# of Cases&quot;) +
+  theme_void()</code></pre>
+<p><img src="suspensions_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
 </div>
 
 

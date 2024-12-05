@@ -1,5 +1,145 @@
 ---
 title: "Suspensions"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Track players and their performances with suspensions (doping)
+
+```{r lib, echo = FALSE, warning = FALSE, message = FALSE}
+
+library(tidyverse)
+library(rvest)
+library(httr)
+library(dplyr)
+library(stringr)
+
+library(ggplot2)
+library(lubridate)
+library(plotly)
+library(leaflet)
+
+```
+
+
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+
+doping = read.csv("data/cleaned_df.csv")
+
+# Load url 
+url <- "https://www.itia.tennis/sanctions/"
+page <- read_html(url)
+
+# Create dataframe 
+sanctions <- page %>%
+  html_nodes(".accordion__item") %>%
+  map_df(function(item) {
+    name_element <- item %>% 
+      html_node(".accordion__column:nth-child(1)")
+    
+    surname <- name_element %>%
+      html_node(".sort1") %>%
+      html_text(trim = TRUE)
+    
+    full_name <- name_element %>%
+      html_text(trim = TRUE)
+    name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
+    
+    program <- item %>% 
+      html_node(".accordion__column:nth-child(2)") %>% 
+      html_text(trim = TRUE)
+    
+    sanction <- item %>% 
+      html_node(".accordion__column:nth-child(3)") %>% 
+      html_text(trim = TRUE)
+    
+    dates <- item %>% 
+      html_node(".accordion__item-content") %>% 
+      html_text(trim = TRUE) %>%
+      str_extract_all("\\d{2}/\\d{2}/\\d{4}") %>%
+      unlist()
+    
+    start_date <- if(length(dates) >= 1) dates[1] else NA
+    end_date <- if(length(dates) >= 2) dates[2] else NA
+    
+    tibble(name = name, 
+      program = program, 
+      sanction = sanction, 
+      start_date = start_date,
+      end_date = end_date
+    )
+  })
+
+
+```
+
+
+
+```{r clean, echo = FALSE, warning = FALSE, message = FALSE}
+
+# Function to convert words to numbers
+words_to_numbers <- function(word) {
+  word_map <- c("one" = 1, "two" = 2, "three" = 3, "four" = 4, "five" = 5,
+                "six" = 6, "seven" = 7, "eight" = 8, "nine" = 9, "ten" = 10,
+                "eleven" = 11, "twelve" = 12, "thirteen" = 13, "fourteen" = 14,
+                "fifteen" = 15, "sixteen" = 16, "seventeen" = 17, "eighteen" = 18,
+                "nineteen" = 19, "twenty" = 20, "thirty" = 30, "forty" = 40,
+                "fifty" = 50, "sixty" = 60, "seventy" = 70, "eighty" = 80,
+                "ninety" = 90)
+  
+  return(as.character(word_map[tolower(word)]))
+}
+
+
+# Clean data
+sanctions <- sanctions %>%
+  # Only include TADP sanctions
+  filter(program == "TADP") %>%
+  
+  # Convert dates to proper Date objects
+  mutate(start_date = as.Date(start_date, format = "%d/%m/%Y"),
+         end_date = as.Date(end_date, format = "%d/%m/%Y")) %>%
+  
+  # Create a separate sanction_type column
+  mutate(sanction_type = case_when(
+    str_detect(sanction, "ban") ~ "Ban",
+    str_detect(sanction, "suspension") ~ "Suspension",
+    TRUE ~ "Other"
+  )) %>%
+  
+  # Create timeframe column
+  mutate(time_frame = case_when(
+      str_detect(sanction, "Lifetime") ~ "Lifetime",
+      str_detect(sanction, "Provisional") ~ "Provisional",
+      TRUE ~ str_extract(sanction, "(\\d+|\\w+)\\s+(years?|months?)(\\s+and\\s+(\\d+|\\w+)\\s+(years?|months?))?")
+    ),
+    time_frame = str_replace_all(time_frame, "\\b(\\w+)\\b", function(x) {
+      num <- words_to_numbers(x)
+      if (!is.na(num)) num else x
+    })
+  )
+
+print(head(sanctions))
+
+
+```
+
+
+```{r wiki}
+
+wiki_url <- "https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis"
+wiki_page <- read_html(wiki_url)
+
+# Extract the list of players
+players <- page %>%
+  html_nodes(".mw-category-group li a") %>%
+  html_text()
+
+wiki_doping <- data.frame(player = players)
+head(wiki_doping)
+
+
+```
+
+
