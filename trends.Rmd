@@ -2,7 +2,10 @@
 title: "Trends"
 ---
 
-## Visualize/analyze trends of winners/matches over multiple years
+## Visualize/analyze trends of winners/matches over multiple years. 
+
+In this section, we will explore key trends in the world of tennis over the years. From the evolution of match lengths to how age plays a role in winning Grand Slams, we’ll provide insights that shed light on the changing nature of the sport.
+
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
 library(ggplot2)
@@ -21,10 +24,10 @@ tennis_data$minutes = as.numeric(tennis_data$minutes)
 ```
 
 ### Trends of Winners Over Time
-```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
-library(tidyverse)
 
-tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
+Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. As we move forward, we’ll take a closer look at how these trends correlate with players' ages, match lengths, and other factors.
+
+```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
 
 grand_slams = c("Australian Open", "Roland Garros", "Wimbledon", "US Open")
 
@@ -51,7 +54,14 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
   scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
 ```
 
+- Novak Djokovic (green line) and Rafael Nadal (blue line) are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
+- Dominic Thiem achieved a win in 2020 but hasn’t sustained dominance compared to Djokovic and Nadal.  
+- Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
+
 ### Age Trends of Winners and Losers
+
+Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
+
 ```{r age, echo = FALSE, message = FALSE, warning = FALSE}
 player_ages <- tennis_data %>%
   mutate(year = format(as.Date(tourney_date), "%Y")) %>%
@@ -65,7 +75,13 @@ ggplot(player_ages, aes(x = year, y = age, fill = role)) +
   theme_minimal()
 ```
 
+- The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
+- The median age of losers also seems consistent but generally appears slightly younger than winners.  
+
 ### Match Duration by Year
+
+Tennis matches are known for their intensity and duration. The average match length has fluctuated over the years, reflecting changes in the game’s physical demands. This graph highlights how the average duration of matches in Grand Slam tournaments has varied from year to year, shedding light on evolving playing styles and match dynamics.
+
 ```{r matchduration, echo = FALSE, message = FALSE, warning = FALSE}
 match_length <- matches_grand_slam %>%
   group_by(year = as.numeric(format(tourney_date, "%Y"))) %>%
@@ -84,7 +100,12 @@ plotly_plot <- ggplotly(p)
 plotly_plot
 ```
 
+- The gradual increase in average match length suggests that matches are becoming more physically demanding, possibly due to changes in player endurance, playing styles, or match formats.  
+
 ### Wins by Seed
+
+Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
+
 ```{r seed, echo = FALSE, message = FALSE, warning = FALSE}
 seed_performance <- tennis_data %>%
   group_by(winner_seed) %>%
@@ -98,3 +119,6 @@ ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
        x = "Seed", y = "Total Wins") +
   theme_minimal()
 ```
+
+- Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
+- The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
