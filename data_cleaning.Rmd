@@ -112,8 +112,9 @@ write_csv(total_df, "data/cleaned_df.csv")
 ```{r}
 # split into losers and winners dataset
 df2 = read.csv("data/cleaned_df.csv")
+df_updated = read.csv("data/cleaned_data_with_full_2024_data_added.csv")
 
-winner_df = df2 %>% 
+winner_df = df_updated %>% 
   select(1:10, 19:30, 40, 41) %>% 
   mutate(
     won = 1
@@ -122,7 +123,7 @@ winner_df = df2 %>%
   rename_all(~stringr::str_replace(.,"^w_",""))
 
 
-loser_df = df2 %>% 
+loser_df = df_updated %>% 
   select(1, 2, 11:21, 31:39, 42, 43) %>% 
   mutate(
     won = 0
@@ -132,7 +133,7 @@ loser_df = df2 %>%
 
 player_df = rbind(winner_df, loser_df)
 
-write_csv(player_df, "data/winners_losers_df.csv")
+write_csv(player_df, "data/winners_losers_df_updated.csv")
 
 ```
 

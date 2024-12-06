@@ -100,7 +100,7 @@ player_df =
     player_info = paste(
       "<b>Name:</b>", player_name, "<br>",
       "<b>Hand:</b>", player_hand, "<br>",
-      "<b>Age:</b>", player_age, "<br>",
+      "<b>Age:</b>", round(player_age, 2), "<br>",
       "<b>Height:</b>", player_ht, "<br>",
       "<b>Country:</b>", country_name
   ))

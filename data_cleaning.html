@@ -787,27 +787,28 @@ padding-top: 0px;
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">write_csv</span>(total_df, <span class="st">&quot;data/cleaned_df.csv&quot;</span>)</span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># split into losers and winners dataset</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>df2 <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/cleaned_df.csv&quot;</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>winner_df <span class="ot">=</span> df2 <span class="sc">%&gt;%</span> </span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">19</span><span class="sc">:</span><span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">41</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="at">won =</span> <span class="dv">1</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^winner_&quot;</span>,<span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^w_&quot;</span>,<span class="st">&quot;&quot;</span>))</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>df_updated <span class="ot">=</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/cleaned_data_with_full_2024_data_added.csv&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>winner_df <span class="ot">=</span> df_updated <span class="sc">%&gt;%</span> </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">19</span><span class="sc">:</span><span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">41</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>    <span class="at">won =</span> <span class="dv">1</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^winner_&quot;</span>,<span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^w_&quot;</span>,<span class="st">&quot;&quot;</span>))</span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>loser_df <span class="ot">=</span> df2 <span class="sc">%&gt;%</span> </span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">11</span><span class="sc">:</span><span class="dv">21</span>, <span class="dv">31</span><span class="sc">:</span><span class="dv">39</span>, <span class="dv">42</span>, <span class="dv">43</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>    <span class="at">won =</span> <span class="dv">0</span></span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^loser_&quot;</span>,<span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^l_&quot;</span>,<span class="st">&quot;&quot;</span>))</span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>player_df <span class="ot">=</span> <span class="fu">rbind</span>(winner_df, loser_df)</span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a></span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="fu">write_csv</span>(player_df, <span class="st">&quot;data/winners_losers_df.csv&quot;</span>)</span></code></pre></div>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>loser_df <span class="ot">=</span> df_updated <span class="sc">%&gt;%</span> </span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">11</span><span class="sc">:</span><span class="dv">21</span>, <span class="dv">31</span><span class="sc">:</span><span class="dv">39</span>, <span class="dv">42</span>, <span class="dv">43</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>    <span class="at">won =</span> <span class="dv">0</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^loser_&quot;</span>,<span class="st">&quot;&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>  <span class="fu">rename_all</span>(<span class="sc">~</span>stringr<span class="sc">::</span><span class="fu">str_replace</span>(.,<span class="st">&quot;^l_&quot;</span>,<span class="st">&quot;&quot;</span>))</span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>player_df <span class="ot">=</span> <span class="fu">rbind</span>(winner_df, loser_df)</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="fu">write_csv</span>(player_df, <span class="st">&quot;data/winners_losers_df_updated.csv&quot;</span>)</span></code></pre></div>
 
 </body>
 </html>

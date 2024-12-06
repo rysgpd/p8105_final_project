@@ -1,10 +1,11 @@
 ---
-title: "About"
+title: "Project Report"
 output: 
   html_document:
     toc: true
     toc_float: true
     css: styles.css
+    code_folding: hide
 ---
 
 ## Motivation
@@ -18,9 +19,10 @@ Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.ten
 ## Initial Questions
 For our initial questions, we were interested in understanding the following:
 
-1. What trends can be seen in the performance of players in Grand Slam tournaments in the last 10 years (2014-2024)?
-2. Which player characteristics and match statistics have an effect on outcomes (winning) in Grand Slam matches?
-3. What impact do controversies, such as doping, have on the performance of players?
+1. What is the geographical distribution of the home countries of tennis players from 2014 to 2024? How do age and height distributions vary by country?
+2. What trends can be seen in the performance of players in Grand Slam tournaments in the last 10 years (2014-2024)?
+3. Which player characteristics and match statistics have an effect on outcomes (winning) in Grand Slam matches?
+4. What impact do controversies, such as doping, have on the performance of players?
     + What trends can be observed in doping violations in men’s tennis?
     + Which countries of origin are most affected by doping violations?
     + What impact do doping violations have on player performance and career trajectories?
@@ -28,37 +30,27 @@ For our initial questions, we were interested in understanding the following:
 
 
 
-## Data Sources:
+## Data Sources
 
 There exists a Github [database](https://github.com/JeffSackmann/tennis_atp) with all of the matches information, alongside match statistics and player information in CSV form by year. The compiled data is mostly complete from 1985 to the present, with intermittent rankings from 1973 to 1984. 
 
 In addition, there is a page of suspension/doping cases of players that can be webscraped.
 
-## Planned Analyses and Visualizations:
 
-Examples of potential analyses and visualization (but are not limited to):
+#### Data Dictionary
 
-Geographic Information Systems (GIS): map and visualize player information (home countries)
-Visualize/analyze trends of winners/matches over multiple years
-Statistic Analysis: Rankings by score, player age information; Compare seed scores to final score
-Look at which tournament a player/country is winning in more
-Track players and their performances with suspensions (doping)
-
-## Data Dictionary
-
-The following variables were used in the final dataset:
-
-- tourney_name: name of tournament
-- tourney_date: eight digits, YYYYMMDD, usually the Monday of the tournament week.
-- winner_id: the player_id used in this repo for the winner of the match
-  - winner_seed: the preliminary ranking given to a player before they enter the tournament
-  - winner_entry: 'WC' = wild card, 'Q' = qualifier, 'LL' = lucky loser, 'PR' = protected ranking, 'ITF' = ITF entry, and there are a few others that are occasionally used.
-  - winner_name
-  - winner_hand: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
-  - winner_ht:  height in centimeters, where available
-  - winner_ioc: three-character country code
-  - winner_age: age, in years, as of the tourney_date
-- loser_id
+The following variables were used in the final dataset:  
+- tourney_name: name of tournament. 
+- tourney_date: eight digits, YYYYMMDD, usually the Monday of the tournament week.  
+- winner_id: the player_id used in this repo for the winner of the match. 
+  - winner_seed: the preliminary ranking given to a player before they enter the tournament. 
+  - winner_entry: 'WC' = wild card, 'Q' = qualifier, 'LL' = lucky loser, 'PR' = protected ranking, 'ITF' = ITF entry, and there are a few others that are occasionally used.  
+  - winner_name.  
+  - winner_hand: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.  
+  - winner_ht:  height in centimeters, where available.  
+  - winner_ioc: three-character country code.  
+  - winner_age: age, in years, as of the tourney_date.  
+- loser_id.  
   - loser_seed
   - loser_entry
   - loser_name
@@ -66,10 +58,10 @@ The following variables were used in the final dataset:
   - loser_ht
   - loser_ioc
   - loser_age
-- score
-- round
-- minutes: match length, where available
-- w_ace: winner's number of aces
+- score.  
+- round.  
+- minutes: match length, where available.  
+- w_ace: winner's number of aces.  
   - w_df:  winner's number of doubles faults
   - w_svpt: winner's number of serve points
   - w_1stIn: winner's number of first serves made
@@ -78,7 +70,7 @@ The following variables were used in the final dataset:
   - w_SvGms: winner's number of serve games
   - w_bpSaved: winner's number of break points saved
   - w_bpFaced: winner's number of break points faced
-- L_ace
+- L_ace.  
   - L_df
   - L_svpt
   - l_1stIn
@@ -87,12 +79,1316 @@ The following variables were used in the final dataset:
   - l_SvGms
   - l_bpSaved
   - l_bpFaced
-- winner_rank: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the tourney_date
-  - winner_rank_points: number of ranking points, where available
-- loser_rank
-  - loser_rank_points
+- winner_rank: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the tourney_date.  
+  - winner_rank_points: number of ranking points, where available.  
+- loser_rank.  
+  - loser_rank_points.  
+
+## Exploratory Analyses
+
+### Country Analyses
+
+For the country-level analysis, we consolidated all players, including both winners and losers, from every match into a single player DataFrame. Afterward, we removed duplicate entries and calculated the average age and height for each unique player.
+
+```{r message = FALSE, warning = FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(countrycode)
+library(maps)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+```{r}
+df = 
+  read.csv("data/cleaned_df.csv") |>
+  janitor::clean_names()
+
+winner_df <- 
+  df |> 
+  select(winner_id, winner_name, winner_hand, winner_ht, winner_ioc, winner_age) |> 
+  rename(
+    player_id = winner_id,
+    player_name = winner_name,
+    player_hand = winner_hand,
+    player_ht = winner_ht,
+    player_ioc = winner_ioc,
+    player_age = winner_age
+  )
+
+loser_df <- 
+  df |> 
+  select(loser_id, loser_name, loser_hand, loser_ht, loser_ioc, loser_age) |> 
+  rename(
+    player_id = loser_id,
+    player_name = loser_name,
+    player_hand = loser_hand,
+    player_ht = loser_ht,
+    player_ioc = loser_ioc,
+    player_age = loser_age
+  )
+
+player_df <- 
+  bind_rows(winner_df, loser_df) |> 
+  group_by(player_id) |> 
+  summarize(
+    player_name = first(player_name),
+    player_hand = first(player_hand),
+    player_ht = max(player_ht),
+    player_ioc = first(player_ioc),
+    player_age = mean(player_age, na.rm = TRUE)
+  )
+
+```
+
+#### Mapping the players
+
+```{r warning = FALSE, message = FALSE}
+manual_mapping <- tibble(
+  player_ioc = c("BAR", "BUL", "CHI", "CRO", "DEN", "GER", "GRE", "LAT", "NED", "POR", "RSA", "SLO", "SUI", "TPE", "URU"),
+  country_name = c("Barbados", "Bulgaria", "Chile", "Croatia", "Denmark", "Germany", "Greece", "Latvia", "Netherlands", "Portugal", 
+                   "South Africa", "Slovenia", "Switzerland", "Taiwan", "Uruguay")
+)
+
+player_df = 
+  player_df |>
+  mutate(
+    country_name = countrycode(player_ioc, "iso3c", "country.name"),
+  ) |>
+  left_join(manual_mapping, by = "player_ioc", suffix = c("_countrycode", "_manual")) |>
+  mutate(
+    country_name = ifelse(!is.na(country_name_manual), country_name_manual, country_name_countrycode), 
+    player_info = paste(
+      "<b>Name:</b>", player_name, "<br>",
+      "<b>Hand:</b>", player_hand, "<br>",
+      "<b>Age:</b>", round(player_age, 2), "<br>",
+      "<b>Height:</b>", player_ht, "<br>",
+      "<b>Country:</b>", country_name
+  ))
+
+player_df = player_df |>
+  mutate(
+    country_name = case_when(
+      country_name == "United States" ~ "USA",
+      country_name == "United Kingdom" ~ "UK",
+      TRUE ~ country_name
+    )
+  )
+
+country_coords =
+  map_data("world") |>
+  group_by(region) |>
+  summarise(lat = mean(range(lat)), long = mean(range(long)))
+
+country_coords = country_coords |>
+  mutate(
+    lat = ifelse(region == "USA", 39.8283, lat),
+    long = ifelse(region == "USA", -98.5795, long)
+  )
+
+player_coords =
+  player_df |>
+  left_join(country_coords, by = c("country_name" = "region"))
+
+set.seed(42) 
+player_coords <- player_coords |> 
+  mutate(
+    lat = lat + runif(n(), -0.5, 0.5),  
+    long = long + runif(n(), -0.5, 0.5)
+  )
+
+leaflet(player_coords) |>
+  addTiles() |>  
+  addCircleMarkers(
+    ~long, ~lat,  
+    radius = 6, 
+    color = "firebrick",  
+    popup = ~player_info,  
+    label = ~player_name, 
+    fillOpacity = 0.8
+  ) |> 
+  setView(lng = 0, lat = 20, zoom = 2)  
+```
+
+Note: The point is based on the player's home country only and does not reflect their city or specific location details.
+
+#### Number of Players by Country
+
+```{r warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
+player_counts = player_df |>
+  count(country_name, name = "player_count") 
 
 
-## Doping Cases
-As our secondary analysis focuses on the impact of doping sanctions on player performance in professional tennis, we collected data from both the International Tennis Integrity Agency (ITIA) and Wikipedia to create a comprehensive dataset of doping cases.
+ggplot(player_counts, aes(y = reorder(country_name, player_count), x = player_count)) +
+  geom_bar(stat = "identity", fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Number of Players"
+  ) 
+
+```
+
+
+The chart reveals that the top five countries producing the most players in the past ten years are the USA, France, Australia, Spain, and Italy.  
+  
+To gain deeper insights, we filter out countries with fewer than 5 players and analyze the average age and height distributions of the remaining players.  
+
+#### Age Distribution of Players by Country
+```{r warning = FALSE, message = FALSE}
+filtered_player_df <- 
+  player_df |> 
+  count(country_name, name = "player_count") |> 
+  filter(player_count >= 5) |>                 
+  inner_join(player_df, by = "country_name")  
+
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_age, median), x = player_age)) +
+  geom_boxplot(fill = "firebrick", color = "black", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Age"
+  ) 
+
+```
+
+Here, the age represents the players' average age across all matches during the observed years. The plot indicates that the majority of players fall within the age range of 20 to 35. Countries such as China, USA, Australia, UK, and Poland are notable for having the youngest players. In contrast, the Spain, Taiwan, India, Germany, Switzerland are represented by older players on average.
+
+
+#### Height Distribution of Players by Country
+
+```{r warning = FALSE, message = FALSE}
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_ht, median), x = player_ht)) +
+  geom_violin(fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Height (cm)"
+  ) 
+
+```
+
+
+The chart shows that players' heights range from 170 cm to 210 cm. The USA stands out with the widest range of heights and the highest median height. Countries such as the UK, Switzerland, Spain, and the Netherlands also have higher median heights. On the other hand, countries like Taiwan, Portugal, India, Brazil, and Russia have players with shorter median heights.
+
+### Match and Player Analyses
+
+#### Statistical and Exploratory Analyses on Match Winners (Seeding, Ages, etc)
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "100%",
+	dpi=300
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+df = read.csv("data/cleaned_df_webscraping_data_added.csv")
+df2 = read.csv("data/cleaned_df.csv")
+
+winners_losers = read.csv("data/winners_losers_df.csv")
+
+```
+
+
+#### Distribution of Seeds of Grand Slam Final Winners from 2014-2024
+
+* As an initial exploratory analysis, we display the distribution of overall grand slam winners and their seeds. Not surprisingly, the majority of the winners were seeded #1 coming into the tournament, so they were expected to win. For this analysis, being "seeded higher" means that you are closer to 1 and have higher expectations of winning while "seeded lower" means you are further away from 1. 
+* It is notable that there were no winners that were not unseeded in the past 10 years for men. 
+
+```{r warning = FALSE, message = FALSE}
+
+df2 %>% 
+  filter(
+    round == "F"
+  ) %>% 
+  ggplot(aes(x = winner_seed, fill = as.factor(winner_seed))) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks=seq(1,20,1))+
+  scale_y_continuous(breaks=seq(1,20,1))+
+  labs(
+    title = "Distribution of Seeds of Grand Slam Winners from 2014-2024",
+    x = "Seed",
+    y = "Number of Winners"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+  
+
+```
+
+
+* There were, however, many ranked past the top 5, which were definitely surprises. We show the players who were seeded beyond 5 and ended up winning the tournament in the table below.
+* These are all very familiar tennis favorites. Roger Federer, Novak Djokovic, and Rafael Nadal are all amongst the three greatest male players in tennis, so although they were seeded low, they were still favorites amongst the audience to win. At this point, some were close to retirement or came back from injuries and didn't play many tournaments prior to the Grand Slams, so their rankings would have been lower. 
+* Stan Wawrinka and Marin Cilic were two players who were always competitive and fan favorites, so while seeded lower, not completely a shock. 
+
+```{r warning = FALSE, message = FALSE}
+df2 %>% 
+  filter(
+    round == "F",
+    winner_seed > 5
+  ) %>% 
+  mutate(
+    tourney_year = substr(tourney_date, start = 1, stop = 4)
+  ) %>% 
+  select(tourney_name, tourney_year, winner_seed, winner_name) %>% 
+  knitr::kable(
+    col.names = c("Tournament", "Year", "Seed", "Name"),
+    caption = "Grand Slam Winners with Low Seeds",
+    align = "c"
+  )
+```
+
+### Tornament Analyses
+#### Country/Player winning the most
+```{r message=FALSE, warning=FALSE}
+
+library(ggplot2)
+library(dplyr)
+
+tennis_data <- read.csv("data/cleaned_data_with_full_2024_data_added.csv")
+
+top_countries <- tennis_data %>%
+  filter(!is.na(winner_ioc) & winner_ioc != "NA") %>% # Exclude missing or "NA" countries
+  count(winner_ioc) %>%
+  top_n(7, n) %>%
+  pull(winner_ioc)
+
+filtered_data <- tennis_data %>%
+  filter(winner_ioc %in% top_countries)
+
+ggplot(filtered_data, aes(x = winner_ioc, fill = tourney_name)) +
+  geom_bar(position = "dodge") +
+  labs(
+    title = "Top 7 Countries by Wins Across Major Tournaments",
+    x = "Country",
+    y = "Number of Wins",
+    fill = "Tournament"
+  ) +
+  theme_minimal()
+```
+
+We can see that the French Open was won by players from `r filtered_data %>% filter(tourney_name == 'Roland Garros') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, the Australian Open was also won by `r filtered_data %>% filter(tourney_name == 'Australian Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, as well as the US Open which was also won by players representing `r filtered_data %>% filter(tourney_name == 'US Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, finally Wimbledon was won the most often by players from the `r filtered_data %>% filter(tourney_name == 'Wimbledon') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)`. This is due to `r filtered_data %>% count(winner_name, winner_ioc, sort = TRUE) %>% slice(2) %>% summarise(names = paste(winner_name, '(', winner_ioc, ')', collapse = ', ')) %>% pull(names)` having won the second most tournaments in the past 10 years after Novak Djokovic, in addition to other spanish players having won several titles.
+
+#### Surface Matters
+The Grand Slam tennis tournaments are played on different surfaces, potentially affecting player performance. The Australian and US Opens use hard courts, the French Open is played on clay, and Wimbledon is played on grass.
+
+```{r message=FALSE, warning=FALSE}
+
+# Load necessary libraries
+library(dplyr)
+library(ggplot2)
+
+# Map tournament names to surfaces and adjust counts for Hard Courts
+tennis_data <- tennis_data %>%
+  mutate(surface = case_when(
+    tourney_name %in% c("Australian Open", "US Open") ~ "Hard Courts",
+    tourney_name == "Roland Garros" ~ "Clay",
+    tourney_name == "Wimbledon" ~ "Grass",
+    TRUE ~ "Other"
+  )) %>%
+  mutate(weighted_wins = ifelse(surface == "Hard Courts", 0.5, 1))
+
+# Count wins by country and surface, adjusting for weighted wins
+top_countries <- tennis_data %>%
+  group_by(winner_ioc, surface) %>%
+  summarize(wins = sum(weighted_wins), .groups = "drop") %>%
+  arrange(surface, desc(wins)) %>%
+  group_by(surface) %>%
+  slice_max(order_by = wins, n = 5)
+
+# Create the plot
+ggplot(top_countries, aes(x = reorder(winner_ioc, -wins), y = wins, fill = winner_ioc)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~surface, scales = "free_x") +
+  labs(
+    title = "Top 5 Countries by Wins on Each Surface",
+    x = "Country",
+    y = "Number of Wins",
+    fill = "Country"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Find the top country for each surface
+top_country_summary <- top_countries %>%
+  group_by(surface) %>%
+  slice_max(order_by = wins, n = 1)
+
+# Construct sentences
+hard_courts_winners <- paste(top_country_summary %>% filter(surface == "Hard Courts") %>% pull(winner_ioc))
+clay_courts_winners <- paste(top_country_summary %>% filter(surface == "Clay") %>% pull(winner_ioc))
+grass_courts_winners <- paste(top_country_summary %>% filter(surface == "Grass") %>% pull(winner_ioc))
+
+
+```
+
+Clay court tournaments,often associated with extensive training on slower surfaces like in Spain, were most often won by players from `r top_country_summary %>% filter(surface == "Clay") %>% pull(winner_ioc)`.  
+Grass court tournaments were most often won by players from `r top_country_summary %>% filter(surface == "Grass") %>% pull(winner_ioc)`.
+Hard court tournaments were most often won by players from `r top_country_summary %>% filter(surface == "Hard Courts") %>% pull(winner_ioc)`.  
+
+
+#### Trends of Winners Over Time
+
+Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. As we move forward, we’ll take a closer look at how these trends correlate with players' ages, match lengths, and other factors.
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)
+
+tennis_data <- read.csv("data/cleaned_df_webscraping_data_added.csv") %>%
+  mutate(
+    tourney_date = as.Date(tourney_date),
+    winner_age = as.numeric(winner_age),
+    loser_age = as.numeric(loser_age),
+    minutes = as.numeric(minutes)
+  )
+
+top_winners_per_year <- tennis_data %>%
+  filter(tourney_name %in% c("Australian Open", "Roland Garros", "Wimbledon", "US Open")) %>%
+  drop_na(winner_name) %>%
+  count(year = format(tourney_date, "%Y"), winner_name, name = "wins") %>%
+  group_by(year) %>%
+  slice_max(wins, n = 1) %>%
+  ungroup()
+
+ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_name)) +
+  geom_line() +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(
+    title = "Trends of ATP Winners Over Time in Grand Slams",
+    x = "Year", y = "Number of Wins"
+  ) +
+  scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year))) +
+  theme(legend.position = "right")
+```
+
+- Novak Djokovic (green line) and Rafael Nadal (blue line) are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
+- Dominic Thiem achieved a win in 2020 but hasn’t sustained dominance compared to Djokovic and Nadal.  
+- Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
+
+### Suspensions
+#### A Track of Players and Their Performances With Suspensions (Doping)
+Our analysis focuses on the impact of doping sanctions on player performance in professional tennis. We've collected data from both the International Tennis Integrity Agency (ITIA) and Wikipedia to create a comprehensive dataset of doping cases.
+#### Methods
+We faced several challenges in data collection: 
+- Lack of a centralized database for tennis doping cases
+- Inconsistent reporting of suspension dates and details across sources
+- Difficulty in matching player names between doping data and match results
+
+We scraped data from two primary sources:
+
+1. The International Tennis Integrity Agency (ITIA) website, using web scraping techniques.
+2. Wikipedia's list of doping cases in tennis.
+
+Then, we merged the doping dataset with our existing ATP match data. This process required careful cleaning and standardization of player names and dates.
+
+```{r warning = FALSE, message = FALSE}
+
+library(tidyverse)
+library(rvest)
+library(httr)
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(maps)
+library(plotly)
+library(leaflet)
+library(sf)
+
+#install.packages("rnaturalearthdata")
+
+```
+
+
+
+```{r setup, warning = FALSE, message = FALSE, include = FALSE}
+
+# Scrape data from ITIA sanctions page
+url <- "https://www.itia.tennis/sanctions/"
+page <- read_html(url)
+
+# Extract and process sanction data
+itia_sanctions <- page %>%
+  html_nodes(".accordion__item") %>%
+  map_df(function(item) {
+    # Extract player name
+    name_element <- item %>% 
+      html_node(".accordion__column:nth-child(1)")
+    
+    surname <- name_element %>%
+      html_node(".sort1") %>%
+      html_text(trim = TRUE)
+    
+    full_name <- name_element %>%
+      html_text(trim = TRUE)
+    player_name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
+    
+    # Extract program, sanction, and dates
+    program <- item %>% 
+      html_node(".accordion__column:nth-child(2)") %>% 
+      html_text(trim = TRUE)
+    
+    sanction <- item %>% 
+      html_node(".accordion__column:nth-child(3)") %>% 
+      html_text(trim = TRUE)
+    
+    dates <- item %>% 
+      html_node(".accordion__item-content") %>% 
+      html_text(trim = TRUE) %>%
+      str_extract_all("\\d{2}/\\d{2}/\\d{4}") %>%
+      unlist()
+    
+    start_date <- if(length(dates) >= 1) dates[1] else NA
+    end_date <- if(length(dates) >= 2) dates[2] else NA
+    
+    tibble(player_name = player_name, 
+      program = program, 
+      sanction = sanction, 
+      start_date = start_date,
+      end_date = end_date
+    )
+  })
+
+
+# Function to convert words to numbers
+words_to_numbers <- function(word) {
+  word_map <- c("one" = 1, "two" = 2, "three" = 3, "four" = 4, "five" = 5,
+                "six" = 6, "seven" = 7, "eight" = 8, "nine" = 9, "ten" = 10,
+                "eleven" = 11, "twelve" = 12, "thirteen" = 13, "fourteen" = 14,
+                "fifteen" = 15, "sixteen" = 16, "seventeen" = 17, "eighteen" = 18,
+                "nineteen" = 19, "twenty" = 20, "thirty" = 30, "forty" = 40,
+                "fifty" = 50, "sixty" = 60, "seventy" = 70, "eighty" = 80,
+                "ninety" = 90)
+  
+  return(as.character(word_map[tolower(word)]))
+}
+
+
+# Clean and process ITIA sanctions data
+itia_sanctions <- itia_sanctions %>%
+  # Only include TADP sanctions
+  filter(program == "TADP") %>%
+  
+  # Convert dates to proper Date objects
+  mutate(start_date = as.Date(start_date, format = "%d/%m/%Y"),
+         end_date = as.Date(end_date, format = "%d/%m/%Y")) %>%
+  
+  # Create a separate sanction_type column
+  mutate(sanction_type = case_when(
+    str_detect(sanction, "ban") ~ "Ban",
+    str_detect(sanction, "suspension") ~ "Suspension",
+    TRUE ~ "Other"
+  )) %>%
+  
+  # Create timeframe column
+  mutate(time_frame = case_when(
+      str_detect(sanction, "Lifetime") ~ "Lifetime",
+      str_detect(sanction, "Provisional") ~ "Provisional",
+      TRUE ~ str_extract(sanction, "(\\d+|\\w+)\\s+(years?|months?)(\\s+and\\s+(\\d+|\\w+)\\s+(years?|months?))?")
+    ),
+    time_frame = str_replace_all(time_frame, "\\b(\\w+)\\b", function(x) {
+      num <- words_to_numbers(x)
+      if (!is.na(num)) num else x
+    })
+  )
+
+print(head(itia_sanctions))
+
+
+# Scrape doping cases from Wikipedia
+url <- "https://en.wikipedia.org/wiki/Category:Doping_cases_in_tennis"
+page <- read_html(url)
+
+# Extract the list of players
+players <- page %>%
+  html_nodes(".mw-category-group li a") %>%
+  html_text()
+
+wiki_doping <- data.frame(player_name = players)
+head(wiki_doping)
+
+
+# Merge ITIA and Wikipedia doping data
+doping_data <- full_join(wiki_doping, itia_sanctions) %>%
+  distinct() %>%
+  mutate(sanction_start = as.Date(start_date),
+    sanction_end = as.Date(end_date))
+
+
+# Read tennis match data
+tennis_data <- read_csv("data/cleaned_df_webscraping_data_added.csv")
+
+# Extract unique player names from the cleaned tennis data
+tennis_players <- unique(c(tennis_data$winner_name, tennis_data$loser_name))
+
+# Filter doping data to include only players in tennis data
+filtered_doping_data <- doping_data %>%
+  filter(player_name %in% tennis_players)
+
+# Merge doping data with tennis match data
+merged_data <- tennis_data %>%
+  left_join(doping_data, by = c("winner_name" = "player_name")) %>%
+  rename(winner_doping_start = start_date, 
+         winner_doping_end = end_date,
+         winner_sanction = sanction) %>%
+  left_join(doping_data, by = c("loser_name" = "player_name")) %>%
+  rename(loser_doping_start = start_date,
+         loser_doping_end = end_date,
+         loser_sanction = sanction)
+
+# Remove rows where there's no doping data for either player
+final_data <- merged_data %>%
+  filter(!is.na(winner_doping_start) | !is.na(loser_doping_start))
+
+
+```
+
+
+
+```{r playerstats, warning = FALSE, message = FALSE}
+
+knitr::kable(itia_sanctions)
+
+## Player performance statistics
+# Filter for matches involving players with doping records
+doping_matches <- final_data %>%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name)
+
+# Calculate player performance statistics
+all_player_performance <- final_data %>%
+  pivot_longer(cols = c(winner_name, loser_name), names_to = "role", values_to = "player_name") %>%
+  group_by(player_name) %>%
+  reframe(matches_total = n(),
+    wins = sum(role == "winner_name"),
+    losses = sum(role == "loser_name"),
+    win_rate = wins / matches_total,
+    in_doping_dataset = player_name %in% doping_data$player_name) %>%
+  distinct()
+
+
+```
+
+
+#### Timeline of Doping Cases
+
+```{r timeline, warning = FALSE, message = FALSE, fig.width=3, fig.height=3}
+
+## Timeline Data
+# Prepare timeline data for doping cases
+timeline_data <- doping_data %>%
+  filter(!is.na(start_date)) %>%
+  arrange(start_date)
+
+# Plot timeline of doping cases
+timeline_plot <- ggplot(timeline_data, aes(x = start_date, y = reorder(player_name, start_date))) +
+  geom_point(color = "#AF125A", size = 3) +
+  geom_segment(aes(xend = end_date, yend = player_name), color = "#F390BE", size = 1) +
+  labs(title = "Timeline of Doping Cases in Tennis",
+    x = "Date",
+    y = "Player Name") +
+  theme_minimal(base_size = 12) + 
+  aes(text = paste("Player:", player_name, "<br>Sanction Start Date:", start_date, "<br>Sanction End Date:", end_date))
+
+ggplotly(timeline_plot, tooltip = "text")
+
+
+```
+
+Ryan Newport's case appears as the earliest in the timeline (around 2010). There's a notable cluster of cases starting around 2020, suggesting either increased detection or incidence of doping violations. This is likely due to the fact that, although players received suspensions and bans for doping or match-fixing, there was no robust system of reporting and recording this information in a global database until the International Tennis Integrity Agency's (ITIA) inception in 2020 (Brown, 2018). 
+
+Prior to the ITIA, the Tennis Integrity Unit (TIU) was the overseeing body for the investigation of match-fixing in tennis, but this was the League of Nations to the ITIA's United Nations (Magowan, 2018). In 2022, the ITIA became responsible for the anti-doping programme to maintain the integrity of professional tennis (Reuters, 2021).
+
+
+#### Sanction Durations
+
+```{r sanctionduration, fig.height=3, fig.width=3, message=FALSE, warning=FALSE}
+
+## Sanction Durations
+# Analyze sanction durations
+sanction_analysis <- doping_data %>%
+  mutate(sanction_duration_days = as.numeric(end_date - start_date)) %>%
+  filter(!is.na(sanction_duration_days))
+
+# Visualize sanction durations
+sanction_plot <- ggplot(sanction_analysis, aes(x = reorder(player_name, -sanction_duration_days), y = sanction_duration_days)) +
+  geom_bar(stat = "identity", fill = "#AF125A") +
+  labs(title = "Sanction Durations for Doping Cases",
+    x = "Player Name",
+    y = "Duration (Days)") +
+  theme_classic(base_size = 12) +
+  coord_flip() +
+  aes(text = paste("Player:", player_name, "<br>Sanction Duration:", sanction_duration_days, "days"))
+
+ggplotly(sanction_plot, tooltip = "text")
+
+
+```
+
+Wayne Odesnik received the longest sanction, lasting approximately 5,000 days (nearly 14 years). Ivan Mikhaylyuk and Stefano Battaglino both received sanctions of around 2,000 days (approximately 5.5 years). Mikael Ymer, Casey Kania, and Caroline Lampl received the shortest sanctions, each less than 1,000 days. 
+
+Most players in the dataset received sanctions between 1,000-2,000 days (roughly 3-5 years). Of note, this visualization only includes the players with a defined sanction starting date. 
+
+
+#### Case Study: Mikael Ymer
+
+```{r ymer, warning = FALSE, message = FALSE}
+
+## Analyze Mikael Ymer's performance
+# Look at Mikael Ymer's performance stats 
+pre_sanction_performance <- final_data %>%
+  filter((winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") & 
+         tourney_date < as.Date("2023-07-18")) %>%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == "Mikael Ymer"),
+    win_rate = wins / matches_played)
+
+ymer_career_performance <- final_data %>%
+  filter(winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") %>%
+  summarize(matches_played = n(),
+    wins = sum(winner_name == "Mikael Ymer"),
+    win_rate = wins / matches_played)
+
+ymer_performance_over_time <- final_data %>%
+  filter(winner_name == "Mikael Ymer" | loser_name == "Mikael Ymer") %>%
+  mutate(won = winner_name == "Mikael Ymer") %>%
+  arrange(tourney_date) %>%
+  mutate(cumulative_win_rate = cummean(won))
+
+# Plot Mikael Ymer's performance over time
+ggplot(ymer_performance_over_time, aes(x = tourney_date, y = cumulative_win_rate)) +
+  geom_line(color = "blue", size = 0.4) +
+  geom_vline(xintercept = as.Date("2023-07-18"), color = "#AF125A", linetype = "dashed") +
+  labs(title = "Mikael Ymer's Cumulative Win Rate Over Time",
+    x = "Date",
+    y = "Cumulative Win Rate",
+    caption = "Red dashed line indicates start of sanction") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+In the case of Mikael Ymer, we noticed a slight decline in performance leading up to his sanction, which could be an interesting area for further study. 
+
+Ymer's peak in performance was around early 2020 with a win rate of about 0.65. He had several fluctuations in performance between 2020-2023 and a general declining trend in win rate from 2020 to 2023. The red dashed line marks the start of his sanction in 2023, when his win rate was approximately 0.42. 
+
+Reaching a career-high no. 50, Ymer received an 18-month suspension in July 2023 for failing to take three out-of-competition doping tests in a 12-month time period (Livaudais, 2024). Despite abruptly announcing his early retirement in August 2023, Ymer announced in April 2024 that he would return to tennis after serving his anti-doping suspension (Livaudais, 2024). Mikael Ymer will be eligible to return to professional tennis in January 2025. 
+
+
+#### Mapping Doping Cases by Country
+
+```{r warning = FALSE, message = FALSE, fig.width=3, fig.height=3}
+
+## Mapping Doping Cases
+# Prepare data for geographic distribution of doping cases
+ioc_country_mapping <- c(
+  "USA" = "United States",
+  "GBR" = "United Kingdom",
+  "FRA" = "France",
+  "ESP" = "Spain",
+  "ITA" = "Italy",
+  "GER" = "Germany",
+  "AUS" = "Australia",
+  "JPN" = "Japan",
+  "CHN" = "China",
+  "RUS" = "Russia",
+  "SRB" = "Republic of Serbia",
+  "SWE" = "Sweden",
+  "SVK" = "Slovakia")
+
+country_data <- merged_data %>%
+  filter(winner_name %in% doping_data$player_name | loser_name %in% doping_data$player_name) %>%
+  mutate(winner_doping = winner_name %in% doping_data$player_name,
+    loser_doping = loser_name %in% doping_data$player_name) %>%
+  pivot_longer(cols = c(winner_ioc, loser_ioc),
+    names_to = "player_type",
+    values_to = "ioc") %>%
+  filter((player_type == "winner_ioc" & winner_doping) | (player_type == "loser_ioc" & loser_doping)) %>%
+  mutate(country = ioc_country_mapping[ioc]) %>%
+  group_by(country) %>%
+  summarize(cases_count = n_distinct(case_when(
+    player_type == "winner_ioc" ~ winner_name,
+    player_type == "loser_ioc" ~ loser_name
+  )))
+
+# Join with world map data
+world_map <- st_as_sf(rnaturalearth::ne_countries(scale = "medium", 
+  type = "countries",
+  continent = NULL,
+  country = NULL,
+  geounit = NULL,
+  sovereignty = NULL,
+  returnclass = "sf"))
+map_data <- world_map %>%
+  left_join(country_data, by = c("subunit" = "country"))
+
+pal <- colorNumeric(palette = "PRGn", domain = map_data$cases_count, na.color = "transparent")
+
+leaflet(map_data) %>%
+  addTiles() %>%
+  addPolygons(fillColor = ~pal(cases_count),
+    weight = 0.5,
+    color = "black",
+    opacity = 0.4,
+    fillOpacity = 0.7,
+    label = ~paste(name, ": ", cases_count, " cases"),
+    labelOptions = labelOptions(
+      style = list("font-size" = "12px", "font-weight" = "bold"),
+      direction = "auto")) %>%
+  addLegend(position = "bottomright",
+    pal = pal,
+    values = map_data$cases_count,
+    title = "Doping Cases",
+    opacity = 1) %>%
+  setView(lng = 0, lat = 20, zoom = 2)
+
+```
+
+We observed a higher concentration of doping cases in Italy (4 cases, darkest green) and the United States (2 cases, light purple), which may warrant further investigation into training practices or anti-doping measures in these countries. However, our sample was limited with only 8 countries. There's a notable presence of cases in Eastern Europe. Most of the countries in Africa, South America, and Asia show few or no recorded cases, primarily due to a lack of professional tennis players hailing from these countries. 
+
+## Additional Analyses
+### Match and Player Analyses
+#### Seed Match Types and Winners
+* Now, we want to look at all matches and see the breakdown of matchups. The figure below shows the breakdown by round (for all tournaments and years) of whether both oppoenents were unseeded or if the winner was projected to win or lose (seeded lower/higher). 
+* As expected, the first few rounds had many matches with both opponents unseeded and the majority was won otherwise by the higher seeded player. The turqoise and yellow categories are the most interesting because that means that the winner was projected to win, but lost the match. 
+```{r warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    seed_diff = case_when(
+      is.na(winner_seed) & is.na(loser_seed) ~ "Both Unseeded",
+      !is.na(winner_seed) & is.na(loser_seed) ~ "Winner Seeded, Loser Unseeded",
+      is.na(winner_seed) & !is.na(loser_seed) ~ "Winner Unseeded, Loser Seeded",
+      winner_seed > loser_seed ~ "Winner Seeded Lower",
+      winner_seed < loser_seed ~ "Winner Seeded Higher"
+    ),
+    seed_diff = as.factor(seed_diff),
+    round = fct_relevel(round, "R128", "R64", "R32", "R16", "QF", "SF", "F")
+  ) %>% 
+  group_by(round, seed_diff) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  group_by(round) %>%
+  mutate(percent = count / sum(count) * 100) %>% 
+  ggplot(
+    aes(x = round, y = percent, fill = seed_diff)
+  ) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Percentage of Match Types per Round",
+    x = "Round",
+    y = "Percentage of Matches"
+    ) +
+  theme(legend.title=element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  guides(fill = guide_legend(nrow = 2)) 
+
+```
+
+* We want to see if whether the player being seeded higher won or lost. Using a simple logistic regression, we looked to see if whether the player was seeded lower (was projected to lose) or higher (was projected to win) affected the binary outcome of winning. We combined `Winner Seeded Higher` and `Winner Seeded, Loser Unseeded` together to be one category and the same for `Winner Seeded Lower` and `Winner Unseeded, Loser Seeded`. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being seeded higher has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being seeded higher has an effect on the odds of winning
+* Based on the results, when a player is seeded higher/expected to win, they are 1.735x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
+
+```{r warning = FALSE, message = FALSE}
+seed_stats_df = 
+  df2 %>% 
+  mutate(
+    seeded_higher = case_when(
+      (winner_seed > loser_seed) | (is.na(winner_seed) & !is.na(loser_seed)) ~ "Loser",
+      (winner_seed < loser_seed) | (!is.na(winner_seed) & is.na(loser_seed)) ~ "Winner"
+    ),
+    seeded_higher = as.factor(seeded_higher),
+    seeded_higher = fct_relevel(seeded_higher, "Loser")
+  )%>% 
+  select(
+    tourney_date, score, round, seeded_higher, minutes
+  )
+
+seeds_merged_df = merge(winners_losers, seed_stats_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    seeded_higher = 
+      case_when(
+        (seeded_higher == "Winner" & won == 1) ~ 1,
+        (seeded_higher == "Winner" & won == 0) ~ 0,
+        (seeded_higher == "Loser" & won == 1) ~ 0,
+        (seeded_higher == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ seeded_higher, data = seeds_merged_df, family = "binomial")
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Seeding (Higher/Lower)"
+  )
+```
+
+#### Wins by Seed
+
+Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+tennis_data = read.csv("data/cleaned_df_webscraping_data_added.csv")
+
+tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
+
+tennis_data$winner_age = as.numeric(tennis_data$winner_age)
+tennis_data$loser_age = as.numeric(tennis_data$loser_age)
+tennis_data$minutes = as.numeric(tennis_data$minutes)
+
+seed_performance <- tennis_data %>%
+  group_by(winner_seed) %>%
+  summarize(total_wins = n(), .groups = 'drop') %>%
+  filter(!is.na(winner_seed))
+
+ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
+  geom_tile(aes(fill = total_wins)) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(title = "Win Counts by Seeds",
+       x = "Seed", y = "Total Wins") +
+  theme_minimal()
+```
+
+- Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
+- The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
+
+#### Ages of Winners
+
+Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
+
+```{r message = FALSE, warning = FALSE}
+player_ages <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  select(year, winner_age, loser_age) %>%
+  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
+
+ggplot(player_ages, aes(x = year, y = age, fill = role)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Winners and Losers by Year",
+       x = "Year", y = "Age") +
+  theme_minimal()
+```
+
+- The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
+- The median age of losers also seems consistent but generally appears slightly younger than winners.  
+
+#### Age Trends of Winners and Losers
+
+* This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
+* After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
+* 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
+
+```{r warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  ggplot(aes(x = tourney_year, y = winner_age, fill = tourney_year)) +
+  geom_violin()+
+  labs(
+    title = "Distribution of Age of Match Winners from 2014-2024",
+    x = "Year",
+    y = "Age"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+```
+
+* We want to see if whether a player being older or younger won or lost more. Using a simple logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being the older player has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being the older player has an effect on the odds of winning
+* Based on the results across all years (2014-2024), when a player is older, they are not more likely to win than a player who is younger. The p-value was not statistically signficant, so we fail the reject the hypothesis. However, as you tab through the various years of data, there are some years where being older did have an effect (very small) but still statistically significant effect on winning. These loosely follow some trends where we saw the resurgence and fall of older well-known players when they were injured/back or retired. 
+
+#### Age Models {.tabset}
+
+##### Overall (2014-2024)
+
+```{r age_stats_all, echo = FALSE, warning = FALSE, message = FALSE}
+age_df = 
+  df2 %>% 
+  mutate(
+    older_opponent = as.factor(ifelse(winner_age > loser_age, "Winner", "Loser")),
+    older_opponent = fct_relevel(older_opponent, "Winner", "Loser"),
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  select(
+    tourney_date, score, round, older_opponent, minutes, tourney_year
+  )
+
+age_merged_df = merge(winners_losers, age_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    older_opponent = 
+      case_when(
+        (older_opponent == "Winner" & won == 1) ~ 1,
+        (older_opponent == "Winner" & won == 0) ~ 0,
+        (older_opponent == "Loser" & won == 1) ~ 0,
+        (older_opponent == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ older_opponent, data = age_merged_df, family = "binomial")
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger)"
+  )
+```
+
+
+##### 2014
+```{r age_stats_2014, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2014
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2014"
+  )
+```
+##### 2015
+```{r age_stats_2015, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2015
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2015"
+  )
+
+```
+##### 2016
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2016
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2016"
+  )
+
+```
+
+##### 2017
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2017
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2017"
+  )
+
+```
+
+##### 2018
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2018
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2018"
+  )
+
+```
+
+##### 2019
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2019
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2019"
+  )
+
+```
+
+##### 2020
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2020
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2020"
+  )
+
+```
+
+##### 2021
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2021
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2021"
+  )
+
+```
+
+##### 2022
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2022
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2022"
+  )
+
+```
+
+##### 2023
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2023
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2023"
+  )
+
+```
+
+##### 2024
+```{r warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2024
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2024"
+  )
+
+```
+
+#### Pre-Match Regression Model
+
+* We wanted to know: could we predict whether a player would win their match based on pre-existing data? Variables used will be `seeded_higher`, `older_opponent`, `preferred hand`, `height`, `age`, `ATP rank`.
+* There are some statistically significant variables: 
+  * `Higher Seed`: if the player has the higher seed, they are more likely to win (consistent with the above)
+  * `Height`: the taller the player, the more likely they are to win. Makes sense because the taller you are, the more power you have
+  * `Rank`: similar to the higher seed, but a little different because all players have a rank. The higher you are ranked, the more likely you are to win.
+
+```{r warning = FALSE, message = FALSE}
+regression_df = merge(seeds_merged_df, (age_merged_df %>% select(tourney_date, score, id, older_opponent)), by.x=c("tourney_date", "score", "id"), by.y=c("tourney_date", "score", "id")) %>% 
+  distinct() %>% 
+  mutate(
+    sets = str_count(score, "-"),
+    won = as.factor(won),
+    hand = as.factor(hand),
+    seeded_higher = as.factor(seeded_higher),
+    older_opponent = as.factor(older_opponent)
+  ) %>% 
+  filter(
+    score != "W/O",
+    !is.na(won),
+    hand != "U"
+  ) 
+
+
+regression1_fit = glm(won ~ seeded_higher + older_opponent + hand + ht + age + rank, data = regression_df, family="binomial")
+
+regression1_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "seeded_higher1" ~ "Higher Seed",
+    term == "older_opponent1" ~ "Older Opponent",
+    term == "handR" ~ "Player's Preferred Hand",
+    term == "ht" ~ "Height",
+    term == "age" ~ "Age",
+    term == "rank" ~ "Rank",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
+
+#### Match Metrics Regression Model
+
+* We wanted to know if match metrics collected during the match can indicate who ultimately won the match. Variables used are `Length of Match`, `Aces`, `Double Faults`, `Serve Points`, `1st Serves Made`, `1st Serves Won`, `2nd Serves Won`, `% of Break Points Saved`, `Number of Sets Played`.
+* There were many that were statistically significant:
+  * `Length of Match`/`Number of Sets Played`: Longer the match, the more likely you are to win - this one is interesting to think about. Maybe certain players thrive on longer matches and gives them more energy to fight for.
+  * `Number of Aces`: This was interesting because it was a negative association. Maybe those who rely on their serves too much get more aces at times, but are more inconsistent and double fault, leading them to lose the match.
+  * `Number of Serve Points/Games`: The more times you have to serve, the less likely that you are to win. This makes sense because serving a lot may lead to fatigue.
+  * `Number of 1st & 2nd Serves Won`: These both make a lot of sense. This also lines up with how many points a player wins, which is a good indicator of if they ultimately win.
+  * `% of Break Points Saved`: The more break points you save, the more likely you are to win. This is also very self-explanatory because if you lose a break point, your opponent wins a game that you are supposed to win.
+* This regression's results aligns with logic in tennis. The only ones that may be debatable is the length of match/number of sets played. These variables can be calculated during a match to inform live viewers of how the players performance is at that point, which is what the announcers at, for example, ESPN will do for viewers at home.
+
+```{r post_match_reg, warning = FALSE, message = FALSE}
+
+regression2_df = regression_df %>% 
+  mutate(
+    bp_pct = bp_saved/bp_faced
+  )
+
+regression2_fit = glm(won ~ minutes + ace + df + svpt + X1st_in + X1st_won + X2nd_won + sv_gms + bp_pct + sets, data = regression2_df, family="binomial")
+
+regression2_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "minutes" ~ "Length of Match",
+    term == "ace" ~ "Number of Aces",
+    term == "df" ~ "Number of Double Faults",
+    term == "svpt" ~ "Number of Serve Points",
+    term == "X1st_in" ~ "Number of 1st Serves Made",
+    term == "X1st_won" ~ "Number of 1st Serves Won",
+    term == "X2nd_won" ~ "Number of 2nd Serves Won",
+    term == "sv_gms" ~ "Number of Serve Games",
+    term == "bp_pct" ~ "% of Break Points Saved",
+    term == "sets" ~ "Number of Sets Played",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
+
+## Discussion
+
+### Country Analyses
+The analysis reveals that the USA, France, Australia, Spain, and Italy dominate player production over the past decade. By focusing on countries with five or more players, the data highlights that most players are aged 20 to 35. Younger players are prevalent in China, USA, and Poland, while older players are more common in Spain, Taiwan, and Switzerland. Height analysis shows a range of 170 cm to 210 cm, with the USA having the widest range and highest median height. Taller players are prominent in the Netherlands and Switzerland, whereas shorter players are more common in Taiwan, Brazil, and India.
+  
+The dominance of the USA, France, Australia, Spain, and Italy suggests the impact of strong sports programs and infrastructure. Age distributions indicate that younger players from countries like China and Poland may represent emerging talent, while older players in Spain and Switzerland suggest longer career spans or delayed development. Height variations, with the USA showcasing the widest range, underline the influence of physical attributes on player profiles. These findings emphasize how cultural, geographic, and strategic factors shape global sports landscapes.
+
+### Match and Player Analyses
+
+### Tournament Analyses
+
+### Suspension
 

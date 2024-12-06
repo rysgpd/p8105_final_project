@@ -174,14 +174,7 @@ glm_model %>%
 Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
 
 ```{r seed, echo = FALSE, message = FALSE, warning = FALSE}
-library(tidyverse)
-library(ggplot2)
-library(lubridate)
-library(dplyr)
-library(plotly)
-library(leaflet)
-
-tennis_data = read.csv("data/cleaned_df_webscraping_data_added.csv")
+tennis_data = read.csv("data/cleaned_data_with_full_2024_data_added.csv")
 
 tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
 
@@ -207,7 +200,7 @@ ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
 
 ### Ages of Winners
 
-Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
+Age is a crucial factor in tennis. The next visualization reveals how the average age of winners and losers has changed over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
 
 ```{r age, echo = FALSE, message = FALSE, warning = FALSE}
 player_ages <- tennis_data %>%
@@ -222,8 +215,7 @@ ggplot(player_ages, aes(x = year, y = age, fill = role)) +
   theme_minimal()
 ```
 
-- The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
-- The median age of losers also seems consistent but generally appears slightly younger than winners.  
+- The graph suggests that while the tournaments are generally dominated by players in a similar age range (late 20s to early 30s), winners are slightly more likely to be in the older age range, possibly indicating greater experience and skill.
 
 ### Age Trends of Winners and Losers
 
