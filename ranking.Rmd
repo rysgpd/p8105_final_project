@@ -34,6 +34,8 @@ scale_fill_discrete = scale_fill_viridis_d
 df = read.csv("data/cleaned_df_webscraping_data_added.csv")
 df2 = read.csv("data/cleaned_df.csv")
 
+winners_losers = read.csv("data/winners_losers_df.csv")
+
 ```
 
 
@@ -120,6 +122,54 @@ df2 %>%
 
 ```
 
+* We want to see if whether the player being seeded higher won or lost. Using a logistic regression, we looked to see if whether the player was seeded lower (was projected to lose) or higher (was projected to win) affected the binary outcome of winning. We combined `Winner Seeded Higher` and `Winner Seeded, Loser Unseeded` together to be one category and the same for `Winner Seeded Lower` and `Winner Unseeded, Loser Seeded`. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being seeded higher has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being seeded higher has an effect on the odds of winning
+* Based on the results, when a player is seeded higher/expected to win, they are 1.735x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
+
+```{r seed_stats, echo = FALSE, warning = FALSE, message = FALSE}
+
+seed_stats_df = 
+  df2 %>% 
+  mutate(
+    seeded_higher = case_when(
+      (winner_seed > loser_seed) | (is.na(winner_seed) & !is.na(loser_seed)) ~ "Loser",
+      (winner_seed < loser_seed) | (!is.na(winner_seed) & is.na(loser_seed)) ~ "Winner"
+    ),
+    seeded_higher = as.factor(seeded_higher),
+    seeded_higher = fct_relevel(seeded_higher, "Loser")
+  )%>% 
+  select(
+    tourney_date, score, round, seeded_higher, minutes
+  )
+
+seeds_merged_df = merge(winners_losers, seed_stats_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    seeded_higher = 
+      case_when(
+        (seeded_higher == "Winner" & won == 1) ~ 1,
+        (seeded_higher == "Winner" & won == 0) ~ 0,
+        (seeded_higher == "Loser" & won == 1) ~ 0,
+        (seeded_higher == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ seeded_higher, data = seeds_merged_df)
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Seeding (Higher/Lower)"
+  )
+```
+
+
 ### Ages of Winners
 
 * This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
@@ -141,4 +191,253 @@ df2 %>%
   theme(legend.position="none", 
         plot.title = element_text(hjust = 0.5))
 ```
+
+* We want to see if whether a player being older or younger won or lost more. Using a logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being the older player has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being the older player has an effect on the odds of winning
+* Based on the results across all years (2014-2024), when a player is older, they are not more likely to win than a player who is younger. The p-value was not statistically signficant, so we fail the reject the hypothesis. However, as you tab through the various years of data, there are some years where being older did have an effect (very small) but still statistically significant effect on winning. These loosely follow some trends where we saw the resurgence and fall of older well-known players when they were injured/back or retired. 
+
+### Age Models {.tabset}
+
+#### Overall (2014-2024)
+
+```{r age_stats_all, echo = FALSE, warning = FALSE, message = FALSE}
+age_df = 
+  df2 %>% 
+  mutate(
+    older_opponent = as.factor(ifelse(winner_age > loser_age, "Winner", "Loser")),
+    older_opponent = fct_relevel(older_opponent, "Winner", "Loser"),
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  select(
+    tourney_date, score, round, older_opponent, minutes, tourney_year
+  )
+
+age_merged_df = merge(winners_losers, age_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    older_opponent = 
+      case_when(
+        (older_opponent == "Winner" & won == 1) ~ 1,
+        (older_opponent == "Winner" & won == 0) ~ 0,
+        (older_opponent == "Loser" & won == 1) ~ 0,
+        (older_opponent == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ older_opponent, data = age_merged_df)
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger)"
+  )
+```
+
+
+#### 2014
+```{r age_stats_2014, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2014
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2014"
+  )
+```
+#### 2015
+```{r age_stats_2015, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2015
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2015"
+  )
+
+```
+#### 2016
+```{r age_stats_2016, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2016
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2016"
+  )
+
+```
+
+#### 2017
+```{r age_stats_2017, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2017
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2017"
+  )
+
+```
+
+#### 2018
+```{r age_stats_2018, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2018
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2018"
+  )
+
+```
+
+#### 2019
+```{r age_stats_2019, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2019
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2019"
+  )
+
+```
+
+#### 2020
+```{r age_stats_2020, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2020
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2020"
+  )
+
+```
+
+#### 2021
+```{r age_stats_2021, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2021
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2021"
+  )
+
+```
+
+#### 2022
+```{r age_stats_2022, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2022
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2022"
+  )
+
+```
+
+#### 2023
+```{r age_stats_2023, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2023
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2023"
+  )
+
+```
+
+#### 2024
+```{r age_stats_2024, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2024
+    ))
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2024"
+  )
+
+```
+
+
+
+
+
+
 

@@ -379,17 +379,70 @@ shock.</li>
 <div id="seed-match-types-and-winners" class="section level3">
 <h3>Seed Match Types and Winners</h3>
 <ul>
-<li>Now, we want to look at all matches and see the breakdown of
+<li><p>Now, we want to look at all matches and see the breakdown of
 matchups. The figure below shows the breakdown by round (for all
 tournaments and years) of whether both oppoenents were unseeded or if
-the winner was projected to win or lose (seeded lower/higher).</li>
-<li>As expected, the first few rounds had many matches with both
+the winner was projected to win or lose (seeded lower/higher).</p></li>
+<li><p>As expected, the first few rounds had many matches with both
 opponents unseeded and the majority was won otherwise by the higher
 seeded player. The turqoise and yellow categories are the most
 interesting because that means that the winner was projected to win, but
 lost the match.
-<img src="ranking_files/figure-html/match_types-1.png" width="100%" /></li>
+<img src="ranking_files/figure-html/match_types-1.png" width="100%" /></p></li>
+<li><p>We want to see if whether the player being seeded higher won or
+lost. Using a logistic regression, we looked to see if whether the
+player was seeded lower (was projected to lose) or higher (was projected
+to win) affected the binary outcome of winning. We combined
+<code>Winner Seeded Higher</code> and
+<code>Winner Seeded, Loser Unseeded</code> together to be one category
+and the same for <code>Winner Seeded Lower</code> and
+<code>Winner Unseeded, Loser Seeded</code>.</p>
+<ul>
+<li>Null Hypothesis:
+<ul>
+<li><span class="math inline">\(H_{0}\)</span>: Being seeded higher has
+no effect on the odds of winning</li>
+</ul></li>
+<li>Alternative Hypothesis:
+<ul>
+<li><span class="math inline">\(H_{1}\)</span>: Being seeded higher has
+an effect on the odds of winning</li>
+</ul></li>
+</ul></li>
+<li><p>Based on the results, when a player is seeded higher/expected to
+win, they are 1.735x more likely to win than a player who is seeded
+lower. The p-value was incredibly small and statistically
+significant.</p></li>
 </ul>
+<table>
+<caption>Logistic Regression Results of Winning Result and Seeding
+(Higher/Lower)</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.251611</td>
+<td align="right">0.0074136</td>
+<td align="right">30.27306</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">seeded_higher</td>
+<td align="right">1.735224</td>
+<td align="right">0.0104844</td>
+<td align="right">52.56733</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="ages-of-winners" class="section level3">
 <h3>Ages of Winners</h3>
@@ -405,6 +458,425 @@ dropped to mid to upper 20’s and has continued climbing since.</li>
 similar to how it was 2014-2016.</li>
 </ul>
 <p><img src="ranking_files/figure-html/age_dist-1.png" width="100%" /></p>
+<ul>
+<li>We want to see if whether a player being older or younger won or
+lost more. Using a logistic regression, we looked to see if whether the
+player was younger or older affected the binary outcome of winning.
+<ul>
+<li>Null Hypothesis:
+<ul>
+<li><span class="math inline">\(H_{0}\)</span>: Being the older player
+has no effect on the odds of winning</li>
+</ul></li>
+<li>Alternative Hypothesis:
+<ul>
+<li><span class="math inline">\(H_{1}\)</span>: Being the older player
+has an effect on the odds of winning</li>
+</ul></li>
+</ul></li>
+<li>Based on the results across all years (2014-2024), when a player is
+older, they are not more likely to win than a player who is younger. The
+p-value was not statistically signficant, so we fail the reject the
+hypothesis. However, as you tab through the various years of data, there
+are some years where being older did have an effect (very small) but
+still statistically significant effect on winning. These loosely follow
+some trends where we saw the resurgence and fall of older well-known
+players when they were injured/back or retired.</li>
+</ul>
+</div>
+<div id="age-models" class="section level3 tabset">
+<h3 class="tabset">Age Models</h3>
+<div id="overall-2014-2024" class="section level4">
+<h4>Overall (2014-2024)</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger)</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.645922</td>
+<td align="right">0.0072878</td>
+<td align="right">68.3748138</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.003404</td>
+<td align="right">0.0103065</td>
+<td align="right">0.3297411</td>
+<td align="right">0.7416029</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section" class="section level4">
+<h4>2014</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2014</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.6699948</td>
+<td align="right">0.0222204</td>
+<td align="right">23.0788123</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">0.9746849</td>
+<td align="right">0.0314244</td>
+<td align="right">-0.8159592</td>
+<td align="right">0.4147155</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-1" class="section level4">
+<h4>2015</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2015</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.597995</td>
+<td align="right">0.0312500</td>
+<td align="right">15.000000</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.064494</td>
+<td align="right">0.0441942</td>
+<td align="right">1.414214</td>
+<td align="right">0.1579094</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-2" class="section level4">
+<h4>2016</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2016</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.639013</td>
+<td align="right">0.0222042</td>
+<td align="right">22.252268</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.011881</td>
+<td align="right">0.0314015</td>
+<td align="right">0.376129</td>
+<td align="right">0.7068997</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-3" class="section level4">
+<h4>2017</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2017</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.560306</td>
+<td align="right">0.0220704</td>
+<td align="right">20.157360</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.116542</td>
+<td align="right">0.0312123</td>
+<td align="right">3.531817</td>
+<td align="right">0.0004313</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-4" class="section level4">
+<h4>2018</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2018</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.623061</td>
+<td align="right">0.0221512</td>
+<td align="right">21.863994</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.031870</td>
+<td align="right">0.0313265</td>
+<td align="right">1.001469</td>
+<td align="right">0.3168381</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-5" class="section level4">
+<h4>2019</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2019</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.563052</td>
+<td align="right">0.0221226</td>
+<td align="right">20.189283</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.112622</td>
+<td align="right">0.0312861</td>
+<td align="right">3.411075</td>
+<td align="right">0.0006727</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-6" class="section level4">
+<h4>2020</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2020</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.642243</td>
+<td align="right">0.0256487</td>
+<td align="right">19.3406954</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">1.007905</td>
+<td align="right">0.0362727</td>
+<td align="right">0.2170784</td>
+<td align="right">0.8282055</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-7" class="section level4">
+<h4>2021</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2021</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.7250837</td>
+<td align="right">0.0221146</td>
+<td align="right">24.656866</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">0.9134276</td>
+<td align="right">0.0312747</td>
+<td align="right">-2.895349</td>
+<td align="right">0.0038686</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-8" class="section level4">
+<h4>2022</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2022</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.691992</td>
+<td align="right">0.0254481</td>
+<td align="right">20.665829</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">0.949506</td>
+<td align="right">0.0359891</td>
+<td align="right">-1.439699</td>
+<td align="right">0.1503589</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-9" class="section level4">
+<h4>2023</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2023</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.7164789</td>
+<td align="right">0.0221118</td>
+<td align="right">24.433758</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">0.9226087</td>
+<td align="right">0.0312708</td>
+<td align="right">-2.575885</td>
+<td align="right">0.0101387</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="section-10" class="section level4">
+<h4>2024</h4>
+<table>
+<caption>Logistic Regression Results of Winning Result and Age
+(Older/Younger) for 2024</caption>
+<thead>
+<tr class="header">
+<th align="left">Term</th>
+<th align="right">Estimate</th>
+<th align="right">Std.Error</th>
+<th align="right">Statistic</th>
+<th align="right">P-Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(Intercept)</td>
+<td align="right">1.7474185</td>
+<td align="right">0.0438944</td>
+<td align="right">12.715511</td>
+<td align="right">0.0000000</td>
+</tr>
+<tr class="even">
+<td align="left">older_opponent</td>
+<td align="right">0.8902268</td>
+<td align="right">0.0620760</td>
+<td align="right">-1.873172</td>
+<td align="right">0.0621842</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="pre-match-regression-models" class="section level3">
+<h3>Pre-Match Regression Models</h3>
+<ul>
+<li>We wanted to know: could we predict whether a player would win their
+match based on pre-existing data? U</li>
+</ul>
 </div>
 </div>
 
