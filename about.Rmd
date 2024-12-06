@@ -17,11 +17,15 @@ Due to well-known tournaments, emerging talent, and coverage of controversies by
 Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.tennisabstract.com/charting/meta.html), which many broadcasters and analysts rely on for understanding pro matches. Our project aims to further expand on this work and visualize player and match information.
 
 ## Initial Questions
-For our initial questions, we were interested in understanding the following:
+For our initial questions, we were interested in understanding the following, and expanded some for our formal analyses:
 
 1. What is the geographical distribution of the home countries of tennis players from 2014 to 2024? How do age and height distributions vary by country?
 2. What trends can be seen in the performance of players in Grand Slam tournaments in the last 10 years (2014-2024)?
 3. Which player characteristics and match statistics have an effect on outcomes (winning) in Grand Slam matches?
+  + Does seeding of players in the tournament matter for matches and eventually the entire tournament?
+  + How have previous winners been seeded?
+  + How does age affect win outcome?
+  + How do metrics during the match help indicate a player's performance?
 4. What impact do controversies, such as doping, have on the performance of players?
     + What trends can be observed in doping violations in men’s tennis?
     + Which countries of origin are most affected by doping violations?
@@ -34,55 +38,124 @@ For our initial questions, we were interested in understanding the following:
 
 There exists a Github [database](https://github.com/JeffSackmann/tennis_atp) with all of the matches information, alongside match statistics and player information in CSV form by year. The compiled data is mostly complete from 1985 to the present, with intermittent rankings from 1973 to 1984. 
 
-In addition, there is a page of suspension/doping cases of players that can be webscraped.
+* Match Data
+  * From the Github, we downloaded and loaded all match data from 2014-2024. For our focus on grand slams (Australian Open, French Open, Wimbledon, and US Open), we filtered matches that were only played at these. The data was set up where each row was one match, with columns for both winners and losers. 
+  * Problems:
+    * There were discrepancies between the years of Us vs US, Roland Garros vs French Open that we had to handle.
+    * In 2024, the seed and entry variables were messed up and the entry variables (ex: Q (Qualifier), LL (Lucky Loser), etc) were in the seed category.
+    * The latest point that this github was updated was in April of 2024, which means it only has 1 grand slam tournament's data - the other 3 had not happened at that point, which led us to doing a supplementary match data source.
+    * For Regressions/statistics, we made a winners_losers dataframe that had two rows per match, but one row was the winner and had `won` = 1 and the other row was the loser and had `won` = 0. 
+
+```{r message = FALSE, warning = FALSE, eval = FALSE}
+seed_types = c("WC", "Q", "LL")
+
+df_2024 = read_csv("data/atp_matches_2024.csv") %>% 
+  janitor::clean_names() %>% 
+  filter(
+    tourney_name %in% slams
+  ) %>% 
+  mutate(
+    winner_entry = ifelse(winner_seed %in% seed_types, winner_seed, winner_entry),
+    winner_seed = ifelse(winner_seed %in% seed_types, NA, winner_seed),
+    winner_seed = as.double(winner_seed),
+    loser_entry = ifelse(loser_seed %in% seed_types, loser_seed, loser_entry),
+    loser_seed = ifelse(loser_seed %in% seed_types, NA, loser_seed),
+    loser_seed = as.double(loser_seed)
+  )# only australian open since it goes up until april
+
+
+total_df = bind_rows(df_2014, df_2015, df_2016, df_2017, df_2018, df_2019, df_2020, df_2021, df_2022, df_2023, df_2024) %>% 
+  mutate(
+    tourney_name = ifelse(tourney_name == "Us Open", "US Open", tourney_name),
+    tourney_date = as.Date(as.character(tourney_date), format = "%Y%m%d"),
+    tourney_name = as.factor(tourney_name),
+    winner_hand = as.factor(winner_hand),
+    winner_ioc = as.factor(winner_ioc),
+    loser_hand = as.factor(loser_hand),
+    loser_ioc = as.factor(loser_ioc),
+    round = as.factor(round)
+  ) %>% 
+  select(-c(tourney_id, surface, draw_size, tourney_level, match_num, best_of))
+
+summary(total_df)
+
+write_csv(total_df, "data/cleaned_df.csv")
+
+winner_df = df_updated %>% 
+  select(1:10, 19:30, 40, 41) %>% 
+  mutate(
+    won = 1
+  ) %>% 
+  rename_all(~stringr::str_replace(.,"^winner_","")) %>% 
+  rename_all(~stringr::str_replace(.,"^w_",""))
+
+
+loser_df = df_updated %>% 
+  select(1, 2, 11:21, 31:39, 42, 43) %>% 
+  mutate(
+    won = 0
+  ) %>% 
+  rename_all(~stringr::str_replace(.,"^loser_","")) %>% 
+  rename_all(~stringr::str_replace(.,"^l_",""))
+
+player_df = rbind(winner_df, loser_df)
+
+write_csv(player_df, "data/winners_losers_df.csv")
+```
+
+* Supplementary Match Data
+
+* Suspension/Doping Data
+  * In addition, there is a page of suspension/doping cases of players that can be webscraped.
 
 
 #### Data Dictionary
 
 The following variables were used in the final dataset:  
-- tourney_name: name of tournament. 
-- tourney_date: eight digits, YYYYMMDD, usually the Monday of the tournament week.  
-- winner_id: the player_id used in this repo for the winner of the match. 
-  - winner_seed: the preliminary ranking given to a player before they enter the tournament. 
-  - winner_entry: 'WC' = wild card, 'Q' = qualifier, 'LL' = lucky loser, 'PR' = protected ranking, 'ITF' = ITF entry, and there are a few others that are occasionally used.  
-  - winner_name.  
-  - winner_hand: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.  
-  - winner_ht:  height in centimeters, where available.  
-  - winner_ioc: three-character country code.  
-  - winner_age: age, in years, as of the tourney_date.  
-- loser_id.  
-  - loser_seed
-  - loser_entry
-  - loser_name
-  - loser_hand
-  - loser_ht
-  - loser_ioc
-  - loser_age
-- score.  
-- round.  
-- minutes: match length, where available.  
-- w_ace: winner's number of aces.  
-  - w_df:  winner's number of doubles faults
-  - w_svpt: winner's number of serve points
-  - w_1stIn: winner's number of first serves made
-  - w_1stWon: winner's number of first-serve points won
-  - w_2ndWon: winner's number of second-serve points won
-  - w_SvGms: winner's number of serve games
-  - w_bpSaved: winner's number of break points saved
-  - w_bpFaced: winner's number of break points faced
-- L_ace.  
-  - L_df
-  - L_svpt
-  - l_1stIn
-  - l_1stWon
-  - l_2ndWon
-  - l_SvGms
-  - l_bpSaved
-  - l_bpFaced
-- winner_rank: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the tourney_date.  
-  - winner_rank_points: number of ranking points, where available.  
-- loser_rank.  
-  - loser_rank_points.  
+
+- `tourney_name`: name of tournament. 
+- `tourney_date`: eight digits, YYYYMMDD, usually the Monday of the tournament week.  
+- `winner_id`: the player_id used in this repo for the winner of the match. 
+  - `winner_seed`: the preliminary ranking given to a player before they enter the tournament. 
+  - `winner_entry`: 'WC' = wild card, 'Q' = qualifier, 'LL' = lucky loser, 'PR' = protected ranking, 'ITF' = ITF entry, and there are a few others that are occasionally used.  
+  - `winner_name.`  
+  - `winner_hand`: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.  
+  - `winner_ht`:  height in centimeters, where available.  
+  - `winner_ioc`: three-character country code.  
+  - `winner_age`: age, in years, as of the tourney_date.  
+- `loser_id.`  
+  - `loser_seed`
+  - `loser_entry`
+  - `loser_name`
+  - `loser_hand`
+  - `loser_ht`
+  - `loser_ioc`
+  - `loser_age`
+- `score.`  
+- `round.`  
+- `minutes`: match length, where available.  
+- `w_ace`: winner's number of aces.  
+  - `w_df`:  winner's number of doubles faults
+  - `w_svpt`: winner's number of serve points
+  - `w_1stIn`: winner's number of first serves made
+  - `w_1stWon`: winner's number of first-serve points won
+  - `w_2ndWon`: winner's number of second-serve points won
+  - `w_SvGms`: winner's number of serve games
+  - `w_bpSaved`: winner's number of break points saved
+  - `w_bpFaced`: winner's number of break points faced
+- `L_ace.`  
+  - `L_df`
+  - `L_svpt`
+  - `l_1stIn`
+  - `l_1stWon`
+  - `l_2ndWon`
+  - `l_SvGms`
+  - `l_bpSaved`
+  - `l_bpFaced`
+- `winner_rank`: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the `tourney_date.`  
+  - `winner_rank_points`: number of ranking points, where available.  
+- `loser_rank.`  
+  - `loser_rank_points.`  
 
 ## Exploratory Analyses
 
@@ -90,7 +163,7 @@ The following variables were used in the final dataset:
 
 For the country-level analysis, we consolidated all players, including both winners and losers, from every match into a single player DataFrame. Afterward, we removed duplicate entries and calculated the average age and height for each unique player.
 
-```{r message = FALSE, warning = FALSE}
+```{r message = FALSE, warning = FALSE, include=FALSE}
 library(flexdashboard)
 library(tidyverse)
 library(viridis)
@@ -118,7 +191,7 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
-```{r}
+```{r, include=FALSE}
 df = 
   read.csv("data/cleaned_df.csv") |>
   janitor::clean_names()
@@ -291,7 +364,7 @@ The chart shows that players' heights range from 170 cm to 210 cm. The USA stand
 
 #### Statistical and Exploratory Analyses on Match Winners (Seeding, Ages, etc)
 
-```{r warning = FALSE, message = FALSE}
+```{r warning = FALSE, message = FALSE, include=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(lubridate)
@@ -522,7 +595,7 @@ We scraped data from two primary sources:
 
 Then, we merged the doping dataset with our existing ATP match data. This process required careful cleaning and standardization of player names and dates.
 
-```{r warning = FALSE, message = FALSE}
+```{r warning = FALSE, message = FALSE, include=FALSE}
 
 library(tidyverse)
 library(rvest)

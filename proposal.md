@@ -55,9 +55,9 @@ and losers.
 
 ### Timeline
 
-| Week | Dates | Deliverables |
-|:---|:---|:---|
-| 1 | November 4-9 | Project proposal, finalizing project focus, identify key variables |
-| 2 | November 10-16 | Cleaning data, exploratory analysis, and visualizations |
-| 3 | November 17-23 | Begin drafting report, creating website |
-| 4 | December 1-7 | Finalizing report, website, do screencasting |
+| Week | Dates          | Deliverables                                                       |
+|:-----|:---------------|:-------------------------------------------------------------------|
+| 1    | November 4-9   | Project proposal, finalizing project focus, identify key variables |
+| 2    | November 10-16 | Cleaning data, exploratory analysis, and visualizations            |
+| 3    | November 17-23 | Begin drafting report, creating website                            |
+| 4    | December 1-7   | Finalizing report, website, do screencasting                       |

@@ -18518,12 +18518,12 @@ cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
   select(-winner_ioc_lookup)
 ```
 
-    ## Warning in left_join(., winner_country_lookup, by = "winner_name", suffix = c("", : Detected an unexpected many-to-many relationship between `x` and
-    ## `y`.
+    ## Warning in left_join(., winner_country_lookup, by = "winner_name", suffix = c("", : Detected an unexpected many-to-many relationship between `x`
+    ## and `y`.
     ## ℹ Row 1404 of `x` matches multiple rows in `y`.
     ## ℹ Row 1 of `y` matches multiple rows in `x`.
-    ## ℹ If a many-to-many relationship is expected, set `relationship =
-    ##   "many-to-many"` to silence this warning.
+    ## ℹ If a many-to-many relationship is expected, set
+    ##   `relationship = "many-to-many"` to silence this warning.
 
 ``` r
 cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
@@ -18532,12 +18532,12 @@ cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
   select(-loser_ioc_lookup)
 ```
 
-    ## Warning in left_join(., loser_country_lookup, by = "loser_name", suffix = c("", : Detected an unexpected many-to-many relationship between `x` and
-    ## `y`.
+    ## Warning in left_join(., loser_country_lookup, by = "loser_name", suffix = c("", : Detected an unexpected many-to-many relationship between `x`
+    ## and `y`.
     ## ℹ Row 1466 of `x` matches multiple rows in `y`.
     ## ℹ Row 32 of `y` matches multiple rows in `x`.
-    ## ℹ If a many-to-many relationship is expected, set `relationship =
-    ##   "many-to-many"` to silence this warning.
+    ## ℹ If a many-to-many relationship is expected, set
+    ##   `relationship = "many-to-many"` to silence this warning.
 
 ``` r
 #View(cleaned_df_updated_2)
