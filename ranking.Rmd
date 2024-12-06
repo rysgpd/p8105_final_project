@@ -122,7 +122,7 @@ df2 %>%
 
 ```
 
-* We want to see if whether the player being seeded higher won or lost. Using a logistic regression, we looked to see if whether the player was seeded lower (was projected to lose) or higher (was projected to win) affected the binary outcome of winning. We combined `Winner Seeded Higher` and `Winner Seeded, Loser Unseeded` together to be one category and the same for `Winner Seeded Lower` and `Winner Unseeded, Loser Seeded`. 
+* We want to see if whether the player being seeded higher won or lost. Using a simple logistic regression, we looked to see if whether the player was seeded lower (was projected to lose) or higher (was projected to win) affected the binary outcome of winning. We combined `Winner Seeded Higher` and `Winner Seeded, Loser Unseeded` together to be one category and the same for `Winner Seeded Lower` and `Winner Unseeded, Loser Seeded`. 
   * Null Hypothesis: 
     * $H_{0}$: Being seeded higher has no effect on the odds of winning
   * Alternative Hypothesis: 
@@ -160,7 +160,7 @@ seeds_merged_df = merge(winners_losers, seed_stats_df, by.x=c("tourney_date", "s
       )
   )
 
-glm_model <- glm(won ~ seeded_higher, data = seeds_merged_df)
+glm_model <- glm(won ~ seeded_higher, data = seeds_merged_df, family = "binomial")
 glm_model %>% 
   broom::tidy(exponentiate = TRUE) %>% 
   knitr::kable(
@@ -192,7 +192,7 @@ df2 %>%
         plot.title = element_text(hjust = 0.5))
 ```
 
-* We want to see if whether a player being older or younger won or lost more. Using a logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
+* We want to see if whether a player being older or younger won or lost more. Using a simple logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
   * Null Hypothesis: 
     * $H_{0}$: Being the older player has no effect on the odds of winning
   * Alternative Hypothesis: 
@@ -230,7 +230,7 @@ age_merged_df = merge(winners_losers, age_df, by.x=c("tourney_date", "score", "m
       )
   )
 
-glm_model <- glm(won ~ older_opponent, data = age_merged_df)
+glm_model <- glm(won ~ older_opponent, data = age_merged_df, family = "binomial")
 glm_model %>% 
   broom::tidy(exponentiate = TRUE) %>% 
   knitr::kable(
@@ -246,7 +246,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2014
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -262,7 +262,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2015
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -279,7 +279,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2016
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -297,7 +297,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2017
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -315,7 +315,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2018
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -333,7 +333,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2019
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -351,7 +351,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2020
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -369,7 +369,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2021
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -387,7 +387,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2022
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -405,7 +405,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2023
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -423,7 +423,7 @@ glm_model <- glm(won ~ older_opponent, data = (
   age_merged_df %>% 
     filter(
       tourney_year == 2024
-    ))
+    )), family = "binomial"
 )
 
 glm_model %>% 
@@ -435,7 +435,94 @@ glm_model %>%
 
 ```
 
+### Pre-Match Regression Model
 
+* We wanted to know: could we predict whether a player would win their match based on pre-existing data? Variables used will be `seeded_higher`, `older_opponent`, `preferred hand`, `height`, `age`, `ATP rank`.
+* There are some statistically significant variables: 
+  * `Higher Seed`: if the player has the higher seed, they are more likely to win (consistent with the above)
+  * `Height`: the taller the player, the more likely they are to win. Makes sense because the taller you are, the more power you have
+  * `Rank`: similar to the higher seed, but a little different because all players have a rank. The higher you are ranked, the more likely you are to win.
+
+```{r pre_match_reg, echo = FALSE, warning = FALSE, message = FALSE}
+regression_df = merge(seeds_merged_df, (age_merged_df %>% select(tourney_date, score, id, older_opponent)), by.x=c("tourney_date", "score", "id"), by.y=c("tourney_date", "score", "id")) %>% 
+  distinct() %>% 
+  mutate(
+    sets = str_count(score, "-"),
+    won = as.factor(won),
+    hand = as.factor(hand),
+    seeded_higher = as.factor(seeded_higher),
+    older_opponent = as.factor(older_opponent)
+  ) %>% 
+  filter(
+    score != "W/O",
+    !is.na(won),
+    hand != "U"
+  ) 
+
+
+regression1_fit = glm(won ~ seeded_higher + older_opponent + hand + ht + age + rank, data = regression_df, family="binomial")
+
+regression1_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "seeded_higher1" ~ "Higher Seed",
+    term == "older_opponent1" ~ "Older Opponent",
+    term == "handR" ~ "Player's Preferred Hand",
+    term == "ht" ~ "Height",
+    term == "age" ~ "Age",
+    term == "rank" ~ "Rank",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
+
+### Match Metrics Regression Model
+
+* We wanted to know if match metrics collected during the match can indicate who ultimately won the match. Variables used are `Length of Match`, `Aces`, `Double Faults`, `Serve Points`, `1st Serves Made`, `1st Serves Won`, `2nd Serves Won`, `% of Break Points Saved`, `Number of Sets Played`.
+* There were many that were statistically significant:
+  * `Length of Match`/`Number of Sets Played`: Longer the match, the more likely you are to win - this one is interesting to think about. Maybe certain players thrive on longer matches and gives them more energy to fight for.
+  * `Number of Aces`: This was interesting because it was a negative association. Maybe those who rely on their serves too much get more aces at times, but are more inconsistent and double fault, leading them to lose the match.
+  * `Number of Serve Points/Games`: The more times you have to serve, the less likely that you are to win. This makes sense because serving a lot may lead to fatigue.
+  * `Number of 1st & 2nd Serves Won`: These both make a lot of sense. This also lines up with how many points a player wins, which is a good indicator of if they ultimately win.
+  * `% of Break Points Saved`: The more break points you save, the more likely you are to win. This is also very self-explanatory because if you lose a break point, your opponent wins a game that you are supposed to win.
+* This regression's results aligns with logic in tennis. The only ones that may be debatable is the length of match/number of sets played. These variables can be calculated during a match to inform live viewers of how the players performance is at that point, which is what the announcers at, for example, ESPN will do for viewers at home.
+
+```{r post_match_reg, echo = FALSE, warning = FALSE, message = FALSE}
+
+regression2_df = regression_df %>% 
+  mutate(
+    bp_pct = bp_saved/bp_faced
+  )
+
+regression2_fit = glm(won ~ minutes + ace + df + svpt + X1st_in + X1st_won + X2nd_won + sv_gms + bp_pct + sets, data = regression2_df, family="binomial")
+
+regression2_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "minutes" ~ "Length of Match",
+    term == "ace" ~ "Number of Aces",
+    term == "df" ~ "Number of Double Faults",
+    term == "svpt" ~ "Number of Serve Points",
+    term == "X1st_in" ~ "Number of 1st Serves Made",
+    term == "X1st_won" ~ "Number of 1st Serves Won",
+    term == "X2nd_won" ~ "Number of 2nd Serves Won",
+    term == "sv_gms" ~ "Number of Serve Games",
+    term == "bp_pct" ~ "% of Break Points Saved",
+    term == "sets" ~ "Number of Sets Played",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
 
 
 
