@@ -1378,3 +1378,12 @@ regression2_fit %>%
 ```
 
 ## Discussion
+
+### Country Analyses
+
+### Match and Player Analyses
+
+### Tournament Analyses
+
+### Suspension
+
