@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -68,6 +71,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="styles.css" type="text/css" />
 
 
 
@@ -229,6 +233,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -236,6 +303,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -274,6 +351,9 @@ $(document).ready(function () {
   <a href="suspensions.html">Suspensions</a>
 </li>
 <li>
+  <a href="about_us.html">About Us</a>
+</li>
+<li>
   <a href="https://github.com/rysgpd/p8105_final_project.github.io">
     <span class="fa fa-github fa-lg"></span>
      
@@ -293,10 +373,11 @@ $(document).ready(function () {
 </div>
 
 
-<div id="visualizeanalyze-trends-of-winnersmatches-over-multiple-years."
+<div
+id="visualizing-the-trends-of-winners-and-matches-over-multiple-years"
 class="section level2">
-<h2>Visualize/analyze trends of winners/matches over multiple
-years.</h2>
+<h2>Visualizing the trends of winners and matches over multiple
+years</h2>
 <p>In this section, we will explore key trends in the world of tennis
 over the years. From the evolution of match lengths to how age plays a
 role in winning Grand Slams, we’ll provide insights that shed light on
@@ -344,13 +425,8 @@ average match length has fluctuated over the years, reflecting changes
 in the game’s physical demands. This graph highlights how the average
 duration of matches in Grand Slam tournaments has varied from year to
 year, shedding light on evolving playing styles and match dynamics.</p>
-<<<<<<< HEAD
-<div class="plotly html-widget html-fill-item" id="htmlwidget-afe0d7681b8803b54038" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-afe0d7681b8803b54038">{"x":{"data":[{"x":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[143.4118811881188,146.75196850393701,147.01383399209487,144.20472440944883,154.36614173228347,154.59090909090909,156.65616797900262,157.32806324110672,163.2642487046632,166.2051282051282,179.22047244094489],"text":["year: 2014<br />avg_minutes: 143.4119","year: 2015<br />avg_minutes: 146.7520","year: 2016<br />avg_minutes: 147.0138","year: 2017<br />avg_minutes: 144.2047","year: 2018<br />avg_minutes: 154.3661","year: 2019<br />avg_minutes: 154.5909","year: 2020<br />avg_minutes: 156.6562","year: 2021<br />avg_minutes: 157.3281","year: 2022<br />avg_minutes: 163.2642","year: 2023<br />avg_minutes: 166.2051","year: 2024<br />avg_minutes: 179.2205"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,255,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.762557077625573,"r":7.3059360730593621,"b":40.182648401826498,"l":43.105022831050235},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Average Match Length (Minutes) by Year","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2013.5,2024.5],"tickmode":"array","ticktext":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"tickvals":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"categoryorder":"array","categoryarray":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Year","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[141.6214516254775,181.01090200358618],"tickmode":"array","ticktext":["150","160","170","180"],"tickvals":[150,160,170,180],"categoryorder":"array","categoryarray":["150","160","170","180"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Average Match Length (Minutes)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"6ab56b0495aa":{"x":{},"y":{},"type":"scatter"}},"cur_data":"6ab56b0495aa","visdat":{"6ab56b0495aa":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-=======
-<div class="plotly html-widget html-fill-item" id="htmlwidget-0abac8d16a92a06a70f0" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-0abac8d16a92a06a70f0">{"x":{"data":[{"x":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[143.41188118811883,146.75196850393701,147.01383399209487,144.20472440944883,154.36614173228344,154.59090909090909,156.65616797900265,157.32806324110672,163.26424870466317,166.20512820512823,179.22047244094489],"text":["year: 2014<br />avg_minutes: 143.4119","year: 2015<br />avg_minutes: 146.7520","year: 2016<br />avg_minutes: 147.0138","year: 2017<br />avg_minutes: 144.2047","year: 2018<br />avg_minutes: 154.3661","year: 2019<br />avg_minutes: 154.5909","year: 2020<br />avg_minutes: 156.6562","year: 2021<br />avg_minutes: 157.3281","year: 2022<br />avg_minutes: 163.2642","year: 2023<br />avg_minutes: 166.2051","year: 2024<br />avg_minutes: 179.2205"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,255,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.762557077625573,"r":7.3059360730593621,"b":40.182648401826498,"l":43.105022831050235},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Average Match Length (Minutes) by Year","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2013.5,2024.5],"tickmode":"array","ticktext":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"tickvals":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"categoryorder":"array","categoryarray":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Year","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[141.62145162547753,181.01090200358618],"tickmode":"array","ticktext":["150","160","170","180"],"tickvals":[150,160,170,180],"categoryorder":"array","categoryarray":["150","160","170","180"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Average Match Length (Minutes)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"11cdb26cbf220":{"x":{},"y":{},"type":"scatter"}},"cur_data":"11cdb26cbf220","visdat":{"11cdb26cbf220":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
->>>>>>> 20eb7b49d84bb966e681fa5f4ed70daf283092ec
+<div class="plotly html-widget html-fill-item" id="htmlwidget-5c0cb68829a0e0b1a2e7" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-5c0cb68829a0e0b1a2e7">{"x":{"data":[{"x":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[143.4118811881188,146.75196850393701,147.01383399209487,144.20472440944883,154.36614173228347,154.59090909090909,156.65616797900262,157.32806324110672,163.2642487046632,166.2051282051282,179.22047244094489],"text":["year: 2014<br />avg_minutes: 143.4119","year: 2015<br />avg_minutes: 146.7520","year: 2016<br />avg_minutes: 147.0138","year: 2017<br />avg_minutes: 144.2047","year: 2018<br />avg_minutes: 154.3661","year: 2019<br />avg_minutes: 154.5909","year: 2020<br />avg_minutes: 156.6562","year: 2021<br />avg_minutes: 157.3281","year: 2022<br />avg_minutes: 163.2642","year: 2023<br />avg_minutes: 166.2051","year: 2024<br />avg_minutes: 179.2205"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,255,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.762557077625573,"r":7.3059360730593621,"b":40.182648401826498,"l":43.105022831050235},"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Average Match Length (Minutes) by Year","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2013.5,2024.5],"tickmode":"array","ticktext":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"tickvals":[2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"categoryorder":"array","categoryarray":["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Year","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[141.6214516254775,181.01090200358618],"tickmode":"array","ticktext":["150","160","170","180"],"tickvals":[150,160,170,180],"categoryorder":"array","categoryarray":["150","160","170","180"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Average Match Length (Minutes)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"6e5529c7c39b":{"x":{},"y":{},"type":"scatter"}},"cur_data":"6e5529c7c39b","visdat":{"6e5529c7c39b":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <ul>
 <li>The gradual increase in average match length suggests that matches
 are becoming more physically demanding, possibly due to changes in
@@ -381,6 +457,8 @@ rounds.</li>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -413,6 +491,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

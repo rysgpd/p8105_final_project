@@ -1,8 +1,13 @@
 ---
 title: "Trends"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
 ---
 
-## Visualize/analyze trends of winners/matches over multiple years. 
+## Visualizing the trends of winners and matches over multiple years 
 
 In this section, we will explore key trends in the world of tennis over the years. From the evolution of match lengths to how age plays a role in winning Grand Slams, we’ll provide insights that shed light on the changing nature of the sport.
 
