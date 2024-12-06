@@ -45,6 +45,8 @@ library(sf)
 
 #install.packages("rnaturalearthdata")
 
+knitr::opts_chunk$set(fig.width=6, fig.height=4)
+
 ```
 
 
@@ -195,7 +197,7 @@ final_data <- merged_data %>%
 
 ```{r playerstats, echo = FALSE, warning = FALSE, message = FALSE}
 
-knitr::kable(itia_sanctions)
+knitr::kable(head(itia_sanctions, 12))
 
 ## Player performance statistics
 # Filter for matches involving players with doping records
