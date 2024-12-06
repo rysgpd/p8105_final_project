@@ -379,7 +379,7 @@ df2 %>%
 library(ggplot2)
 library(dplyr)
 
-tennis_data <- read.csv("cleaned_data_with_full_2024_data_added.csv")
+tennis_data <- read.csv("data/cleaned_data_with_full_2024_data_added.csv")
 
 top_countries <- tennis_data %>%
   filter(!is.na(winner_ioc) & winner_ioc != "NA") %>% # Exclude missing or "NA" countries
