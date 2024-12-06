@@ -16,6 +16,15 @@ Due to well-known tournaments, emerging talent, and coverage of controversies by
 Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.tennisabstract.com/charting/meta.html), which many broadcasters and analysts rely on for understanding pro matches. Our project aims to further expand on this work and visualize player and match information.
 
 ## Initial Questions
+For our initial questions, we were interested in understanding the following:
+
+1. What trends can be seen in the performance of players in Grand Slam tournaments in the last 10 years (2014-2024)?
+2. Which player characteristics and match statistics have an effect on outcomes (winning) in Grand Slam matches?
+3. What impact do controversies, such as doping, have on the performance of players?
+    + What trends can be observed in doping violations in men’s tennis?
+    + Which countries of origin are most affected by doping violations?
+    + What impact do doping violations have on player performance and career trajectories?
+    + How does the inconsistency in doping data reporting affect research and transparency in tennis?
 
 
 
