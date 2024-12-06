@@ -1,7 +1,13 @@
 ---
 title: "Suspensions"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
 editor_options: 
   chunk_output_type: console
+  
 ---
 
 ## A Track of Players and Their Performances With Suspensions (Doping)
@@ -11,12 +17,14 @@ Our analysis focuses on the impact of doping sanctions on player performance in 
 
 ## Methods
 
-We faced several challenges in data collection:
-* Lack of a centralized database for tennis doping cases
-* Inconsistent reporting of suspension dates and details across sources
-* Difficulty in matching player names between doping data and match results
+We faced several challenges in data collection: 
+
+- Lack of a centralized database for tennis doping cases
+- Inconsistent reporting of suspension dates and details across sources
+- Difficulty in matching player names between doping data and match results
 
 We scraped data from two primary sources:
+
 1. The International Tennis Integrity Agency (ITIA) website, using web scraping techniques.
 2. Wikipedia's list of doping cases in tennis.
 
@@ -41,7 +49,7 @@ library(sf)
 
 
 
-```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE, include = FALSE}
 
 # Scrape data from ITIA sanctions page
 url <- "https://www.itia.tennis/sanctions/"
@@ -144,7 +152,7 @@ players <- page %>%
   html_nodes(".mw-category-group li a") %>%
   html_text()
 
-wiki_doping<- data.frame(player_name = players)
+wiki_doping <- data.frame(player_name = players)
 head(wiki_doping)
 
 
@@ -186,6 +194,8 @@ final_data <- merged_data %>%
 
 
 ```{r playerstats, echo = FALSE, warning = FALSE, message = FALSE}
+
+knitr::kable(itia_sanctions)
 
 ## Player performance statistics
 # Filter for matches involving players with doping records
@@ -232,6 +242,10 @@ ggplotly(timeline_plot, tooltip = "text")
 
 ```
 
+Ryan Newport's case appears as the earliest in the timeline (around 2010). There's a notable cluster of cases starting around 2020, suggesting either increased detection or incidence of doping violations. This is likely due to the fact that, although players received suspensions and bans for doping or match-fixing, there was no robust system of reporting and recording this information in a global database until the International Tennis Integrity Agency's (ITIA) inception in 2020 (Brown, 2018). 
+
+Prior to the ITIA, the Tennis Integrity Unit (TIU) was the overseeing body for the investigation of match-fixing in tennis, but this was the League of Nations to the ITIA's United Nations (Magowan, 2018). In 2022, the ITIA became responsible for the anti-doping programme to maintain the integrity of professional tennis (Reuters, 2021).
+
 
 ## Sanction Durations
 
@@ -257,6 +271,10 @@ ggplotly(sanction_plot, tooltip = "text")
 
 
 ```
+
+Wayne Odesnik received the longest sanction, lasting approximately 5,000 days (nearly 14 years). Ivan Mikhaylyuk and Stefano Battaglino both received sanctions of around 2,000 days (approximately 5.5 years). Mikael Ymer, Casey Kania, and Caroline Lampl received the shortest sanctions, each less than 1,000 days. 
+
+Most players in the dataset received sanctions between 1,000-2,000 days (roughly 3-5 years). Of note, this visualization only includes the players with a defined sanction starting date. 
 
 
 ## Case Study: Mikael Ymer
@@ -299,6 +317,10 @@ ggplot(ymer_performance_over_time, aes(x = tourney_date, y = cumulative_win_rate
 ```
 
 In the case of Mikael Ymer, we noticed a slight decline in performance leading up to his sanction, which could be an interesting area for further study. 
+
+Ymer's peak in performance was around early 2020 with a win rate of about 0.65. He had several fluctuations in performance between 2020-2023 and a general declining trend in win rate from 2020 to 2023. The red dashed line marks the start of his sanction in 2023, when his win rate was approximately 0.42. 
+
+Reaching a career-high no. 50, Ymer received an 18-month suspension in July 2023 for failing to take three out-of-competition doping tests in a 12-month time period (Livaudais, 2024). Despite abruptly announcing his early retirement in August 2023, Ymer announced in April 2024 that he would return to tennis after serving his anti-doping suspension (Livaudais, 2024). Mikael Ymer will be eligible to return to professional tennis in January 2025. 
 
 
 ## Mapping Doping Cases by Country
@@ -369,7 +391,9 @@ leaflet(map_data) %>%
 
 ```
 
-We observed a higher concentration of doping cases in Italy and the United States, which may warrant further investigation into training practices or anti-doping measures in these countries. However, our sample was limited with only 8 countries. 
+We observed a higher concentration of doping cases in Italy (4 cases, darkest green) and the United States (2 cases, light purple), which may warrant further investigation into training practices or anti-doping measures in these countries. However, our sample was limited with only 8 countries. There's a notable presence of cases in Eastern Europe. Most of the countries in Africa, South America, and Asia show few or no recorded cases, primarily due to a lack of professional tennis players hailing from these countries. 
+
+
 
 
 ## Conclusion
@@ -377,3 +401,12 @@ We observed a higher concentration of doping cases in Italy and the United State
 Doping in professional sports remains a pervasive issue, with significant implications for player performance and career trajectory. Our analysis of doping cases in professional tennis reveals a complex landscape of sanctions, performance impacts, and geographic patterns. While the data is limited, it suggests that doping sanctions can have significant effects on players' careers and the sport as a whole. Further research is needed to fully understand the long-term implications of doping in tennis, including a profile of the specific substances, the fine amount, etc. 
 
 
+
+## References
+Brown, L. (2018, April 25). Tennis engulfed in a ‘tsunami’ of corruption and faces ‘serious integrity problem’, says independent report. *The Independent.* https://www.independent.co.uk/sport/tennis/tennis-corruption-matchfixing-integrity-gambling-betting-independent-report-a8321666.html 
+
+Livaudais, S, (2024, April 15). Mikael Ymer changes his mind on return to tennis amid anti-doping ban: "Retirement was boring". *Tennis.* https://www.tennis.com/baseline/articles/mikael-ymer-changes-his-mind-on-return-to-tennis-amid-anti-doping-ban-retirement-was-boring
+
+Magowan, A. (2018, April 25). Tennis match-fixing: 'Tsunami' of corruption at lower levels says report. *BBC.* https://www.bbc.com/sport/tennis/43894806 
+
+Reuters. (2021, December 29). *Integrity Agency to be responsible for anti-doping programme from 2022.* https://www.reuters.com/lifestyle/sports/integrity-agency-be-responsible-anti-doping-programme-2022-2021-12-29/
