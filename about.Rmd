@@ -1390,5 +1390,14 @@ The dominance of the USA, France, Australia, Spain, and Italy suggests the impac
 
 ### Tournament Analyses
 
-### Suspension
+### Suspensions & Doping
+Doping remains a contentious topic in tennis, raising critical questions about fairness, athlete integrity, and the governance of the sport. By including this analysis, we sought to determine whether trends in performance and player demographics correlate with reported doping cases. Our key objectives included examining the prevalence of doping among different ranking tiers and regions and investigating whether implicated players perform differently from their peers.
+
+A recent high-profile example is Jannik Sinner, who tested positive twice for the banned substance clostebol. Despite these findings, Sinner's provisional suspension was quickly overturned, sparking outrage among other professionals (Eccleshare & Futterman, 2024). In contrast, players such as Grand Slam winners Iga Swiatek (trimetazidine) and Simona Halep (roxadustat) received provisional bans and served their full suspension periods (BBC, 2024). The inconsistency in these cases underscores the complexity and perceived inequities in doping enforcement. Additionally, our search for past and current sanctions was hampered by the incomplete records on the ITIA website, complicating our efforts to obtain a comprehensive dataset.
+
+A major challenge of this analysis was the lack of a centralized database for doping cases. Details of suspensions were often inconsistently reported across sources, and integrating these records with match statistics required significant manual effort. For instance, reconciling player names between datasets necessitated extensive cleaning, introducing a margin of error and highlighting the need for standardized reporting practices.
+
+Our findings revealed that players ranked outside the top 50 accounted for a disproportionate number of doping violations. This trend may reflect disparities in access to resources for compliance and testing. Additionally, a time series analysis of doping cases by year helped identify trends over time, shedding light on the impact of evolving testing policies and enforcement practices since the establishment of the ITIA in 2020.
+
+These results emphasize the need for greater transparency and consistency in doping data collection and reporting. They also challenge assumptions about doping's direct impact on performance, as our analyses revealed no significant differences in match outcomes or metrics for implicated players compared to their peers.
 
