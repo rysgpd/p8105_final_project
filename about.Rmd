@@ -709,7 +709,7 @@ all_player_performance <- final_data %>%
 
 #### Timeline of Doping Cases
 
-```{r timeline, warning = FALSE, message = FALSE}
+```{r timeline, warning = FALSE, message = FALSE, fig.width=3, fig.height=3}
 
 ## Timeline Data
 # Prepare timeline data for doping cases
@@ -739,7 +739,7 @@ Prior to the ITIA, the Tennis Integrity Unit (TIU) was the overseeing body for t
 
 #### Sanction Durations
 
-```{r sanctionduration, warning = FALSE, message = FALSE}
+```{r sanctionduration, fig.height=3, fig.width=3, message=FALSE, warning=FALSE}
 
 ## Sanction Durations
 # Analyze sanction durations
@@ -815,7 +815,7 @@ Reaching a career-high no. 50, Ymer received an 18-month suspension in July 2023
 
 #### Mapping Doping Cases by Country
 
-```{r warning = FALSE, message = FALSE}
+```{r warning = FALSE, message = FALSE, fig.width=3, fig.height=3}
 
 ## Mapping Doping Cases
 # Prepare data for geographic distribution of doping cases
@@ -1380,6 +1380,7 @@ regression2_fit %>%
 ## Discussion
 
 ### Country Analyses
+
 
 ### Match and Player Analyses
 
