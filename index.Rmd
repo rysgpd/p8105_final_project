@@ -6,8 +6,13 @@ output:
     toc_float: true
     css: styles.css
 ---
-## Welcome to Challengers (p8105 Edition) !
-<img src="images/tennis.jpeg" style="width:50%">
+## Welcome to Challengers (P8105 Edition) !
+<figure>
+  <img src="images/tennis1.jpg" alt="(Source: Wentworth Puzzles)" style="width:50%">
+  <figcaption>(Source: Wentworth Puzzles)</figcaption>
+</figure>
+
+<br>
 
 ### Group Members
 - Laura Henze (lah2231)
@@ -15,6 +20,8 @@ output:
 - HsiYu Chen (hc3448)
 - Stacey Dai (sd3730) 
 - Vaiju Raja (vr2576) 
+
+<br>
 
 ### Introduction
 Tennis has seen a surge in popularity in recent years, amplified by the release of the film *Challengers* and several high-profile controversies, such as Jannik Sinner’s recent doping case. These events have drawn renewed attention to the sport, sparking interest in the dynamics of player performance at major tournaments. 
