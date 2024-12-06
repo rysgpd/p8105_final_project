@@ -387,7 +387,8 @@ leaflet(map_data) %>%
     pal = pal,
     values = map_data$cases_count,
     title = "Doping Cases",
-    opacity = 1)
+    opacity = 1) %>%
+  setView(lng = 0, lat = 20, zoom = 2)
 
 ```
 
