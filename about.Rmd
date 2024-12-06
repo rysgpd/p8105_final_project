@@ -30,7 +30,7 @@ For our initial questions, we were interested in understanding the following:
 
 
 
-## Data Sources:
+## Data Sources
 
 There exists a Github [database](https://github.com/JeffSackmann/tennis_atp) with all of the matches information, alongside match statistics and player information in CSV form by year. The compiled data is mostly complete from 1985 to the present, with intermittent rankings from 1973 to 1984. 
 
@@ -87,6 +87,8 @@ The following variables were used in the final dataset:
 ## Exploratory Analyses
 
 ### Country Analyses
+
+For the country-level analysis, we consolidated all players, including both winners and losers, from every match into a single player DataFrame. Afterward, we removed duplicate entries and calculated the average age and height for each unique player.
 
 ```{r message = FALSE, warning = FALSE}
 library(flexdashboard)
@@ -1380,7 +1382,7 @@ regression2_fit %>%
 ## Discussion
 
 ### Country Analyses
-
+The analysis reveals that the USA, France, Australia, Spain, and Italy dominate player production over the past decade. By focusing on countries with five or more players, the data highlights that most players are aged 20 to 35. Younger players are prevalent in China, USA, and Poland, while older players are more common in Spain, Taiwan, and Switzerland. Height analysis shows a range of 170 cm to 210 cm, with the USA having the widest range and highest median height. Taller players are prominent in the Netherlands and Switzerland, whereas shorter players are more common in Taiwan, Brazil, and India.
 
 ### Match and Player Analyses
 
