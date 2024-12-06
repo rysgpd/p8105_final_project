@@ -1,0 +1,24 @@
+---
+title: 'About Us'
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
+---
+
+### Laura Henze 
+[Laura](https://github.com/) is
+
+### Rebecca Shyu
+[Rebecca](https://github.com/rysgpd) is a 3rd year PhD student in the Department of Biomedical Informatics. Her favorite tennis player is Roger Federer!
+
+### HsiYu Chen  
+[HsiYu](https://github.com/xcindychen) is an MD graduate currently pursuing a master’s degree in Biomedical Informatics at Columbia University. She enjoys climbing, scuba diving, and exploring the great outdoors!
+
+### Stacey Dai  
+[Stacey](https://github.com/sd3730) is 
+
+### Vaiju Raja 
+[Vaiju](https://github.com/spicypeanut17) is a Toxicology student with a background in Global Health Epidemiology and Disease Control. She prefers basketball and soccer over tennis!
+
