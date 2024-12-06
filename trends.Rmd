@@ -28,41 +28,6 @@ tennis_data$loser_age = as.numeric(tennis_data$loser_age)
 tennis_data$minutes = as.numeric(tennis_data$minutes)
 ```
 
-### Trends of Winners Over Time
-
-Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. As we move forward, we’ll take a closer look at how these trends correlate with players' ages, match lengths, and other factors.
-
-```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
-
-grand_slams = c("Australian Open", "Roland Garros", "Wimbledon", "US Open")
-
-matches_grand_slam = tennis_data %>%
-  filter(tourney_name %in% grand_slams) %>%
-  drop_na(winner_name)
-
-yearly_wins = matches_grand_slam %>%
-  group_by(year = format(tourney_date, "%Y"), winner_name) %>%
-  summarise(wins = n(), .groups = "drop")
-
-top_winners_per_year = yearly_wins %>%
-  group_by(year) %>%
-  slice_max(order_by = wins, n = 1) %>%
-  ungroup()
-
-ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_name)) +
-  geom_line() +
-  geom_point(size = 3) +
-  theme_minimal() +
-  labs(title = "Trends of ATP Winners Over Time in Grand Slams",
-       x = "Year", y = "Number of Wins") +
-  theme(legend.position = "right") +
-  scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year)))
-```
-
-- Novak Djokovic (green line) and Rafael Nadal (blue line) are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
-- Dominic Thiem achieved a win in 2020 but hasn’t sustained dominance compared to Djokovic and Nadal.  
-- Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
-
 ### Age Trends of Winners and Losers
 
 Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.

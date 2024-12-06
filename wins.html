@@ -324,26 +324,32 @@ div.tocify {
         
       </ul>
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="about.html">About</a>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    About
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">Project Report</a>
+    </li>
+    <li>
+      <a href="about_us.html">About Us</a>
+    </li>
+  </ul>
 </li>
 <li>
-  <a href="demographics.html">Demographics</a>
+  <a href="demographics.html">Country Analyses</a>
 </li>
 <li>
-  <a href="trends.html">Trends</a>
+  <a href="ranking.html">Match and Player Analyses</a>
 </li>
 <li>
-  <a href="ranking.html">Rankings</a>
-</li>
-<li>
-  <a href="wins.html">Wins</a>
+  <a href="wins.html">Tournament Analyses</a>
 </li>
 <li>
   <a href="suspensions.html">Suspensions</a>
-</li>
-<li>
-  <a href="about_us.html">About Us</a>
 </li>
 <li>
   <a href="https://github.com/rysgpd/p8105_final_project.github.io">
@@ -370,13 +376,27 @@ div.tocify {
 <p><img src="wins_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 <p>We can see that the French Open was won by players from ESP the most
 often, the Australian Open was also won by ESP the most often, as well
-as the US Open which was also won by players representing ESP the most
+as the US Open which was also won by players representing USA the most
 often, finally Wimbledon was won the most often by players from the USA.
 This is due to Rafael Nadal ( ESP ) having won the second most
 tournaments in the past 10 years after Novak Djokovic, in addition to
 other spanish players having won several titles.</p>
-<div id="trends-of-winners-over-time" class="section level3">
-<h3>Trends of Winners Over Time</h3>
+</div>
+<div id="surface-matters" class="section level2">
+<h2>Surface Matters</h2>
+<p>The Grand Slam tennis tournaments are played on different surfaces,
+potentially affecting player performance. The Australian and US Opens
+use hard courts, the French Open is played on clay, and Wimbledon is
+played on grass.</p>
+<p><img src="wins_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Clay court tournaments,often associated with extensive training on
+slower surfaces like in Spain, were most often won by players from
+ESP.<br />
+Grass court tournaments were most often won by players from USA. Hard
+court tournaments were most often won by players from ESP.</p>
+</div>
+<div id="trends-of-winners-over-time" class="section level2">
+<h2>Trends of Winners Over Time</h2>
 <p>Over the years, the landscape of tennis has seen significant changes
 in terms of who wins and how often. This first graph shows the trends in
 the number of titles won by players in Grand Slam tournaments,
@@ -395,7 +415,6 @@ compared to Djokovic and Nadal.<br />
 <li>Jannik Sinner appears as a new entrant, indicating the rise of
 younger talent breaking into Grand Slam victories in recent years.</li>
 </ul>
-</div>
 </div>
 
 
