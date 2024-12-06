@@ -1383,6 +1383,8 @@ regression2_fit %>%
 
 ### Country Analyses
 The analysis reveals that the USA, France, Australia, Spain, and Italy dominate player production over the past decade. By focusing on countries with five or more players, the data highlights that most players are aged 20 to 35. Younger players are prevalent in China, USA, and Poland, while older players are more common in Spain, Taiwan, and Switzerland. Height analysis shows a range of 170 cm to 210 cm, with the USA having the widest range and highest median height. Taller players are prominent in the Netherlands and Switzerland, whereas shorter players are more common in Taiwan, Brazil, and India.
+  
+The dominance of the USA, France, Australia, Spain, and Italy suggests the impact of strong sports programs and infrastructure. Age distributions indicate that younger players from countries like China and Poland may represent emerging talent, while older players in Spain and Switzerland suggest longer career spans or delayed development. Height variations, with the USA showcasing the widest range, underline the influence of physical attributes on player profiles. These findings emphasize how cultural, geographic, and strategic factors shape global sports landscapes.
 
 ### Match and Player Analyses
 
