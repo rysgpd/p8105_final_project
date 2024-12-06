@@ -447,6 +447,82 @@ df2 %>%
   )
 ```
 
+#### Wins by Seed
+
+Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
+
+```{r message = FALSE, warning = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+tennis_data = read.csv("data/cleaned_df_webscraping_data_added.csv")
+
+tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
+
+tennis_data$winner_age = as.numeric(tennis_data$winner_age)
+tennis_data$loser_age = as.numeric(tennis_data$loser_age)
+tennis_data$minutes = as.numeric(tennis_data$minutes)
+
+seed_performance <- tennis_data %>%
+  group_by(winner_seed) %>%
+  summarize(total_wins = n(), .groups = 'drop') %>%
+  filter(!is.na(winner_seed))
+
+ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
+  geom_tile(aes(fill = total_wins)) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue") +
+  labs(title = "Win Counts by Seeds",
+       x = "Seed", y = "Total Wins") +
+  theme_minimal()
+```
+
+- Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
+- The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
+
+#### Ages of Winners
+
+Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
+
+```{r message = FALSE, warning = FALSE}
+player_ages <- tennis_data %>%
+  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
+  select(year, winner_age, loser_age) %>%
+  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
+
+ggplot(player_ages, aes(x = year, y = age, fill = role)) +
+  geom_boxplot() +
+  labs(title = "Age Distribution of Winners and Losers by Year",
+       x = "Year", y = "Age") +
+  theme_minimal()
+```
+
+- The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
+- The median age of losers also seems consistent but generally appears slightly younger than winners.  
+
+* This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
+* After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
+* 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
+
+```{r warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  ggplot(aes(x = tourney_year, y = winner_age, fill = tourney_year)) +
+  geom_violin()+
+  labs(
+    title = "Distribution of Age of Match Winners from 2014-2024",
+    x = "Year",
+    y = "Age"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+```
+
 ### Tornament Analyses
 #### Country/Player winning the most
 ```{r message=FALSE, warning=FALSE}
@@ -1042,83 +1118,9 @@ glm_model %>%
   )
 ```
 
-#### Wins by Seed
 
-Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
-
-```{r message = FALSE, warning = FALSE}
-library(tidyverse)
-library(ggplot2)
-library(lubridate)
-library(dplyr)
-library(plotly)
-library(leaflet)
-
-tennis_data = read.csv("data/cleaned_df_webscraping_data_added.csv")
-
-tennis_data$tourney_date = as.Date(tennis_data$tourney_date)
-
-tennis_data$winner_age = as.numeric(tennis_data$winner_age)
-tennis_data$loser_age = as.numeric(tennis_data$loser_age)
-tennis_data$minutes = as.numeric(tennis_data$minutes)
-
-seed_performance <- tennis_data %>%
-  group_by(winner_seed) %>%
-  summarize(total_wins = n(), .groups = 'drop') %>%
-  filter(!is.na(winner_seed))
-
-ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
-  geom_tile(aes(fill = total_wins)) +
-  scale_fill_gradient(low = "lightblue", high = "darkblue") +
-  labs(title = "Win Counts by Seeds",
-       x = "Seed", y = "Total Wins") +
-  theme_minimal()
-```
-
-- Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
-- The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
-
-#### Ages of Winners
-
-Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
-
-```{r message = FALSE, warning = FALSE}
-player_ages <- tennis_data %>%
-  mutate(year = format(as.Date(tourney_date), "%Y")) %>%
-  select(year, winner_age, loser_age) %>%
-  pivot_longer(cols = c(winner_age, loser_age), names_to = "role", values_to = "age")
-
-ggplot(player_ages, aes(x = year, y = age, fill = role)) +
-  geom_boxplot() +
-  labs(title = "Age Distribution of Winners and Losers by Year",
-       x = "Year", y = "Age") +
-  theme_minimal()
-```
-
-- The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
-- The median age of losers also seems consistent but generally appears slightly younger than winners.  
 
 #### Age Trends of Winners and Losers
-
-* This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
-* After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
-* 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
-
-```{r warning = FALSE, message = FALSE}
-df2 %>% 
-  mutate(
-    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
-  ) %>% 
-  ggplot(aes(x = tourney_year, y = winner_age, fill = tourney_year)) +
-  geom_violin()+
-  labs(
-    title = "Distribution of Age of Match Winners from 2014-2024",
-    x = "Year",
-    y = "Age"
-    ) +
-  theme(legend.position="none", 
-        plot.title = element_text(hjust = 0.5))
-```
 
 * We want to see if whether a player being older or younger won or lost more. Using a simple logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
   * Null Hypothesis: 
