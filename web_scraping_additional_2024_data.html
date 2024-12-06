@@ -1,614 +1,403 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
-<meta charset="utf-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta charset="utf-8" />
 <meta name="generator" content="pandoc" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Laura Henze" />
+
+<meta name="date" content="2024-11-26" />
+
+<title>web_scraping_additional_2024_data</title>
+
+<script src="site_libs/header-attrs-2.28/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
 
 <style type="text/css">
-@font-face {
-font-family: octicons-link;
-src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAZwABAAAAAACFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEU0lHAAAGaAAAAAgAAAAIAAAAAUdTVUIAAAZcAAAACgAAAAoAAQAAT1MvMgAAAyQAAABJAAAAYFYEU3RjbWFwAAADcAAAAEUAAACAAJThvmN2dCAAAATkAAAABAAAAAQAAAAAZnBnbQAAA7gAAACyAAABCUM+8IhnYXNwAAAGTAAAABAAAAAQABoAI2dseWYAAAFsAAABPAAAAZwcEq9taGVhZAAAAsgAAAA0AAAANgh4a91oaGVhAAADCAAAABoAAAAkCA8DRGhtdHgAAAL8AAAADAAAAAwGAACfbG9jYQAAAsAAAAAIAAAACABiATBtYXhwAAACqAAAABgAAAAgAA8ASm5hbWUAAAToAAABQgAAAlXu73sOcG9zdAAABiwAAAAeAAAAME3QpOBwcmVwAAAEbAAAAHYAAAB/aFGpk3jaTY6xa8JAGMW/O62BDi0tJLYQincXEypYIiGJjSgHniQ6umTsUEyLm5BV6NDBP8Tpts6F0v+k/0an2i+itHDw3v2+9+DBKTzsJNnWJNTgHEy4BgG3EMI9DCEDOGEXzDADU5hBKMIgNPZqoD3SilVaXZCER3/I7AtxEJLtzzuZfI+VVkprxTlXShWKb3TBecG11rwoNlmmn1P2WYcJczl32etSpKnziC7lQyWe1smVPy/Lt7Kc+0vWY/gAgIIEqAN9we0pwKXreiMasxvabDQMM4riO+qxM2ogwDGOZTXxwxDiycQIcoYFBLj5K3EIaSctAq2kTYiw+ymhce7vwM9jSqO8JyVd5RH9gyTt2+J/yUmYlIR0s04n6+7Vm1ozezUeLEaUjhaDSuXHwVRgvLJn1tQ7xiuVv/ocTRF42mNgZGBgYGbwZOBiAAFGJBIMAAizAFoAAABiAGIAznjaY2BkYGAA4in8zwXi+W2+MjCzMIDApSwvXzC97Z4Ig8N/BxYGZgcgl52BCSQKAA3jCV8CAABfAAAAAAQAAEB42mNgZGBg4f3vACQZQABIMjKgAmYAKEgBXgAAeNpjYGY6wTiBgZWBg2kmUxoDA4MPhGZMYzBi1AHygVLYQUCaawqDA4PChxhmh/8ODDEsvAwHgMKMIDnGL0x7gJQCAwMAJd4MFwAAAHjaY2BgYGaA4DAGRgYQkAHyGMF8NgYrIM3JIAGVYYDT+AEjAwuDFpBmA9KMDEwMCh9i/v8H8sH0/4dQc1iAmAkALaUKLgAAAHjaTY9LDsIgEIbtgqHUPpDi3gPoBVyRTmTddOmqTXThEXqrob2gQ1FjwpDvfwCBdmdXC5AVKFu3e5MfNFJ29KTQT48Ob9/lqYwOGZxeUelN2U2R6+cArgtCJpauW7UQBqnFkUsjAY/kOU1cP+DAgvxwn1chZDwUbd6CFimGXwzwF6tPbFIcjEl+vvmM/byA48e6tWrKArm4ZJlCbdsrxksL1AwWn/yBSJKpYbq8AXaaTb8AAHja28jAwOC00ZrBeQNDQOWO//sdBBgYGRiYWYAEELEwMTE4uzo5Zzo5b2BxdnFOcALxNjA6b2ByTswC8jYwg0VlNuoCTWAMqNzMzsoK1rEhNqByEyerg5PMJlYuVueETKcd/89uBpnpvIEVomeHLoMsAAe1Id4AAAAAAAB42oWQT07CQBTGv0JBhagk7HQzKxca2sJCE1hDt4QF+9JOS0nbaaYDCQfwCJ7Au3AHj+LO13FMmm6cl7785vven0kBjHCBhfpYuNa5Ph1c0e2Xu3jEvWG7UdPDLZ4N92nOm+EBXuAbHmIMSRMs+4aUEd4Nd3CHD8NdvOLTsA2GL8M9PODbcL+hD7C1xoaHeLJSEao0FEW14ckxC+TU8TxvsY6X0eLPmRhry2WVioLpkrbp84LLQPGI7c6sOiUzpWIWS5GzlSgUzzLBSikOPFTOXqly7rqx0Z1Q5BAIoZBSFihQYQOOBEdkCOgXTOHA07HAGjGWiIjaPZNW13/+lm6S9FT7rLHFJ6fQbkATOG1j2OFMucKJJsxIVfQORl+9Jyda6Sl1dUYhSCm1dyClfoeDve4qMYdLEbfqHf3O/AdDumsjAAB42mNgYoAAZQYjBmyAGYQZmdhL8zLdDEydARfoAqIAAAABAAMABwAKABMAB///AA8AAQAAAAAAAAAAAAAAAAABAAAAAA==) format('woff');
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
-body {
--webkit-text-size-adjust: 100%;
-text-size-adjust: 100%;
-color: #333;
-font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-font-size: 16px;
-line-height: 1.6;
-word-wrap: break-word;
-}
-a {
-background-color: transparent;
-}
-a:active,
-a:hover {
-outline: 0;
-}
-strong {
-font-weight: bold;
-}
-h1 {
-font-size: 2em;
-margin: 0.67em 0;
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
 }
 img {
-border: 0;
+  max-width:100%;
 }
-hr {
-box-sizing: content-box;
-height: 0;
+.tabbed-pane {
+  padding-top: 12px;
 }
-pre {
-overflow: auto;
+.html-widget {
+  margin-bottom: 20px;
 }
-code,
-kbd,
-pre {
-font-family: monospace, monospace;
-font-size: 1em;
+button.code-folding-btn:focus {
+  outline: none;
 }
-input {
-color: inherit;
-font: inherit;
-margin: 0;
+summary {
+  display: list-item;
 }
-html input[disabled] {
-cursor: default;
-}
-input {
-line-height: normal;
-}
-input[type="checkbox"] {
-box-sizing: border-box;
-padding: 0;
-}
-table {
-border-collapse: collapse;
-border-spacing: 0;
-}
-td,
-th {
-padding: 0;
-}
-* {
-box-sizing: border-box;
-}
-input {
-font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-}
-a {
-color: #4078c0;
-text-decoration: none;
-}
-a:hover,
-a:active {
-text-decoration: underline;
-}
-hr {
-height: 0;
-margin: 15px 0;
-overflow: hidden;
-background: transparent;
-border: 0;
-border-bottom: 1px solid #ddd;
-}
-hr:before {
-display: table;
-content: "";
-}
-hr:after {
-display: table;
-clear: both;
-content: "";
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-margin-top: 15px;
-margin-bottom: 15px;
-line-height: 1.1;
-}
-h1 {
-font-size: 30px;
-}
-h2 {
-font-size: 21px;
-}
-h3 {
-font-size: 16px;
-}
-h4 {
-font-size: 14px;
-}
-h5 {
-font-size: 12px;
-}
-h6 {
-font-size: 11px;
-}
-blockquote {
-margin: 0;
-}
-ul,
-ol {
-padding: 0;
-margin-top: 0;
-margin-bottom: 0;
-}
-ol ol,
-ul ol {
-list-style-type: lower-roman;
-}
-ul ul ol,
-ul ol ol,
-ol ul ol,
-ol ol ol {
-list-style-type: lower-alpha;
-}
-dd {
-margin-left: 0;
-}
-code {
-font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-font-size: 12px;
-}
-pre {
-margin-top: 0;
-margin-bottom: 0;
-font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
-}
-.select::-ms-expand {
-opacity: 0;
-}
-.octicon {
-font: normal normal normal 16px/1 octicons-link;
-display: inline-block;
-text-decoration: none;
-text-rendering: auto;
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-}
-.octicon-link:before {
-content: '\f05c';
-}
-.markdown-body:before {
-display: table;
-content: "";
-}
-.markdown-body:after {
-display: table;
-clear: both;
-content: "";
-}
-.markdown-body>*:first-child {
-margin-top: 0 !important;
-}
-.markdown-body>*:last-child {
-margin-bottom: 0 !important;
-}
-a:not([href]) {
-color: inherit;
-text-decoration: none;
-}
-.anchor {
-display: inline-block;
-padding-right: 2px;
-margin-left: -18px;
-}
-.anchor:focus {
-outline: none;
-}
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-margin-top: 1em;
-margin-bottom: 16px;
-font-weight: bold;
-line-height: 1.4;
-}
-h1 .octicon-link,
-h2 .octicon-link,
-h3 .octicon-link,
-h4 .octicon-link,
-h5 .octicon-link,
-h6 .octicon-link {
-color: #000;
-vertical-align: middle;
-visibility: hidden;
-}
-h1:hover .anchor,
-h2:hover .anchor,
-h3:hover .anchor,
-h4:hover .anchor,
-h5:hover .anchor,
-h6:hover .anchor {
-text-decoration: none;
-}
-h1:hover .anchor .octicon-link,
-h2:hover .anchor .octicon-link,
-h3:hover .anchor .octicon-link,
-h4:hover .anchor .octicon-link,
-h5:hover .anchor .octicon-link,
-h6:hover .anchor .octicon-link {
-visibility: visible;
-}
-h1 {
-padding-bottom: 0.3em;
-font-size: 2.25em;
-line-height: 1.2;
-border-bottom: 1px solid #eee;
-}
-h1 .anchor {
-line-height: 1;
-}
-h2 {
-padding-bottom: 0.3em;
-font-size: 1.75em;
-line-height: 1.225;
-border-bottom: 1px solid #eee;
-}
-h2 .anchor {
-line-height: 1;
-}
-h3 {
-font-size: 1.5em;
-line-height: 1.43;
-}
-h3 .anchor {
-line-height: 1.2;
-}
-h4 {
-font-size: 1.25em;
-}
-h4 .anchor {
-line-height: 1.2;
-}
-h5 {
-font-size: 1em;
-}
-h5 .anchor {
-line-height: 1.1;
-}
-h6 {
-font-size: 1em;
-color: #777;
-}
-h6 .anchor {
-line-height: 1.1;
-}
-p,
-blockquote,
-ul,
-ol,
-dl,
-table,
-pre {
-margin-top: 0;
-margin-bottom: 16px;
-}
-hr {
-height: 4px;
-padding: 0;
-margin: 16px 0;
-background-color: #e7e7e7;
-border: 0 none;
-}
-ul,
-ol {
-padding-left: 2em;
-}
-ul ul,
-ul ol,
-ol ol,
-ol ul {
-margin-top: 0;
-margin-bottom: 0;
-}
-li>p {
-margin-top: 16px;
-}
-dl {
-padding: 0;
-}
-dl dt {
-padding: 0;
-margin-top: 16px;
-font-size: 1em;
-font-style: italic;
-font-weight: bold;
-}
-dl dd {
-padding: 0 16px;
-margin-bottom: 16px;
-}
-blockquote {
-padding: 0 15px;
-color: #777;
-border-left: 4px solid #ddd;
-}
-blockquote>:first-child {
-margin-top: 0;
-}
-blockquote>:last-child {
-margin-bottom: 0;
-}
-table {
-display: block;
-width: 100%;
-overflow: auto;
-word-break: normal;
-word-break: keep-all;
-}
-table th {
-font-weight: bold;
-}
-table th,
-table td {
-padding: 6px 13px;
-border: 1px solid #ddd;
-}
-table tr {
-background-color: #fff;
-border-top: 1px solid #ccc;
-}
-table tr:nth-child(2n) {
-background-color: #f8f8f8;
-}
-img {
-max-width: 100%;
-box-sizing: content-box;
-background-color: #fff;
-}
-code {
-padding: 0;
-padding-top: 0.2em;
-padding-bottom: 0.2em;
-margin: 0;
-font-size: 85%;
-background-color: rgba(0,0,0,0.04);
-border-radius: 3px;
-}
-code:before,
-code:after {
-letter-spacing: -0.2em;
-content: "\00a0";
-}
-pre>code {
-padding: 0;
-margin: 0;
-font-size: 100%;
-word-break: normal;
-white-space: pre;
-background: transparent;
-border: 0;
-}
-.highlight {
-margin-bottom: 16px;
-}
-.highlight pre,
-pre {
-padding: 16px;
-overflow: auto;
-font-size: 85%;
-line-height: 1.45;
-background-color: #f7f7f7;
-border-radius: 3px;
-}
-.highlight pre {
-margin-bottom: 0;
-word-break: normal;
-}
-pre {
-word-wrap: normal;
+details > summary > p:only-child {
+  display: inline;
 }
 pre code {
-display: inline;
-max-width: initial;
-padding: 0;
-margin: 0;
-overflow: initial;
-line-height: inherit;
-word-wrap: normal;
-background-color: transparent;
-border: 0;
-}
-pre code:before,
-pre code:after {
-content: normal;
-}
-kbd {
-display: inline-block;
-padding: 3px 5px;
-font-size: 11px;
-line-height: 10px;
-color: #555;
-vertical-align: middle;
-background-color: #fcfcfc;
-border: solid 1px #ccc;
-border-bottom-color: #bbb;
-border-radius: 3px;
-box-shadow: inset 0 -1px 0 #bbb;
-}
-.pl-c {
-color: #969896;
-}
-.pl-c1,
-.pl-s .pl-v {
-color: #0086b3;
-}
-.pl-e,
-.pl-en {
-color: #795da3;
-}
-.pl-s .pl-s1,
-.pl-smi {
-color: #333;
-}
-.pl-ent {
-color: #63a35c;
-}
-.pl-k {
-color: #a71d5d;
-}
-.pl-pds,
-.pl-s,
-.pl-s .pl-pse .pl-s1,
-.pl-sr,
-.pl-sr .pl-cce,
-.pl-sr .pl-sra,
-.pl-sr .pl-sre {
-color: #183691;
-}
-.pl-v {
-color: #ed6a43;
-}
-.pl-id {
-color: #b52a1d;
-}
-.pl-ii {
-background-color: #b52a1d;
-color: #f8f8f8;
-}
-.pl-sr .pl-cce {
-color: #63a35c;
-font-weight: bold;
-}
-.pl-ml {
-color: #693a17;
-}
-.pl-mh,
-.pl-mh .pl-en,
-.pl-ms {
-color: #1d3e81;
-font-weight: bold;
-}
-.pl-mq {
-color: #008080;
-}
-.pl-mi {
-color: #333;
-font-style: italic;
-}
-.pl-mb {
-color: #333;
-font-weight: bold;
-}
-.pl-md {
-background-color: #ffecec;
-color: #bd2c00;
-}
-.pl-mi1 {
-background-color: #eaffea;
-color: #55a532;
-}
-.pl-mdr {
-color: #795da3;
-font-weight: bold;
-}
-.pl-mo {
-color: #1d3e81;
-}
-kbd {
-display: inline-block;
-padding: 3px 5px;
-font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
-line-height: 10px;
-color: #555;
-vertical-align: middle;
-background-color: #fcfcfc;
-border: solid 1px #ccc;
-border-bottom-color: #bbb;
-border-radius: 3px;
-box-shadow: inset 0 -1px 0 #bbb;
-}
-.task-list-item {
-list-style-type: none;
-}
-.task-list-item+.task-list-item {
-margin-top: 3px;
-}
-.task-list-item input {
-margin: 0 0.35em 0.25em -1.6em;
-vertical-align: middle;
-}
-:checked+.radio-label {
-z-index: 1;
-position: relative;
-border-color: #4078c0;
-}
-.sourceLine {
-display: inline-block;
-}
-code .kw { color: #000000; }
-code .dt { color: #ed6a43; }
-code .dv { color: #009999; }
-code .bn { color: #009999; }
-code .fl { color: #009999; }
-code .ch { color: #009999; }
-code .st { color: #183691; }
-code .co { color: #969896; }
-code .ot { color: #0086b3; }
-code .al { color: #a61717; }
-code .fu { color: #63a35c; }
-code .er { color: #a61717; background-color: #e3d2d2; }
-code .wa { color: #000000; }
-code .cn { color: #008080; }
-code .sc { color: #008080; }
-code .vs { color: #183691; }
-code .ss { color: #183691; }
-code .im { color: #000000; }
-code .va {color: #008080; }
-code .cf { color: #000000; }
-code .op { color: #000000; }
-code .bu { color: #000000; }
-code .ex { color: #000000; }
-code .pp { color: #999999; }
-code .at { color: #008080; }
-code .do { color: #969896; }
-code .an { color: #008080; }
-code .cv { color: #008080; }
-code .in { color: #008080; }
-</style>
-<style>
-body {
-box-sizing: border-box;
-min-width: 200px;
-max-width: 980px;
-margin: 0 auto;
-padding: 45px;
-padding-top: 0px;
+  padding: 0;
 }
 </style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
 
 
 </head>
 
 <body>
 
-<h1 id="web_scraping_additional_2024_data">web_scraping_additional_2024_data</h1>
-<p>Laura Henze 2024-11-26</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(rvest)</span></code></pre></div>
-<h2 id="loading-cleaned-data">loading cleaned data</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>cleaned_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/cleaned_df.csv&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">head</span>(cleaned_data)</span></code></pre></div>
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Home</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    About
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="about.html">Project Report</a>
+    </li>
+    <li>
+      <a href="about_us.html">About Us</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="demographics.html">Country Analyses</a>
+</li>
+<li>
+  <a href="ranking.html">Match and Player Analyses</a>
+</li>
+<li>
+  <a href="wins.html">Tournament Analyses</a>
+</li>
+<li>
+  <a href="suspensions.html">Suspensions</a>
+</li>
+<li>
+  <a href="https://github.com/rysgpd/p8105_final_project.github.io">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">web_scraping_additional_2024_data</h1>
+<h4 class="author">Laura Henze</h4>
+<h4 class="date">2024-11-26</h4>
+
+</div>
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(rvest)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;rvest&#39;
+## 
+## The following object is masked from &#39;package:readr&#39;:
+## 
+##     guess_encoding</code></pre>
+<div id="loading-cleaned-data" class="section level2">
+<h2>loading cleaned data</h2>
+<pre class="r"><code>cleaned_data &lt;- read.csv(&quot;data/cleaned_df.csv&quot;)
+
+head(cleaned_data)</code></pre>
 <pre><code>##      tourney_name tourney_date winner_id winner_seed winner_entry
 ## 1 Australian Open   2014-01-13    104745           1         &lt;NA&gt;
 ## 2 Australian Open   2014-01-13    106423          NA           WC
@@ -658,37 +447,39 @@ padding-top: 0px;
 ## 4        110               504
 ## 5         43              1010
 ## 6         45               977</code></pre>
-<h2 id="getting-roland-garros-data">getting roland garros data</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;http://www.tennis-data.co.uk/2024/frenchopen.csv&quot;</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>tennis_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(url, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>processed_data <span class="ot">&lt;-</span> tennis_data <span class="sc">%&gt;%</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>    <span class="at">score =</span> <span class="fu">paste0</span>(</span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W1), <span class="fu">paste0</span>(W1, <span class="st">&quot;-&quot;</span>, L1, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W2), <span class="fu">paste0</span>(W2, <span class="st">&quot;-&quot;</span>, L2, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W3), <span class="fu">paste0</span>(W3, <span class="st">&quot;-&quot;</span>, L3, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W4), <span class="fu">paste0</span>(W4, <span class="st">&quot;-&quot;</span>, L4, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W5), <span class="fu">paste0</span>(W5, <span class="st">&quot;-&quot;</span>, L5, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>)</span>
-<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(),</span>
-<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>    <span class="at">tourney_date =</span> <span class="fu">as.Date</span>(Date, <span class="st">&quot;%d/%m/%Y&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">&quot;%Y-%m-%d&quot;</span>),  <span class="co"># Format date to match your existing data</span></span>
-<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>    <span class="at">tourney_name =</span> <span class="fu">str_replace</span>(Tournament, <span class="st">&quot;French Open&quot;</span>, <span class="st">&quot;Roland Garros&quot;</span>)  <span class="co"># Rename tournament</span></span>
-<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>    tourney_name,</span>
-<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>    tourney_date,</span>
-<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>    <span class="at">winner_name =</span> Winner,</span>
-<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>    <span class="at">loser_name =</span> Loser,</span>
-<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>    score</span>
-<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>  )</span>
-<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a></span>
-<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="fu">print</span>(processed_data)</span></code></pre></div>
+</div>
+<div id="getting-roland-garros-data" class="section level2">
+<h2>getting roland garros data</h2>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(stringr)
+
+
+url &lt;- &quot;http://www.tennis-data.co.uk/2024/frenchopen.csv&quot;
+tennis_data &lt;- read_csv(url, show_col_types = FALSE)
+
+
+processed_data &lt;- tennis_data %&gt;%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, &quot;-&quot;, L1, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W2), paste0(W2, &quot;-&quot;, L2, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W3), paste0(W3, &quot;-&quot;, L3, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W4), paste0(W4, &quot;-&quot;, L4, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W5), paste0(W5, &quot;-&quot;, L5, &quot; &quot;), &quot;&quot;)
+    ) %&gt;% str_trim(),
+    tourney_date = as.Date(Date, &quot;%d/%m/%Y&quot;) %&gt;% format(&quot;%Y-%m-%d&quot;),  
+    tourney_name = str_replace(Tournament, &quot;French Open&quot;, &quot;Roland Garros&quot;)  
+  ) %&gt;%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+print(processed_data)</code></pre>
 <pre><code>## # A tibble: 127 × 5
 ##    tourney_name  tourney_date winner_name  loser_name           score           
 ##    &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;                &lt;chr&gt;           
@@ -703,39 +494,41 @@ padding-top: 0px;
 ##  9 Roland Garros 2024-05-26   Marterer M.  Thompson J.          6-3 6-2 6-0     
 ## 10 Roland Garros 2024-05-26   Alcaraz C.   Wolf J.J.            6-1 6-2 6-1     
 ## # ℹ 117 more rows</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co">#View(processed_data)</span></span></code></pre></div>
-<h2 id="getting-us-open-data">getting us open data</h2>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;http://www.tennis-data.co.uk/2024/usopen.csv&quot;</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>us_open_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(url, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>processed_us_open_data <span class="ot">&lt;-</span> us_open_data <span class="sc">%&gt;%</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    <span class="at">score =</span> <span class="fu">paste0</span>(</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W1), <span class="fu">paste0</span>(W1, <span class="st">&quot;-&quot;</span>, L1, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W2), <span class="fu">paste0</span>(W2, <span class="st">&quot;-&quot;</span>, L2, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W3), <span class="fu">paste0</span>(W3, <span class="st">&quot;-&quot;</span>, L3, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W4), <span class="fu">paste0</span>(W4, <span class="st">&quot;-&quot;</span>, L4, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W5), <span class="fu">paste0</span>(W5, <span class="st">&quot;-&quot;</span>, L5, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>)</span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(),</span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>    <span class="at">tourney_date =</span> <span class="fu">as.Date</span>(Date, <span class="st">&quot;%d/%m/%Y&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">&quot;%Y-%m-%d&quot;</span>),  <span class="co"># Format date to match your existing data</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>    <span class="at">tourney_name =</span> <span class="fu">str_replace</span>(Tournament, <span class="st">&quot;US Open&quot;</span>, <span class="st">&quot;US Open&quot;</span>)  <span class="co"># Ensure tournament name is consistent</span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>    tourney_name,</span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>    tourney_date,</span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>    <span class="at">winner_name =</span> Winner,</span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>    <span class="at">loser_name =</span> Loser,</span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>    score</span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>  )</span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a></span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a></span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="fu">print</span>(processed_us_open_data)</span></code></pre></div>
+<pre class="r"><code>#View(processed_data)</code></pre>
+</div>
+<div id="getting-us-open-data" class="section level2">
+<h2>getting us open data</h2>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(stringr)
+
+
+url &lt;- &quot;http://www.tennis-data.co.uk/2024/usopen.csv&quot;
+us_open_data &lt;- read_csv(url, show_col_types = FALSE)
+
+
+processed_us_open_data &lt;- us_open_data %&gt;%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, &quot;-&quot;, L1, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W2), paste0(W2, &quot;-&quot;, L2, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W3), paste0(W3, &quot;-&quot;, L3, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W4), paste0(W4, &quot;-&quot;, L4, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W5), paste0(W5, &quot;-&quot;, L5, &quot; &quot;), &quot;&quot;)
+    ) %&gt;% str_trim(),
+    tourney_date = as.Date(Date, &quot;%d/%m/%Y&quot;) %&gt;% format(&quot;%Y-%m-%d&quot;),  
+    tourney_name = str_replace(Tournament, &quot;US Open&quot;, &quot;US Open&quot;)  
+  ) %&gt;%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+
+print(processed_us_open_data)</code></pre>
 <pre><code>## # A tibble: 127 × 5
 ##    tourney_name tourney_date winner_name        loser_name       score          
 ##    &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;              &lt;chr&gt;            &lt;chr&gt;          
@@ -750,38 +543,40 @@ padding-top: 0px;
 ##  9 US Open      2024-08-26   Berrettini M.      Ramos-Vinolas A. 7-6 6-2 6-3    
 ## 10 US Open      2024-08-26   Ruud C.            Bu Y.            7-6 6-2 6-2    
 ## # ℹ 117 more rows</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co">#View(processed_us_open_data)</span></span></code></pre></div>
-<h2 id="getting-wimbledon-data">getting wimbledon data</h2>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;http://www.tennis-data.co.uk/2024/wimbledon.csv&quot;</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>wimbledon_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(url, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>processed_wimbledon_data <span class="ot">&lt;-</span> wimbledon_data <span class="sc">%&gt;%</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="at">score =</span> <span class="fu">paste0</span>(</span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W1), <span class="fu">paste0</span>(W1, <span class="st">&quot;-&quot;</span>, L1, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W2), <span class="fu">paste0</span>(W2, <span class="st">&quot;-&quot;</span>, L2, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W3), <span class="fu">paste0</span>(W3, <span class="st">&quot;-&quot;</span>, L3, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W4), <span class="fu">paste0</span>(W4, <span class="st">&quot;-&quot;</span>, L4, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>),</span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(W5), <span class="fu">paste0</span>(W5, <span class="st">&quot;-&quot;</span>, L5, <span class="st">&quot; &quot;</span>), <span class="st">&quot;&quot;</span>)</span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span> <span class="fu">str_trim</span>(),</span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>    <span class="at">tourney_date =</span> <span class="fu">as.Date</span>(Date, <span class="st">&quot;%d/%m/%Y&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">format</span>(<span class="st">&quot;%Y-%m-%d&quot;</span>),  <span class="co"># Format date to match your existing data</span></span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>    <span class="at">tourney_name =</span> <span class="fu">str_replace</span>(Tournament, <span class="st">&quot;Wimbledon&quot;</span>, <span class="st">&quot;Wimbledon&quot;</span>)  <span class="co"># Ensure tournament name is consistent</span></span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>    tourney_name,</span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>    tourney_date,</span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>    <span class="at">winner_name =</span> Winner,</span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>    <span class="at">loser_name =</span> Loser,</span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>    score</span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>  )</span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a></span>
-<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="fu">print</span>(processed_wimbledon_data)</span></code></pre></div>
+<pre class="r"><code>#View(processed_us_open_data)</code></pre>
+</div>
+<div id="getting-wimbledon-data" class="section level2">
+<h2>getting wimbledon data</h2>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(stringr)
+
+
+url &lt;- &quot;http://www.tennis-data.co.uk/2024/wimbledon.csv&quot;
+wimbledon_data &lt;- read_csv(url, show_col_types = FALSE)
+
+
+processed_wimbledon_data &lt;- wimbledon_data %&gt;%
+  mutate(
+    score = paste0(
+      ifelse(!is.na(W1), paste0(W1, &quot;-&quot;, L1, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W2), paste0(W2, &quot;-&quot;, L2, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W3), paste0(W3, &quot;-&quot;, L3, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W4), paste0(W4, &quot;-&quot;, L4, &quot; &quot;), &quot;&quot;),
+      ifelse(!is.na(W5), paste0(W5, &quot;-&quot;, L5, &quot; &quot;), &quot;&quot;)
+    ) %&gt;% str_trim(),
+    tourney_date = as.Date(Date, &quot;%d/%m/%Y&quot;) %&gt;% format(&quot;%Y-%m-%d&quot;),  
+    tourney_name = str_replace(Tournament, &quot;Wimbledon&quot;, &quot;Wimbledon&quot;)  
+  ) %&gt;%
+  select(
+    tourney_name,
+    tourney_date,
+    winner_name = Winner,
+    loser_name = Loser,
+    score
+  )
+
+print(processed_wimbledon_data)</code></pre>
 <pre><code>## # A tibble: 127 × 5
 ##    tourney_name tourney_date winner_name   loser_name        score              
 ##    &lt;chr&gt;        &lt;chr&gt;        &lt;chr&gt;         &lt;chr&gt;             &lt;chr&gt;              
@@ -796,24 +591,26 @@ padding-top: 0px;
 ##  9 Wimbledon    2024-07-01   Thompson J.   Kotov P.          5-7 5-7 6-4 6-4 6-4
 ## 10 Wimbledon    2024-07-01   Zhang Zh.     Janvier M.        7-6 6-3 6-2        
 ## # ℹ 117 more rows</code></pre>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co">#View(processed_wimbledon_data)</span></span></code></pre></div>
-<h2 id="combining-roland-garros-us-open-and-wimbledon">combining roland
-garros, us open and wimbledon</h2>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>cleaned_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/cleaned_df.csv&quot;</span>)</span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>cleaned_df_webscraping_data_added <span class="ot">&lt;-</span> cleaned_df <span class="sc">%&gt;%</span></span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>    processed_data,  <span class="co"># Roland Garros data</span></span>
-<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>    processed_us_open_data,  <span class="co"># US Open data</span></span>
-<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>    processed_wimbledon_data  <span class="co"># Wimbledon data</span></span>
-<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  )</span>
-<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(cleaned_df_webscraping_data_added))</span></code></pre></div>
+<pre class="r"><code>#View(processed_wimbledon_data)</code></pre>
+</div>
+<div id="combining-roland-garros-us-open-and-wimbledon"
+class="section level2">
+<h2>combining roland garros, us open and wimbledon</h2>
+<pre class="r"><code>library(dplyr)
+
+
+cleaned_df &lt;- read.csv(&quot;data/cleaned_df.csv&quot;)
+
+
+cleaned_df_webscraping_data_added &lt;- cleaned_df %&gt;%
+  bind_rows(
+    processed_data,  # Roland Garros data
+    processed_us_open_data,  # US Open data
+    processed_wimbledon_data  # Wimbledon data
+  )
+
+
+print(head(cleaned_df_webscraping_data_added))</code></pre>
 <pre><code>##      tourney_name tourney_date winner_id winner_seed winner_entry
 ## 1 Australian Open   2014-01-13    104745           1         &lt;NA&gt;
 ## 2 Australian Open   2014-01-13    106423          NA           WC
@@ -863,34 +660,36 @@ garros, us open and wimbledon</h2>
 ## 4        110               504
 ## 5         43              1010
 ## 6         45               977</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">write.csv</span>(cleaned_df_webscraping_data_added, <span class="st">&quot;data/cleaned_df_webscraping_data_added.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#View(cleaned_df_webscraping_data_added)</span></span></code></pre></div>
-<h2 id="finding-seed-and-full-name-data">Finding Seed and full name
-data</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://en.wikipedia.org/wiki/2024_Wimbledon_Championships_–_Men%27s_singles&quot;</span></span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>dl_data <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> <span class="fu">html_nodes</span>(<span class="st">&quot;dl&quot;</span>) <span class="sc">%&gt;%</span> <span class="fu">html_text</span>(<span class="at">trim =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fu">print</span>(dl_data)</span></code></pre></div>
+<pre class="r"><code>write.csv(cleaned_df_webscraping_data_added, &quot;data/cleaned_df_webscraping_data_added.csv&quot;, row.names = FALSE)
+#View(cleaned_df_webscraping_data_added)</code></pre>
+</div>
+<div id="finding-seed-and-full-name-data" class="section level2">
+<h2>Finding Seed and full name data</h2>
+<pre class="r"><code>library(rvest)
+
+url &lt;- &quot;https://en.wikipedia.org/wiki/2024_Wimbledon_Championships_–_Men%27s_singles&quot;
+dl_data &lt;- read_html(url) %&gt;% html_nodes(&quot;dl&quot;) %&gt;% html_text(trim = TRUE)
+
+print(dl_data)</code></pre>
 <pre><code>## [1] &quot;01.    Jannik Sinner (quarterfinals)\n02.    Novak Djokovic (final)\n03.    Carlos Alcaraz (champion)\n04.    Alexander Zverev (fourth round)\n05.    Daniil Medvedev (semifinals)\n06.    Andrey Rublev (first round)\n07.    Hubert Hurkacz (second round, retired)\n08.    Casper Ruud (second round)\n09.    Alex de Minaur (quarterfinals, withdrew)\n10.    Grigor Dimitrov (fourth round, retired)\n11.    Stefanos Tsitsipas (second round)\n12.    Tommy Paul (quarterfinals)\n13.    Taylor Fritz (quarterfinals)\n14.    Ben Shelton (fourth round)\n15.    Holger Rune (fourth round)\n16.    Ugo Humbert (fourth round)\n17.    Félix Auger-Aliassime (first round)\n18.    Sebastián Báez (first round)\n19.    Nicolás Jarry (first round)\n20.    Sebastian Korda (first round)\n21.    Karen Khachanov (second round)\n22.    Adrian Mannarino (first round)\n23.    Alexander Bublik (third round)\n24.    Alejandro Tabilo (third round)\n25.    Lorenzo Musetti (semifinals)\n26.    Francisco Cerúndolo (first round)\n27.    Tallon Griekspoor (second round)\n28.    Jack Draper (second round)\n29.    Frances Tiafoe (third round)\n30.    Tomás Martín Etcheverry (second round)\n31.    Mariano Navone (first round)\n32.    Zhang Zhizhen (second round)&quot;</code></pre>
-<h2 id="seeds-with-full-names">seeds with full names</h2>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co"># Process the dl_data into a clean table</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>seed_table <span class="ot">&lt;-</span> <span class="fu">str_split</span>(dl_data, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="sc">%&gt;%</span>  <span class="co"># Split by lines</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="fu">unlist</span>() <span class="sc">%&gt;%</span>                             <span class="co"># Convert list to vector</span></span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">raw =</span> .) <span class="sc">%&gt;%</span>                      <span class="co"># Create a tibble</span></span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>    <span class="at">Seed =</span> <span class="fu">str_extract</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+&quot;</span>),                        <span class="co"># Extract the seed number</span></span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">s+&quot;</span>),           <span class="co"># Remove the seed and leading text</span></span>
-<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(Player_Info, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(.*</span><span class="sc">\\</span><span class="st">)&quot;</span>),       <span class="co"># Remove the round/result info</span></span>
-<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_trim</span>(Player_Info)                     <span class="co"># Trim any extra spaces</span></span>
-<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>  <span class="fu">select</span>(Seed, Player_Info)                                  <span class="co"># Keep only relevant columns</span></span>
-<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a></span>
-<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="co"># View the table</span></span>
-<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="fu">print</span>(seed_table)</span></code></pre></div>
+</div>
+<div id="seeds-with-full-names" class="section level2">
+<h2>seeds with full names</h2>
+<pre class="r"><code>library(tidyverse)
+
+seed_table &lt;- str_split(dl_data, &quot;\n&quot;) %&gt;% 
+  unlist() %&gt;%                       
+  tibble(raw = .) %&gt;%                   
+  mutate(
+    Seed = str_extract(raw, &quot;^\\d+&quot;),                  
+    Player_Info = str_remove(raw, &quot;^\\d+\\.\\s+&quot;),          
+    Player_Info = str_remove(Player_Info, &quot;\\(.*\\)&quot;),     
+    Player_Info = str_trim(Player_Info)                    
+  ) %&gt;%
+  select(Seed, Player_Info)                                 
+
+# View the table
+print(seed_table)</code></pre>
 <pre><code>## # A tibble: 32 × 2
 ##    Seed  Player_Info     
 ##    &lt;chr&gt; &lt;chr&gt;           
@@ -905,73 +704,73 @@ data</h2>
 ##  9 09    Alex de Minaur  
 ## 10 10    Grigor Dimitrov 
 ## # ℹ 22 more rows</code></pre>
-<h2 id="replacing-names">Replacing names</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co"># Input data for Last Name and Initial</span></span>
-<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>last_initial <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a>  <span class="st">&quot;Fognini F.&quot;</span>, <span class="st">&quot;Shang J.&quot;</span>, <span class="st">&quot;Ruud C.&quot;</span>, <span class="st">&quot;Coric B.&quot;</span>, <span class="st">&quot;Struff J.L.&quot;</span>, <span class="st">&quot;Dimitrov G.&quot;</span>,</span>
-<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a>  <span class="st">&quot;Shapovalov D.&quot;</span>, <span class="st">&quot;Tiafoe F.&quot;</span>, <span class="st">&quot;Thompson J.&quot;</span>, <span class="st">&quot;Zhang Zh.&quot;</span>, <span class="st">&quot;Berrettini M.&quot;</span>,</span>
-<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a>  <span class="st">&quot;Nakashima B.&quot;</span>, <span class="st">&quot;Monfils G.&quot;</span>, <span class="st">&quot;Medvedev D.&quot;</span>, <span class="st">&quot;Wawrinka S.&quot;</span>, <span class="st">&quot;Muller A.&quot;</span>,</span>
-<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a>  <span class="st">&quot;Altmaier D.&quot;</span>, <span class="st">&quot;Alcaraz C.&quot;</span>, <span class="st">&quot;Harris L.&quot;</span>, <span class="st">&quot;Cazaux A.&quot;</span>, <span class="st">&quot;Humbert U.&quot;</span>,</span>
-<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a>  <span class="st">&quot;Vukic A.&quot;</span>, <span class="st">&quot;Bublik A.&quot;</span>, <span class="st">&quot;Van De Zandschulp B.&quot;</span>, <span class="st">&quot;Bautista Agut R.&quot;</span>,</span>
-<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a>  <span class="st">&quot;Sonego L.&quot;</span>, <span class="st">&quot;Griekspoor T.&quot;</span>, <span class="st">&quot;Sinner J.&quot;</span>, <span class="st">&quot;Virtanen O.&quot;</span>, <span class="st">&quot;Paul T.&quot;</span>,</span>
-<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a>  <span class="st">&quot;Kecmanovic M.&quot;</span>, <span class="st">&quot;Nishioka Y.&quot;</span>, <span class="st">&quot;Seyboth Wild T.&quot;</span>, <span class="st">&quot;Mpetshi G.&quot;</span>, </span>
-<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a>  <span class="st">&quot;Musetti L.&quot;</span>, <span class="st">&quot;Darderi L.&quot;</span>, <span class="st">&quot;Hurkacz H.&quot;</span>, <span class="st">&quot;De Minaur A.&quot;</span>, <span class="st">&quot;Munar J.&quot;</span>, </span>
-<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a>  <span class="st">&quot;Popyrin A.&quot;</span>, <span class="st">&quot;Etcheverry T.&quot;</span>, <span class="st">&quot;Comesana F.&quot;</span>, <span class="st">&quot;Shelton B.&quot;</span>, <span class="st">&quot;Fearnley J.&quot;</span>, </span>
-<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a>  <span class="st">&quot;Walton A.&quot;</span>, <span class="st">&quot;Zverev A.&quot;</span>, <span class="st">&quot;Djokovic N.&quot;</span>, <span class="st">&quot;Fils A.&quot;</span>, <span class="st">&quot;Tsitsipas S.&quot;</span>, </span>
-<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a>  <span class="st">&quot;Rune H.&quot;</span>, <span class="st">&quot;Giron M.&quot;</span>, <span class="st">&quot;Draper J.&quot;</span>, <span class="st">&quot;Cobolli F.&quot;</span>, <span class="st">&quot;Norrie C.&quot;</span>, <span class="st">&quot;Fritz T.&quot;</span>, </span>
-<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a>  <span class="st">&quot;Halys Q.&quot;</span>, <span class="st">&quot;Khachanov K.&quot;</span>, <span class="st">&quot;Safiullin R.&quot;</span>, <span class="st">&quot;Ruusuvuori E.&quot;</span>, <span class="st">&quot;Pouille L.&quot;</span>, </span>
-<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a>  <span class="st">&quot;Rinderknech A.&quot;</span>, <span class="st">&quot;Machac T.&quot;</span>, <span class="st">&quot;Tabilo A.&quot;</span>, <span class="st">&quot;Kokkinakis T.&quot;</span></span>
-<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a>)</span>
-<span id="cb20-19"><a href="#cb20-19" tabindex="-1"></a></span>
-<span id="cb20-20"><a href="#cb20-20" tabindex="-1"></a><span class="co"># Full Name mapping</span></span>
-<span id="cb20-21"><a href="#cb20-21" tabindex="-1"></a>full_name <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb20-22"><a href="#cb20-22" tabindex="-1"></a>  <span class="st">&quot;Fabio Fognini&quot;</span>, <span class="st">&quot;Shang Juncheng&quot;</span>, <span class="st">&quot;Casper Ruud&quot;</span>, <span class="st">&quot;Borna Coric&quot;</span>, <span class="st">&quot;Jan-Lennard Struff&quot;</span>, </span>
-<span id="cb20-23"><a href="#cb20-23" tabindex="-1"></a>  <span class="st">&quot;Grigor Dimitrov&quot;</span>, <span class="st">&quot;Denis Shapovalov&quot;</span>, <span class="st">&quot;Frances Tiafoe&quot;</span>, <span class="st">&quot;Jordan Thompson&quot;</span>, </span>
-<span id="cb20-24"><a href="#cb20-24" tabindex="-1"></a>  <span class="st">&quot;Zhang Zhizhen&quot;</span>, <span class="st">&quot;Matteo Berrettini&quot;</span>, <span class="st">&quot;Brandon Nakashima&quot;</span>, <span class="st">&quot;Gaël Monfils&quot;</span>, </span>
-<span id="cb20-25"><a href="#cb20-25" tabindex="-1"></a>  <span class="st">&quot;Daniil Medvedev&quot;</span>, <span class="st">&quot;Stan Wawrinka&quot;</span>, <span class="st">&quot;Alexandre Müller&quot;</span>, <span class="st">&quot;Daniel Altmaier&quot;</span>, </span>
-<span id="cb20-26"><a href="#cb20-26" tabindex="-1"></a>  <span class="st">&quot;Carlos Alcaraz&quot;</span>, <span class="st">&quot;Lloyd Harris&quot;</span>, <span class="st">&quot;Arthur Cazaux&quot;</span>, <span class="st">&quot;Ugo Humbert&quot;</span>, <span class="st">&quot;Aleksandar Vukic&quot;</span>, </span>
-<span id="cb20-27"><a href="#cb20-27" tabindex="-1"></a>  <span class="st">&quot;Alexander Bublik&quot;</span>, <span class="st">&quot;Botic van de Zandschulp&quot;</span>, <span class="st">&quot;Roberto Bautista Agut&quot;</span>, </span>
-<span id="cb20-28"><a href="#cb20-28" tabindex="-1"></a>  <span class="st">&quot;Lorenzo Sonego&quot;</span>, <span class="st">&quot;Tallon Griekspoor&quot;</span>, <span class="st">&quot;Jannik Sinner&quot;</span>, <span class="st">&quot;Otto Virtanen&quot;</span>, </span>
-<span id="cb20-29"><a href="#cb20-29" tabindex="-1"></a>  <span class="st">&quot;Tommy Paul&quot;</span>, <span class="st">&quot;Miomir Kecmanovic&quot;</span>, <span class="st">&quot;Yoshihito Nishioka&quot;</span>, <span class="st">&quot;Thiago Seyboth Wild&quot;</span>, </span>
-<span id="cb20-30"><a href="#cb20-30" tabindex="-1"></a>  <span class="st">&quot;Giovanni Mpetshi Perricard&quot;</span>, <span class="st">&quot;Lorenzo Musetti&quot;</span>, <span class="st">&quot;Luciano Darderi&quot;</span>, <span class="st">&quot;Hubert Hurkacz&quot;</span>, </span>
-<span id="cb20-31"><a href="#cb20-31" tabindex="-1"></a>  <span class="st">&quot;Alex de Minaur&quot;</span>, <span class="st">&quot;Jaume Munar&quot;</span>, <span class="st">&quot;Alexei Popyrin&quot;</span>, <span class="st">&quot;Tomás Martín Etcheverry&quot;</span>, </span>
-<span id="cb20-32"><a href="#cb20-32" tabindex="-1"></a>  <span class="st">&quot;Francisco Comesaña&quot;</span>, <span class="st">&quot;Ben Shelton&quot;</span>, <span class="st">&quot;Jacob Fearnley&quot;</span>, <span class="st">&quot;Adam Walton&quot;</span>, </span>
-<span id="cb20-33"><a href="#cb20-33" tabindex="-1"></a>  <span class="st">&quot;Alexander Zverev&quot;</span>, <span class="st">&quot;Novak Djokovic&quot;</span>, <span class="st">&quot;Arthur Fils&quot;</span>, <span class="st">&quot;Stefanos Tsitsipas&quot;</span>, </span>
-<span id="cb20-34"><a href="#cb20-34" tabindex="-1"></a>  <span class="st">&quot;Holger Rune&quot;</span>, <span class="st">&quot;Marcos Giron&quot;</span>, <span class="st">&quot;Jack Draper&quot;</span>, <span class="st">&quot;Flavio Cobolli&quot;</span>, <span class="st">&quot;Cameron Norrie&quot;</span>, </span>
-<span id="cb20-35"><a href="#cb20-35" tabindex="-1"></a>  <span class="st">&quot;Taylor Fritz&quot;</span>, <span class="st">&quot;Quentin Halys&quot;</span>, <span class="st">&quot;Karen Khachanov&quot;</span>, <span class="st">&quot;Roman Safiullin&quot;</span>, </span>
-<span id="cb20-36"><a href="#cb20-36" tabindex="-1"></a>  <span class="st">&quot;Emil Ruusuvuori&quot;</span>, <span class="st">&quot;Lucas Pouille&quot;</span>, <span class="st">&quot;Arthur Rinderknech&quot;</span>, <span class="st">&quot;Tomas Machac&quot;</span>, </span>
-<span id="cb20-37"><a href="#cb20-37" tabindex="-1"></a>  <span class="st">&quot;Alejandro Tabilo&quot;</span>, <span class="st">&quot;Thanasi Kokkinakis&quot;</span></span>
-<span id="cb20-38"><a href="#cb20-38" tabindex="-1"></a>)</span>
-<span id="cb20-39"><a href="#cb20-39" tabindex="-1"></a></span>
-<span id="cb20-40"><a href="#cb20-40" tabindex="-1"></a><span class="co"># Country Code mapping</span></span>
-<span id="cb20-41"><a href="#cb20-41" tabindex="-1"></a>country_code <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb20-42"><a href="#cb20-42" tabindex="-1"></a>  <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;CHN&quot;</span>, <span class="st">&quot;NOR&quot;</span>, <span class="st">&quot;CRO&quot;</span>, <span class="st">&quot;GER&quot;</span>, <span class="st">&quot;BUL&quot;</span>, <span class="st">&quot;CAN&quot;</span>, <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;AUS&quot;</span>, <span class="st">&quot;CHN&quot;</span>, <span class="st">&quot;ITA&quot;</span>, </span>
-<span id="cb20-43"><a href="#cb20-43" tabindex="-1"></a>  <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;RUS&quot;</span>, <span class="st">&quot;SUI&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;GER&quot;</span>, <span class="st">&quot;ESP&quot;</span>, <span class="st">&quot;RSA&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;AUS&quot;</span>, </span>
-<span id="cb20-44"><a href="#cb20-44" tabindex="-1"></a>  <span class="st">&quot;KAZ&quot;</span>, <span class="st">&quot;NED&quot;</span>, <span class="st">&quot;ESP&quot;</span>, <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;NED&quot;</span>, <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;FIN&quot;</span>, <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;SRB&quot;</span>, <span class="st">&quot;JPN&quot;</span>, <span class="st">&quot;BRA&quot;</span>, </span>
-<span id="cb20-45"><a href="#cb20-45" tabindex="-1"></a>  <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;POL&quot;</span>, <span class="st">&quot;AUS&quot;</span>, <span class="st">&quot;ESP&quot;</span>, <span class="st">&quot;AUS&quot;</span>, <span class="st">&quot;ARG&quot;</span>, <span class="st">&quot;ARG&quot;</span>, <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;GBR&quot;</span>, </span>
-<span id="cb20-46"><a href="#cb20-46" tabindex="-1"></a>  <span class="st">&quot;AUS&quot;</span>, <span class="st">&quot;GER&quot;</span>, <span class="st">&quot;SRB&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;GRE&quot;</span>, <span class="st">&quot;DEN&quot;</span>, <span class="st">&quot;USA&quot;</span>, <span class="st">&quot;GBR&quot;</span>, <span class="st">&quot;ITA&quot;</span>, <span class="st">&quot;GBR&quot;</span>, <span class="st">&quot;USA&quot;</span>, </span>
-<span id="cb20-47"><a href="#cb20-47" tabindex="-1"></a>  <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;RUS&quot;</span>, <span class="st">&quot;FIN&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;FRA&quot;</span>, <span class="st">&quot;CZE&quot;</span>, <span class="st">&quot;CHI&quot;</span>, <span class="st">&quot;AUS&quot;</span></span>
-<span id="cb20-48"><a href="#cb20-48" tabindex="-1"></a>)</span>
-<span id="cb20-49"><a href="#cb20-49" tabindex="-1"></a></span>
-<span id="cb20-50"><a href="#cb20-50" tabindex="-1"></a><span class="co"># Pad shorter vectors with NA</span></span>
-<span id="cb20-51"><a href="#cb20-51" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(country_code) <span class="sc">&lt;</span> <span class="fu">length</span>(last_initial)) {</span>
-<span id="cb20-52"><a href="#cb20-52" tabindex="-1"></a>  country_code <span class="ot">&lt;-</span> <span class="fu">c</span>(country_code, <span class="cn">NA</span>)</span>
-<span id="cb20-53"><a href="#cb20-53" tabindex="-1"></a>}</span>
-<span id="cb20-54"><a href="#cb20-54" tabindex="-1"></a><span class="cf">while</span> (<span class="fu">length</span>(full_name) <span class="sc">&lt;</span> <span class="fu">length</span>(last_initial)) {</span>
-<span id="cb20-55"><a href="#cb20-55" tabindex="-1"></a>  full_name <span class="ot">&lt;-</span> <span class="fu">c</span>(full_name, <span class="cn">NA</span>)</span>
-<span id="cb20-56"><a href="#cb20-56" tabindex="-1"></a>}</span>
-<span id="cb20-57"><a href="#cb20-57" tabindex="-1"></a></span>
-<span id="cb20-58"><a href="#cb20-58" tabindex="-1"></a><span class="co"># Create the final table</span></span>
-<span id="cb20-59"><a href="#cb20-59" tabindex="-1"></a>full_names_for_wimbledon <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb20-60"><a href="#cb20-60" tabindex="-1"></a>  <span class="at">last_initial =</span> last_initial,</span>
-<span id="cb20-61"><a href="#cb20-61" tabindex="-1"></a>  <span class="at">full_name =</span> full_name,</span>
-<span id="cb20-62"><a href="#cb20-62" tabindex="-1"></a>  <span class="at">country_code =</span> country_code</span>
-<span id="cb20-63"><a href="#cb20-63" tabindex="-1"></a>)</span>
-<span id="cb20-64"><a href="#cb20-64" tabindex="-1"></a></span>
-<span id="cb20-65"><a href="#cb20-65" tabindex="-1"></a><span class="co"># View final table</span></span>
-<span id="cb20-66"><a href="#cb20-66" tabindex="-1"></a><span class="fu">print</span>(full_names_for_wimbledon)</span></code></pre></div>
+</div>
+<div id="replacing-names" class="section level2">
+<h2>Replacing names</h2>
+<pre class="r"><code>library(tidyverse)
+
+last_initial &lt;- c(
+  &quot;Fognini F.&quot;, &quot;Shang J.&quot;, &quot;Ruud C.&quot;, &quot;Coric B.&quot;, &quot;Struff J.L.&quot;, &quot;Dimitrov G.&quot;,
+  &quot;Shapovalov D.&quot;, &quot;Tiafoe F.&quot;, &quot;Thompson J.&quot;, &quot;Zhang Zh.&quot;, &quot;Berrettini M.&quot;,
+  &quot;Nakashima B.&quot;, &quot;Monfils G.&quot;, &quot;Medvedev D.&quot;, &quot;Wawrinka S.&quot;, &quot;Muller A.&quot;,
+  &quot;Altmaier D.&quot;, &quot;Alcaraz C.&quot;, &quot;Harris L.&quot;, &quot;Cazaux A.&quot;, &quot;Humbert U.&quot;,
+  &quot;Vukic A.&quot;, &quot;Bublik A.&quot;, &quot;Van De Zandschulp B.&quot;, &quot;Bautista Agut R.&quot;,
+  &quot;Sonego L.&quot;, &quot;Griekspoor T.&quot;, &quot;Sinner J.&quot;, &quot;Virtanen O.&quot;, &quot;Paul T.&quot;,
+  &quot;Kecmanovic M.&quot;, &quot;Nishioka Y.&quot;, &quot;Seyboth Wild T.&quot;, &quot;Mpetshi G.&quot;, 
+  &quot;Musetti L.&quot;, &quot;Darderi L.&quot;, &quot;Hurkacz H.&quot;, &quot;De Minaur A.&quot;, &quot;Munar J.&quot;, 
+  &quot;Popyrin A.&quot;, &quot;Etcheverry T.&quot;, &quot;Comesana F.&quot;, &quot;Shelton B.&quot;, &quot;Fearnley J.&quot;, 
+  &quot;Walton A.&quot;, &quot;Zverev A.&quot;, &quot;Djokovic N.&quot;, &quot;Fils A.&quot;, &quot;Tsitsipas S.&quot;, 
+  &quot;Rune H.&quot;, &quot;Giron M.&quot;, &quot;Draper J.&quot;, &quot;Cobolli F.&quot;, &quot;Norrie C.&quot;, &quot;Fritz T.&quot;, 
+  &quot;Halys Q.&quot;, &quot;Khachanov K.&quot;, &quot;Safiullin R.&quot;, &quot;Ruusuvuori E.&quot;, &quot;Pouille L.&quot;, 
+  &quot;Rinderknech A.&quot;, &quot;Machac T.&quot;, &quot;Tabilo A.&quot;, &quot;Kokkinakis T.&quot;
+)
+
+full_name &lt;- c(
+  &quot;Fabio Fognini&quot;, &quot;Shang Juncheng&quot;, &quot;Casper Ruud&quot;, &quot;Borna Coric&quot;, &quot;Jan-Lennard Struff&quot;, 
+  &quot;Grigor Dimitrov&quot;, &quot;Denis Shapovalov&quot;, &quot;Frances Tiafoe&quot;, &quot;Jordan Thompson&quot;, 
+  &quot;Zhang Zhizhen&quot;, &quot;Matteo Berrettini&quot;, &quot;Brandon Nakashima&quot;, &quot;Gaël Monfils&quot;, 
+  &quot;Daniil Medvedev&quot;, &quot;Stan Wawrinka&quot;, &quot;Alexandre Müller&quot;, &quot;Daniel Altmaier&quot;, 
+  &quot;Carlos Alcaraz&quot;, &quot;Lloyd Harris&quot;, &quot;Arthur Cazaux&quot;, &quot;Ugo Humbert&quot;, &quot;Aleksandar Vukic&quot;, 
+  &quot;Alexander Bublik&quot;, &quot;Botic van de Zandschulp&quot;, &quot;Roberto Bautista Agut&quot;, 
+  &quot;Lorenzo Sonego&quot;, &quot;Tallon Griekspoor&quot;, &quot;Jannik Sinner&quot;, &quot;Otto Virtanen&quot;, 
+  &quot;Tommy Paul&quot;, &quot;Miomir Kecmanovic&quot;, &quot;Yoshihito Nishioka&quot;, &quot;Thiago Seyboth Wild&quot;, 
+  &quot;Giovanni Mpetshi Perricard&quot;, &quot;Lorenzo Musetti&quot;, &quot;Luciano Darderi&quot;, &quot;Hubert Hurkacz&quot;, 
+  &quot;Alex de Minaur&quot;, &quot;Jaume Munar&quot;, &quot;Alexei Popyrin&quot;, &quot;Tomás Martín Etcheverry&quot;, 
+  &quot;Francisco Comesaña&quot;, &quot;Ben Shelton&quot;, &quot;Jacob Fearnley&quot;, &quot;Adam Walton&quot;, 
+  &quot;Alexander Zverev&quot;, &quot;Novak Djokovic&quot;, &quot;Arthur Fils&quot;, &quot;Stefanos Tsitsipas&quot;, 
+  &quot;Holger Rune&quot;, &quot;Marcos Giron&quot;, &quot;Jack Draper&quot;, &quot;Flavio Cobolli&quot;, &quot;Cameron Norrie&quot;, 
+  &quot;Taylor Fritz&quot;, &quot;Quentin Halys&quot;, &quot;Karen Khachanov&quot;, &quot;Roman Safiullin&quot;, 
+  &quot;Emil Ruusuvuori&quot;, &quot;Lucas Pouille&quot;, &quot;Arthur Rinderknech&quot;, &quot;Tomas Machac&quot;, 
+  &quot;Alejandro Tabilo&quot;, &quot;Thanasi Kokkinakis&quot;
+)
+
+
+country_code &lt;- c(
+  &quot;ITA&quot;, &quot;CHN&quot;, &quot;NOR&quot;, &quot;CRO&quot;, &quot;GER&quot;, &quot;BUL&quot;, &quot;CAN&quot;, &quot;USA&quot;, &quot;AUS&quot;, &quot;CHN&quot;, &quot;ITA&quot;, 
+  &quot;USA&quot;, &quot;FRA&quot;, &quot;RUS&quot;, &quot;SUI&quot;, &quot;FRA&quot;, &quot;GER&quot;, &quot;ESP&quot;, &quot;RSA&quot;, &quot;FRA&quot;, &quot;FRA&quot;, &quot;AUS&quot;, 
+  &quot;KAZ&quot;, &quot;NED&quot;, &quot;ESP&quot;, &quot;ITA&quot;, &quot;NED&quot;, &quot;ITA&quot;, &quot;FIN&quot;, &quot;USA&quot;, &quot;SRB&quot;, &quot;JPN&quot;, &quot;BRA&quot;, 
+  &quot;FRA&quot;, &quot;ITA&quot;, &quot;ITA&quot;, &quot;POL&quot;, &quot;AUS&quot;, &quot;ESP&quot;, &quot;AUS&quot;, &quot;ARG&quot;, &quot;ARG&quot;, &quot;USA&quot;, &quot;GBR&quot;, 
+  &quot;AUS&quot;, &quot;GER&quot;, &quot;SRB&quot;, &quot;FRA&quot;, &quot;GRE&quot;, &quot;DEN&quot;, &quot;USA&quot;, &quot;GBR&quot;, &quot;ITA&quot;, &quot;GBR&quot;, &quot;USA&quot;, 
+  &quot;FRA&quot;, &quot;RUS&quot;, &quot;FIN&quot;, &quot;FRA&quot;, &quot;FRA&quot;, &quot;CZE&quot;, &quot;CHI&quot;, &quot;AUS&quot;
+)
+
+
+while (length(country_code) &lt; length(last_initial)) {
+  country_code &lt;- c(country_code, NA)
+}
+while (length(full_name) &lt; length(last_initial)) {
+  full_name &lt;- c(full_name, NA)
+}
+
+
+full_names_for_wimbledon &lt;- tibble(
+  last_initial = last_initial,
+  full_name = full_name,
+  country_code = country_code
+)
+
+# View final table
+print(full_names_for_wimbledon)</code></pre>
 <pre><code>## # A tibble: 64 × 3
 ##    last_initial  full_name          country_code
 ##    &lt;chr&gt;         &lt;chr&gt;              &lt;chr&gt;       
@@ -986,24 +785,23 @@ data</h2>
 ##  9 Thompson J.   Jordan Thompson    AUS         
 ## 10 Zhang Zh.     Zhang Zhizhen      CHN         
 ## # ℹ 54 more rows</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># Save as CSV</span></span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="fu">write_csv</span>(full_names_for_wimbledon, <span class="st">&quot;full_names_for_wimbledon.csv&quot;</span>)</span></code></pre></div>
-<h2 id="replacing-shortened-names">Replacing shortened names</h2>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a><span class="co"># Perform the replacement</span></span>
-<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>cleaned_df_updated <span class="ot">&lt;-</span> cleaned_df_webscraping_data_added <span class="sc">%&gt;%</span></span>
-<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>  <span class="co"># Update winner_name by matching with full_names_for_wimbledon</span></span>
-<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>  <span class="fu">left_join</span>(full_names_for_wimbledon, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;last_initial&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_name =</span> <span class="fu">if_else</span>(<span class="sc">!</span><span class="fu">is.na</span>(full_name), full_name, winner_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>full_name) <span class="sc">%&gt;%</span> <span class="co"># Remove the temporary full_name column</span></span>
-<span id="cb23-9"><a href="#cb23-9" tabindex="-1"></a>  <span class="co"># Update loser_name by matching with full_names_for_wimbledon</span></span>
-<span id="cb23-10"><a href="#cb23-10" tabindex="-1"></a>  <span class="fu">left_join</span>(full_names_for_wimbledon, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;last_initial&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-11"><a href="#cb23-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_name =</span> <span class="fu">if_else</span>(<span class="sc">!</span><span class="fu">is.na</span>(full_name), full_name, loser_name)) <span class="sc">%&gt;%</span></span>
-<span id="cb23-12"><a href="#cb23-12" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>full_name) <span class="co"># Remove the temporary full_name column</span></span>
-<span id="cb23-13"><a href="#cb23-13" tabindex="-1"></a></span>
-<span id="cb23-14"><a href="#cb23-14" tabindex="-1"></a><span class="co"># View the updated table</span></span>
-<span id="cb23-15"><a href="#cb23-15" tabindex="-1"></a><span class="fu">print</span>(cleaned_df_updated)</span></code></pre></div>
+<pre class="r"><code>write_csv(full_names_for_wimbledon, &quot;full_names_for_wimbledon.csv&quot;)</code></pre>
+</div>
+<div id="replacing-shortened-names" class="section level2">
+<h2>Replacing shortened names</h2>
+<pre class="r"><code>library(tidyverse)
+
+cleaned_df_updated &lt;- cleaned_df_webscraping_data_added %&gt;%
+  # Update winner_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c(&quot;winner_name&quot; = &quot;last_initial&quot;)) %&gt;%
+  mutate(winner_name = if_else(!is.na(full_name), full_name, winner_name)) %&gt;%
+  select(-full_name) %&gt;% # Remove the temporary full_name column
+  # Update loser_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c(&quot;loser_name&quot; = &quot;last_initial&quot;)) %&gt;%
+  mutate(loser_name = if_else(!is.na(full_name), full_name, loser_name)) %&gt;%
+  select(-full_name) # Remove the temporary full_name column
+
+print(cleaned_df_updated)</code></pre>
 <pre><code>##         tourney_name tourney_date winner_id winner_seed winner_entry
 ## 1    Australian Open   2014-01-13    104745           1         &lt;NA&gt;
 ## 2    Australian Open   2014-01-13    106423          NA           WC
@@ -18789,15 +18587,12 @@ data</h2>
 ## 2221               303           &lt;NA&gt;           &lt;NA&gt;
 ## 2222               720           &lt;NA&gt;           &lt;NA&gt;
 ##  [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 3239 rows ]</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="co">#View(cleaned_df_updated)</span></span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="co"># Save the updated table as a CSV file</span></span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="fu">write_csv</span>(cleaned_df_updated, <span class="st">&quot;cleaned_df_updated.csv&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="co"># Load the file</span></span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;data/cleaned_df_updated_99.csv&quot;</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a><span class="co"># View the first few rows</span></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a><span class="fu">head</span>(cleaned_df_updated_2)</span></code></pre></div>
+<pre class="r"><code>#View(cleaned_df_updated)
+
+write_csv(cleaned_df_updated, &quot;cleaned_df_updated.csv&quot;)</code></pre>
+<pre class="r"><code>cleaned_df_updated_2 &lt;- read.csv(&quot;data/cleaned_df_updated_99.csv&quot;)
+
+head(cleaned_df_updated_2)</code></pre>
 <pre><code>##      tourney_name tourney_date winner_id winner_seed winner_entry
 ## 1 Australian Open   2014-01-13    104745           1         &lt;NA&gt;
 ## 2 Australian Open   2014-01-13    106423          NA           WC
@@ -18847,87 +18642,79 @@ data</h2>
 ## 4        110               504           &lt;NA&gt;           &lt;NA&gt;
 ## 5         43              1010           &lt;NA&gt;           &lt;NA&gt;
 ## 6         45               977           &lt;NA&gt;           &lt;NA&gt;</code></pre>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="co"># Or open in a viewer pane</span></span>
-<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<h2 id="organizing-ids">organizing IDs</h2>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a><span class="co"># Step 1: Create a lookup table with unique player names and their IDs</span></span>
-<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a>player_lookup <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a>  <span class="fu">select</span>(winner_name, winner_id) <span class="sc">%&gt;%</span></span>
-<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">player_name =</span> winner_name, <span class="at">player_id =</span> winner_id) <span class="sc">%&gt;%</span></span>
-<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
-<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a>    cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a>      <span class="fu">select</span>(loser_name, loser_id) <span class="sc">%&gt;%</span></span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a>      <span class="fu">rename</span>(<span class="at">player_name =</span> loser_name, <span class="at">player_id =</span> loser_id)</span>
-<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a>  <span class="co"># Ensure one unique ID per player</span></span>
-<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a>  <span class="fu">group_by</span>(player_name) <span class="sc">%&gt;%</span></span>
-<span id="cb29-14"><a href="#cb29-14" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">player_id =</span> <span class="fu">first</span>(<span class="fu">na.omit</span>(player_id)), <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb29-15"><a href="#cb29-15" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">player_id =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(player_id), <span class="fu">sprintf</span>(<span class="st">&quot;%06d&quot;</span>, <span class="fu">sample</span>(<span class="fl">1e5</span><span class="sc">:</span><span class="dv">999999</span>, <span class="fu">n</span>(), <span class="at">replace =</span> <span class="cn">FALSE</span>)), player_id))</span>
-<span id="cb29-16"><a href="#cb29-16" tabindex="-1"></a></span>
-<span id="cb29-17"><a href="#cb29-17" tabindex="-1"></a><span class="co"># Step 2: Update the `winner_id` and `loser_id` columns in the original dataset</span></span>
-<span id="cb29-18"><a href="#cb29-18" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb29-19"><a href="#cb29-19" tabindex="-1"></a>  <span class="fu">left_join</span>(player_lookup, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;player_name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-20"><a href="#cb29-20" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_id =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(player_id), <span class="fu">as.character</span>(winner_id))) <span class="sc">%&gt;%</span></span>
-<span id="cb29-21"><a href="#cb29-21" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>player_id) <span class="sc">%&gt;%</span></span>
-<span id="cb29-22"><a href="#cb29-22" tabindex="-1"></a>  <span class="fu">left_join</span>(player_lookup, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;player_name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb29-23"><a href="#cb29-23" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_id =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(player_id), <span class="fu">as.character</span>(loser_id))) <span class="sc">%&gt;%</span></span>
-<span id="cb29-24"><a href="#cb29-24" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>player_id)</span>
-<span id="cb29-25"><a href="#cb29-25" tabindex="-1"></a></span>
-<span id="cb29-26"><a href="#cb29-26" tabindex="-1"></a><span class="co"># Step 3: Convert IDs back to integers if needed</span></span>
-<span id="cb29-27"><a href="#cb29-27" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb29-28"><a href="#cb29-28" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_id =</span> <span class="fu">as.integer</span>(winner_id),</span>
-<span id="cb29-29"><a href="#cb29-29" tabindex="-1"></a>         <span class="at">loser_id =</span> <span class="fu">as.integer</span>(loser_id))</span>
-<span id="cb29-30"><a href="#cb29-30" tabindex="-1"></a></span>
-<span id="cb29-31"><a href="#cb29-31" tabindex="-1"></a><span class="co"># Step 4: View the updated dataset</span></span>
-<span id="cb29-32"><a href="#cb29-32" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<h2 id="adding-seeds-for-wimbledon">Adding seeds for wimbledon</h2>
-<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a></span>
-<span id="cb30-3"><a href="#cb30-3" tabindex="-1"></a><span class="co"># Filter rows 5329 to 5461 in cleaned_df_updated_2</span></span>
-<span id="cb30-4"><a href="#cb30-4" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> cleaned_df_updated_2[<span class="dv">5335</span><span class="sc">:</span><span class="dv">5461</span>, ]</span>
-<span id="cb30-5"><a href="#cb30-5" tabindex="-1"></a></span>
-<span id="cb30-6"><a href="#cb30-6" tabindex="-1"></a><span class="co"># Match seeds and update the specific rows</span></span>
-<span id="cb30-7"><a href="#cb30-7" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> rows_to_update <span class="sc">%&gt;%</span></span>
-<span id="cb30-8"><a href="#cb30-8" tabindex="-1"></a>  <span class="co"># Join with the seed table based on winner_name</span></span>
-<span id="cb30-9"><a href="#cb30-9" tabindex="-1"></a>  <span class="fu">left_join</span>(seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb30-10"><a href="#cb30-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(winner_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb30-11"><a href="#cb30-11" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed) <span class="sc">%&gt;%</span></span>
-<span id="cb30-12"><a href="#cb30-12" tabindex="-1"></a>  <span class="co"># Join with the seed table based on loser_name</span></span>
-<span id="cb30-13"><a href="#cb30-13" tabindex="-1"></a>  <span class="fu">left_join</span>(seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb30-14"><a href="#cb30-14" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(loser_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb30-15"><a href="#cb30-15" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed)</span>
-<span id="cb30-16"><a href="#cb30-16" tabindex="-1"></a></span>
-<span id="cb30-17"><a href="#cb30-17" tabindex="-1"></a><span class="co"># Replace rows 5329–5461 in the original dataset</span></span>
-<span id="cb30-18"><a href="#cb30-18" tabindex="-1"></a>cleaned_df_updated_2[<span class="dv">5335</span><span class="sc">:</span><span class="dv">5461</span>, ] <span class="ot">&lt;-</span> rows_to_update</span>
-<span id="cb30-19"><a href="#cb30-19" tabindex="-1"></a></span>
-<span id="cb30-20"><a href="#cb30-20" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
-<span id="cb30-21"><a href="#cb30-21" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
-<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="co"># Step 1: Scrape data from the US Open website</span></span>
-<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://en.wikipedia.org/wiki/2024_US_Open_–_Men%27s_singles&quot;</span></span>
-<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>dl_data <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
-<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;dl&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a>  <span class="fu">html_text</span>(<span class="at">trim =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a></span>
-<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="co"># Step 2: Process the scraped data into a clean table</span></span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a>us_open_seed_table <span class="ot">&lt;-</span> <span class="fu">str_split</span>(dl_data, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="sc">%&gt;%</span>  <span class="co"># Split by lines</span></span>
-<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>  <span class="fu">unlist</span>() <span class="sc">%&gt;%</span>                                     <span class="co"># Convert list to vector</span></span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">raw =</span> .) <span class="sc">%&gt;%</span>                              <span class="co"># Create a tibble</span></span>
-<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a>    <span class="at">Seed =</span> <span class="fu">str_extract</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+&quot;</span>),                        <span class="co"># Extract the seed number</span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">s+&quot;</span>),           <span class="co"># Remove the seed and leading text</span></span>
-<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(Player_Info, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(.*</span><span class="sc">\\</span><span class="st">)&quot;</span>),       <span class="co"># Remove the round/result info</span></span>
-<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_trim</span>(Player_Info)                     <span class="co"># Trim any extra spaces</span></span>
-<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Seed)) <span class="sc">%&gt;%</span>                                  <span class="co"># Keep only rows with seeds</span></span>
-<span id="cb31-21"><a href="#cb31-21" tabindex="-1"></a>  <span class="fu">select</span>(Seed, Player_Info)                                 <span class="co"># Keep only relevant columns</span></span>
-<span id="cb31-22"><a href="#cb31-22" tabindex="-1"></a></span>
-<span id="cb31-23"><a href="#cb31-23" tabindex="-1"></a><span class="co"># View the US Open seed table</span></span>
-<span id="cb31-24"><a href="#cb31-24" tabindex="-1"></a><span class="fu">print</span>(us_open_seed_table)</span></code></pre></div>
+<pre class="r"><code>#View(cleaned_df_updated_2)</code></pre>
+</div>
+<div id="organizing-ids" class="section level2">
+<h2>organizing IDs</h2>
+<pre class="r"><code>library(dplyr)
+
+player_lookup &lt;- cleaned_df_updated_2 %&gt;%
+  select(winner_name, winner_id) %&gt;%
+  rename(player_name = winner_name, player_id = winner_id) %&gt;%
+  bind_rows(
+    cleaned_df_updated_2 %&gt;%
+      select(loser_name, loser_id) %&gt;%
+      rename(player_name = loser_name, player_id = loser_id)
+  ) %&gt;%
+  # Ensure one unique ID per player
+  group_by(player_name) %&gt;%
+  summarize(player_id = first(na.omit(player_id)), .groups = &quot;drop&quot;) %&gt;%
+  mutate(player_id = ifelse(is.na(player_id), sprintf(&quot;%06d&quot;, sample(1e5:999999, n(), replace = FALSE)), player_id))
+
+cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  left_join(player_lookup, by = c(&quot;winner_name&quot; = &quot;player_name&quot;)) %&gt;%
+  mutate(winner_id = coalesce(as.character(player_id), as.character(winner_id))) %&gt;%
+  select(-player_id) %&gt;%
+  left_join(player_lookup, by = c(&quot;loser_name&quot; = &quot;player_name&quot;)) %&gt;%
+  mutate(loser_id = coalesce(as.character(player_id), as.character(loser_id))) %&gt;%
+  select(-player_id)
+
+cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  mutate(winner_id = as.integer(winner_id),
+         loser_id = as.integer(loser_id))
+
+#View(cleaned_df_updated_2)</code></pre>
+</div>
+<div id="adding-seeds-for-wimbledon" class="section level2">
+<h2>Adding seeds for wimbledon</h2>
+<pre class="r"><code>library(dplyr)
+
+rows_to_update &lt;- cleaned_df_updated_2[5335:5461, ]
+
+rows_to_update &lt;- rows_to_update %&gt;%
+  left_join(seed_table, by = c(&quot;winner_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %&gt;%
+  select(-Seed) %&gt;%
+  left_join(seed_table, by = c(&quot;loser_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %&gt;%
+  select(-Seed)
+
+cleaned_df_updated_2[5335:5461, ] &lt;- rows_to_update
+
+#View(cleaned_df_updated_2)</code></pre>
+<pre class="r"><code>library(rvest)
+library(tidyverse)
+
+url &lt;- &quot;https://en.wikipedia.org/wiki/2024_US_Open_–_Men%27s_singles&quot;
+dl_data &lt;- read_html(url) %&gt;% 
+  html_nodes(&quot;dl&quot;) %&gt;% 
+  html_text(trim = TRUE)
+
+
+us_open_seed_table &lt;- str_split(dl_data, &quot;\n&quot;) %&gt;% 
+  unlist() %&gt;%                                   
+  tibble(raw = .) %&gt;%                         
+  mutate(
+    Seed = str_extract(raw, &quot;^\\d+&quot;),                
+    Player_Info = str_remove(raw, &quot;^\\d+\\.\\s+&quot;),         
+    Player_Info = str_remove(Player_Info, &quot;\\(.*\\)&quot;),       
+    Player_Info = str_trim(Player_Info)                 
+  ) %&gt;%
+  filter(!is.na(Seed)) %&gt;%                            
+  select(Seed, Player_Info)                              
+
+
+print(us_open_seed_table)</code></pre>
 <pre><code>## # A tibble: 32 × 2
 ##    Seed  Player_Info     
 ##    &lt;chr&gt; &lt;chr&gt;           
@@ -18942,52 +18729,54 @@ data</h2>
 ##  9 09    Grigor Dimitrov 
 ## 10 10    Alex de Minaur  
 ## # ℹ 22 more rows</code></pre>
-<h2 id="adding-us-open-seeds">adding us open seeds</h2>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a></span>
-<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a><span class="co"># Filter rows 5329 to 5461 in cleaned_df_updated_2</span></span>
-<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> cleaned_df_updated_2[<span class="dv">5208</span><span class="sc">:</span><span class="dv">5334</span>, ]</span>
-<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a></span>
-<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a><span class="co"># Match seeds and update the specific rows</span></span>
-<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> rows_to_update <span class="sc">%&gt;%</span></span>
-<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a>  <span class="co"># Join with the US Open seed table based on winner_name</span></span>
-<span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a>  <span class="fu">left_join</span>(us_open_seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(winner_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed) <span class="sc">%&gt;%</span></span>
-<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a>  <span class="co"># Join with the US Open seed table based on loser_name</span></span>
-<span id="cb33-13"><a href="#cb33-13" tabindex="-1"></a>  <span class="fu">left_join</span>(us_open_seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb33-14"><a href="#cb33-14" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(loser_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb33-15"><a href="#cb33-15" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed)</span>
-<span id="cb33-16"><a href="#cb33-16" tabindex="-1"></a></span>
-<span id="cb33-17"><a href="#cb33-17" tabindex="-1"></a><span class="co"># Replace rows 5329–5461 in the original dataset</span></span>
-<span id="cb33-18"><a href="#cb33-18" tabindex="-1"></a>cleaned_df_updated_2[<span class="dv">5208</span><span class="sc">:</span><span class="dv">5334</span>, ] <span class="ot">&lt;-</span> rows_to_update</span>
-<span id="cb33-19"><a href="#cb33-19" tabindex="-1"></a></span>
-<span id="cb33-20"><a href="#cb33-20" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
-<span id="cb33-21"><a href="#cb33-21" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="fu">library</span>(rvest)</span>
-<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a><span class="co"># Step 1: Scrape data from the French Open website</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a>url <span class="ot">&lt;-</span> <span class="st">&quot;https://en.wikipedia.org/wiki/2024_French_Open_–_Men%27s_singles&quot;</span></span>
-<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a>dl_data <span class="ot">&lt;-</span> <span class="fu">read_html</span>(url) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a>  <span class="fu">html_nodes</span>(<span class="st">&quot;dl&quot;</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a>  <span class="fu">html_text</span>(<span class="at">trim =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a></span>
-<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a><span class="co"># Step 2: Process the scraped data into a clean table</span></span>
-<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a>french_open_seed_table <span class="ot">&lt;-</span> <span class="fu">str_split</span>(dl_data, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>) <span class="sc">%&gt;%</span>  <span class="co"># Split by lines</span></span>
-<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a>  <span class="fu">unlist</span>() <span class="sc">%&gt;%</span>                                         <span class="co"># Convert list to vector</span></span>
-<span id="cb34-13"><a href="#cb34-13" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">raw =</span> .) <span class="sc">%&gt;%</span>                                  <span class="co"># Create a tibble</span></span>
-<span id="cb34-14"><a href="#cb34-14" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb34-15"><a href="#cb34-15" tabindex="-1"></a>    <span class="at">Seed =</span> <span class="fu">str_extract</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+&quot;</span>),                        <span class="co"># Extract the seed number</span></span>
-<span id="cb34-16"><a href="#cb34-16" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(raw, <span class="st">&quot;^</span><span class="sc">\\</span><span class="st">d+</span><span class="sc">\\</span><span class="st">.</span><span class="sc">\\</span><span class="st">s+&quot;</span>),           <span class="co"># Remove the seed and leading text</span></span>
-<span id="cb34-17"><a href="#cb34-17" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_remove</span>(Player_Info, <span class="st">&quot;</span><span class="sc">\\</span><span class="st">(.*</span><span class="sc">\\</span><span class="st">)&quot;</span>),       <span class="co"># Remove the round/result info</span></span>
-<span id="cb34-18"><a href="#cb34-18" tabindex="-1"></a>    <span class="at">Player_Info =</span> <span class="fu">str_trim</span>(Player_Info)                     <span class="co"># Trim any extra spaces</span></span>
-<span id="cb34-19"><a href="#cb34-19" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb34-20"><a href="#cb34-20" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Seed)) <span class="sc">%&gt;%</span>                                  <span class="co"># Keep only rows with seeds</span></span>
-<span id="cb34-21"><a href="#cb34-21" tabindex="-1"></a>  <span class="fu">select</span>(Seed, Player_Info)                                 <span class="co"># Keep only relevant columns</span></span>
-<span id="cb34-22"><a href="#cb34-22" tabindex="-1"></a></span>
-<span id="cb34-23"><a href="#cb34-23" tabindex="-1"></a><span class="co"># View the French Open seed table</span></span>
-<span id="cb34-24"><a href="#cb34-24" tabindex="-1"></a><span class="fu">print</span>(french_open_seed_table)</span></code></pre></div>
+</div>
+<div id="adding-us-open-seeds" class="section level2">
+<h2>adding us open seeds</h2>
+<pre class="r"><code>library(dplyr)
+
+
+rows_to_update &lt;- cleaned_df_updated_2[5208:5334, ]
+
+
+rows_to_update &lt;- rows_to_update %&gt;%
+
+  left_join(us_open_seed_table, by = c(&quot;winner_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %&gt;%
+  select(-Seed) %&gt;%
+
+  left_join(us_open_seed_table, by = c(&quot;loser_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %&gt;%
+  select(-Seed)
+
+
+cleaned_df_updated_2[5208:5334, ] &lt;- rows_to_update
+
+
+#View(cleaned_df_updated_2)</code></pre>
+<pre class="r"><code>library(rvest)
+library(tidyverse)
+
+
+url &lt;- &quot;https://en.wikipedia.org/wiki/2024_French_Open_–_Men%27s_singles&quot;
+dl_data &lt;- read_html(url) %&gt;% 
+  html_nodes(&quot;dl&quot;) %&gt;% 
+  html_text(trim = TRUE)
+
+
+french_open_seed_table &lt;- str_split(dl_data, &quot;\n&quot;) %&gt;%  
+  unlist() %&gt;%                                        
+  tibble(raw = .) %&gt;%                             
+  mutate(
+    Seed = str_extract(raw, &quot;^\\d+&quot;),                      
+    Player_Info = str_remove(raw, &quot;^\\d+\\.\\s+&quot;), 
+    Player_Info = str_remove(Player_Info, &quot;\\(.*\\)&quot;),     
+    Player_Info = str_trim(Player_Info)                  
+  ) %&gt;%
+  filter(!is.na(Seed)) %&gt;%                             
+  select(Seed, Player_Info)                                 
+
+
+print(french_open_seed_table)</code></pre>
 <pre><code>## # A tibble: 32 × 2
 ##    Seed  Player_Info       
 ##    &lt;chr&gt; &lt;chr&gt;             
@@ -19002,92 +18791,156 @@ data</h2>
 ##  9 09    Stefanos Tsitsipas
 ## 10 10    Grigor Dimitrov   
 ## # ℹ 22 more rows</code></pre>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="co"># Step 3: Update the dataset `cleaned_df_updated_2`</span></span>
-<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a></span>
-<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a><span class="co"># Filter rows 5329 to 5461 in cleaned_df_updated_2</span></span>
-<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> cleaned_df_updated_2[<span class="dv">5081</span><span class="sc">:</span><span class="dv">5207</span>, ]</span>
-<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a></span>
-<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co"># Match seeds and update the specific rows</span></span>
-<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a>rows_to_update <span class="ot">&lt;-</span> rows_to_update <span class="sc">%&gt;%</span></span>
-<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a>  <span class="co"># Join with the French Open seed table based on winner_name</span></span>
-<span id="cb36-10"><a href="#cb36-10" tabindex="-1"></a>  <span class="fu">left_join</span>(french_open_seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-11"><a href="#cb36-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(winner_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb36-12"><a href="#cb36-12" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed) <span class="sc">%&gt;%</span></span>
-<span id="cb36-13"><a href="#cb36-13" tabindex="-1"></a>  <span class="co"># Join with the French Open seed table based on loser_name</span></span>
-<span id="cb36-14"><a href="#cb36-14" tabindex="-1"></a>  <span class="fu">left_join</span>(french_open_seed_table, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;Player_Info&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb36-15"><a href="#cb36-15" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_seed =</span> <span class="fu">coalesce</span>(<span class="fu">as.character</span>(Seed), <span class="fu">as.character</span>(loser_seed))) <span class="sc">%&gt;%</span></span>
-<span id="cb36-16"><a href="#cb36-16" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Seed)</span>
-<span id="cb36-17"><a href="#cb36-17" tabindex="-1"></a></span>
-<span id="cb36-18"><a href="#cb36-18" tabindex="-1"></a><span class="co"># Replace rows 5329–5461 in the original dataset</span></span>
-<span id="cb36-19"><a href="#cb36-19" tabindex="-1"></a>cleaned_df_updated_2[<span class="dv">5081</span><span class="sc">:</span><span class="dv">5207</span>, ] <span class="ot">&lt;-</span> rows_to_update</span>
-<span id="cb36-20"><a href="#cb36-20" tabindex="-1"></a></span>
-<span id="cb36-21"><a href="#cb36-21" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
-<span id="cb36-22"><a href="#cb36-22" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a></span>
-<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co"># Create a lookup table for winner_name and their country codes</span></span>
-<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a>winner_country_lookup <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb37-5"><a href="#cb37-5" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(winner_ioc)) <span class="sc">%&gt;%</span>  <span class="co"># Keep only rows with known country codes</span></span>
-<span id="cb37-6"><a href="#cb37-6" tabindex="-1"></a>  <span class="fu">select</span>(winner_name, winner_ioc) <span class="sc">%&gt;%</span></span>
-<span id="cb37-7"><a href="#cb37-7" tabindex="-1"></a>  <span class="fu">distinct</span>()                      <span class="co"># Remove duplicates</span></span>
-<span id="cb37-8"><a href="#cb37-8" tabindex="-1"></a></span>
-<span id="cb37-9"><a href="#cb37-9" tabindex="-1"></a><span class="co"># Create a lookup table for loser_name and their country codes</span></span>
-<span id="cb37-10"><a href="#cb37-10" tabindex="-1"></a>loser_country_lookup <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb37-11"><a href="#cb37-11" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(loser_ioc)) <span class="sc">%&gt;%</span>   <span class="co"># Keep only rows with known country codes</span></span>
-<span id="cb37-12"><a href="#cb37-12" tabindex="-1"></a>  <span class="fu">select</span>(loser_name, loser_ioc) <span class="sc">%&gt;%</span></span>
-<span id="cb37-13"><a href="#cb37-13" tabindex="-1"></a>  <span class="fu">distinct</span>()                      <span class="co"># Remove duplicates</span></span>
-<span id="cb37-14"><a href="#cb37-14" tabindex="-1"></a></span>
-<span id="cb37-15"><a href="#cb37-15" tabindex="-1"></a><span class="co"># Fill in missing country codes for winner_ioc</span></span>
-<span id="cb37-16"><a href="#cb37-16" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb37-17"><a href="#cb37-17" tabindex="-1"></a>  <span class="fu">left_join</span>(winner_country_lookup, <span class="at">by =</span> <span class="st">&quot;winner_name&quot;</span>, <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;_lookup&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb37-18"><a href="#cb37-18" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(winner_ioc), winner_ioc_lookup, winner_ioc)) <span class="sc">%&gt;%</span></span>
-<span id="cb37-19"><a href="#cb37-19" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>winner_ioc_lookup)</span></code></pre></div>
-<pre><code>## Warning in left_join(., winner_country_lookup, by = &quot;winner_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and
-## `y`.
+<pre class="r"><code>library(dplyr)
+
+
+rows_to_update &lt;- cleaned_df_updated_2[5081:5207, ]
+
+
+rows_to_update &lt;- rows_to_update %&gt;%
+
+  left_join(french_open_seed_table, by = c(&quot;winner_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %&gt;%
+  select(-Seed) %&gt;%
+
+  left_join(french_open_seed_table, by = c(&quot;loser_name&quot; = &quot;Player_Info&quot;)) %&gt;%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %&gt;%
+  select(-Seed)
+
+
+cleaned_df_updated_2[5081:5207, ] &lt;- rows_to_update
+
+
+#View(cleaned_df_updated_2)</code></pre>
+<pre class="r"><code>library(dplyr)
+
+
+winner_country_lookup &lt;- cleaned_df_updated_2 %&gt;%
+  filter(!is.na(winner_ioc)) %&gt;%  
+  select(winner_name, winner_ioc) %&gt;%
+  distinct()                 
+
+
+loser_country_lookup &lt;- cleaned_df_updated_2 %&gt;%
+  filter(!is.na(loser_ioc)) %&gt;%   
+  select(loser_name, loser_ioc) %&gt;%
+  distinct()                    
+
+
+cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  left_join(winner_country_lookup, by = &quot;winner_name&quot;, suffix = c(&quot;&quot;, &quot;_lookup&quot;)) %&gt;%
+  mutate(winner_ioc = if_else(is.na(winner_ioc), winner_ioc_lookup, winner_ioc)) %&gt;%
+  select(-winner_ioc_lookup)</code></pre>
+<pre><code>## Warning in left_join(., winner_country_lookup, by = &quot;winner_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1404 of `x` matches multiple rows in `y`.
 ## ℹ Row 1 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="co"># Fill in missing country codes for loser_ioc</span></span>
-<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a>  <span class="fu">left_join</span>(loser_country_lookup, <span class="at">by =</span> <span class="st">&quot;loser_name&quot;</span>, <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;_lookup&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(loser_ioc), loser_ioc_lookup, loser_ioc)) <span class="sc">%&gt;%</span></span>
-<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loser_ioc_lookup)</span></code></pre></div>
-<pre><code>## Warning in left_join(., loser_country_lookup, by = &quot;loser_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and
-## `y`.
+<pre class="r"><code>cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  left_join(loser_country_lookup, by = &quot;loser_name&quot;, suffix = c(&quot;&quot;, &quot;_lookup&quot;)) %&gt;%
+  mutate(loser_ioc = if_else(is.na(loser_ioc), loser_ioc_lookup, loser_ioc)) %&gt;%
+  select(-loser_ioc_lookup)</code></pre>
+<pre><code>## Warning in left_join(., loser_country_lookup, by = &quot;loser_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1466 of `x` matches multiple rows in `y`.
 ## ℹ Row 32 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="co"># View the updated table</span></span>
-<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="co"># Ensure that full_names_for_wimbledon has the necessary columns</span></span>
-<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a><span class="co"># full_names_for_wimbledon should have &quot;full_name&quot; and &quot;country_code&quot;</span></span>
-<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a></span>
-<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a><span class="co"># Update winner_ioc based on matching winner_name to full_name</span></span>
-<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb42-6"><a href="#cb42-6" tabindex="-1"></a>  <span class="fu">left_join</span>(full_names_for_wimbledon, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;full_name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb42-7"><a href="#cb42-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(winner_ioc), country_code, winner_ioc)) <span class="sc">%&gt;%</span></span>
-<span id="cb42-8"><a href="#cb42-8" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>country_code)  <span class="co"># Remove the temporary country_code column</span></span>
-<span id="cb42-9"><a href="#cb42-9" tabindex="-1"></a></span>
-<span id="cb42-10"><a href="#cb42-10" tabindex="-1"></a><span class="co"># Update loser_ioc based on matching loser_name to full_name</span></span>
-<span id="cb42-11"><a href="#cb42-11" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb42-12"><a href="#cb42-12" tabindex="-1"></a>  <span class="fu">left_join</span>(full_names_for_wimbledon, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;loser_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;full_name&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb42-13"><a href="#cb42-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(loser_ioc), country_code, loser_ioc)) <span class="sc">%&gt;%</span></span>
-<span id="cb42-14"><a href="#cb42-14" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>country_code)  <span class="co"># Remove the temporary country_code column</span></span>
-<span id="cb42-15"><a href="#cb42-15" tabindex="-1"></a></span>
-<span id="cb42-16"><a href="#cb42-16" tabindex="-1"></a><span class="co"># View the updated table</span></span>
-<span id="cb42-17"><a href="#cb42-17" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a><span class="co"># Remove unnecessary columns</span></span>
-<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
-<span id="cb43-3"><a href="#cb43-3" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>last_initial.x, <span class="sc">-</span>last_initial.y, <span class="sc">-</span>country_code.x, <span class="sc">-</span>country_code.y)</span>
-<span id="cb43-4"><a href="#cb43-4" tabindex="-1"></a></span>
-<span id="cb43-5"><a href="#cb43-5" tabindex="-1"></a><span class="co"># Save the cleaned dataset to a CSV file</span></span>
-<span id="cb43-6"><a href="#cb43-6" tabindex="-1"></a><span class="fu">write_csv</span>(cleaned_df_updated_2, <span class="st">&quot;cleaned_data_with_full_2024_data_added.csv&quot;</span>)</span>
-<span id="cb43-7"><a href="#cb43-7" tabindex="-1"></a></span>
-<span id="cb43-8"><a href="#cb43-8" tabindex="-1"></a><span class="co"># Confirm by viewing the updated dataset</span></span>
-<span id="cb43-9"><a href="#cb43-9" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
+<pre class="r"><code>#View(cleaned_df_updated_2)</code></pre>
+<pre class="r"><code>cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  left_join(full_names_for_wimbledon, by = c(&quot;winner_name&quot; = &quot;full_name&quot;)) %&gt;%
+  mutate(winner_ioc = if_else(is.na(winner_ioc), country_code, winner_ioc)) %&gt;%
+  select(-country_code) 
+
+cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  left_join(full_names_for_wimbledon, by = c(&quot;loser_name&quot; = &quot;full_name&quot;)) %&gt;%
+  mutate(loser_ioc = if_else(is.na(loser_ioc), country_code, loser_ioc)) %&gt;%
+  select(-country_code) 
+
+
+#View(cleaned_df_updated_2)</code></pre>
+<pre class="r"><code>cleaned_df_updated_2 &lt;- cleaned_df_updated_2 %&gt;%
+  select(-last_initial.x, -last_initial.y, -country_code.x, -country_code.y)
+
+write_csv(cleaned_df_updated_2, &quot;data/cleaned_data_with_full_2024_data_added.csv&quot;)
+
+#View(cleaned_df_updated_2)</code></pre>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 
 </body>
 </html>
