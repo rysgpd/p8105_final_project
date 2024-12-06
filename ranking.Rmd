@@ -1,8 +1,6 @@
 ---
-title: "Statistic Analysis"
+title: "Match and Player Analyses"
 ---
-
-## Statistical and Exploratory Analyses on Match Winners (Seeding, Ages, etc)
 
 ```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)

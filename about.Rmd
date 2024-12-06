@@ -483,7 +483,7 @@ ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
 - Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
 - The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
 
-#### Ages of Winners
+#### Ages of Winners and Losers
 
 Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
 
@@ -503,6 +503,7 @@ ggplot(player_ages, aes(x = year, y = age, fill = role)) +
 - The median age of winners has remained relatively stable, with a slight increase in recent years (around 30–33 years old). 
 - The median age of losers also seems consistent but generally appears slightly younger than winners.  
 
+#### Ages of Only Winners
 * This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
 * After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
 * 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
@@ -523,7 +524,7 @@ df2 %>%
         plot.title = element_text(hjust = 0.5))
 ```
 
-### Tornament Analyses
+### Tournament Analyses
 #### Country/Player winning the most
 ```{r message=FALSE, warning=FALSE}
 
@@ -656,8 +657,10 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
 - Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
 
 ### Suspensions
+
 #### A Track of Players and Their Performances With Suspensions (Doping)
 Our analysis focuses on the impact of doping sanctions on player performance in professional tennis. We've collected data from both the International Tennis Integrity Agency (ITIA) and Wikipedia to create a comprehensive dataset of doping cases.
+
 #### Methods
 We faced several challenges in data collection: 
 - Lack of a centralized database for tennis doping cases
