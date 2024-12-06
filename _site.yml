@@ -4,19 +4,19 @@ navbar:
   title: "Home"
   right:
     - text: "About"
-      href: about.html
-    - text: "Demographics"
+      menu:
+      - text: Project Report
+        href: about.html
+      - text: About Us
+        href: about_us.html
+    - text: "Country Analyses"
       href: demographics.html
-    - text: "Trends"
-      href: trends.html
-    - text: "Rankings"
+    - text: "Match and Player Analyses"
       href: ranking.html
-    - text: "Wins"
+    - text: "Tournament Analyses"
       href: wins.html
     - text: "Suspensions"
       href: suspensions.html
-    - text: "About Us"
-      href: about_us.html
     - icon: fa-github fa-lg
       href: https://github.com/rysgpd/p8105_final_project.github.io
 output:
