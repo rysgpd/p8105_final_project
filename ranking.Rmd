@@ -198,7 +198,7 @@ ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
 - Players seeded 1 and 2 have the highest total number of wins, exceeding 200 wins each. This is expected, as top seeds often include the best-performing players in the tournament.  
 - The number of wins gradually decreases as the seed number increases. This reflects the advantage of higher-ranked (lower-numbered) seeds, who are often more skilled and face weaker opponents in the initial rounds. 
 
-### Ages of Winners
+### Age Trends of Winners and Losers
 
 Age is a crucial factor in tennis. The next visualization reveals how the average age of winners and losers has changed over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
 
@@ -217,7 +217,7 @@ ggplot(player_ages, aes(x = year, y = age, fill = role)) +
 
 - The graph suggests that while the tournaments are generally dominated by players in a similar age range (late 20s to early 30s), winners are slightly more likely to be in the older age range, possibly indicating greater experience and skill.
 
-### Age Trends of Winners and Losers
+### Ages of Winners
 
 * This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
 * After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
