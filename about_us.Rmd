@@ -17,7 +17,7 @@ output:
 [HsiYu](https://github.com/xcindychen) is an MD graduate currently pursuing a master’s degree in Biomedical Informatics at Columbia University. She enjoys climbing, scuba diving, and exploring the great outdoors!
 
 ### Stacey Dai  
-[Stacey](https://github.com/sd3730) is 
+[Stacey](https://github.com/sd3730) is a second-year MPH student in the Epidemiology department. In her free time, she enjoys crocheting and exploring the city.
 
 ### Vaiju Raja 
 [Vaiju](https://github.com/spicypeanut17) is a Toxicology student with a background in Global Health Epidemiology and Disease Control. She prefers basketball and soccer over tennis!
