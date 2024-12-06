@@ -40,6 +40,7 @@ In addition, there is a page of suspension/doping cases of players that can be w
 #### Data Dictionary
 
 The following variables were used in the final dataset:  
+
 - `tourney_name`: name of tournament. 
 - `tourney_date`: eight digits, YYYYMMDD, usually the Monday of the tournament week.  
 - `winner_id`: the player_id used in this repo for the winner of the match. 
