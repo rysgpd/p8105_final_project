@@ -1,5 +1,10 @@
 ---
 title: "Wins"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
 ---
 
 ## Country/Player winning the most
@@ -30,9 +35,46 @@ ggplot(filtered_data, aes(x = winner_ioc, fill = tourney_name)) +
   theme_minimal()
 ```
 
-We can see that the French Open was won by players from `r filtered_data %>% filter(tourney_name == 'Roland Garros') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, the Australian Open was also won by `r filtered_data %>% filter(tourney_name == 'Australian Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, as well as the US Open which was also won by players representing `r filtered_data %>% filter(tourney_name == 'US Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, finally Wimbledon was won the most often by players from the `r filtered_data %>% filter(tourney_name == 'Wimbledon') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)`. This is due to `r filtered_data %>% count(winner_name, winner_ioc, sort = TRUE) %>% slice(2) %>% summarise(names = paste(winner_name, '(', winner_ioc, ')', collapse = ', ')) %>% pull(names)` having won the second most tournaments in the past 10 years after Novak Djokovic, in addition to other spanish players having won several titles..
+We can see that the French Open was won by players from `r filtered_data %>% filter(tourney_name == 'Roland Garros') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, the Australian Open was also won by `r filtered_data %>% filter(tourney_name == 'Australian Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, as well as the US Open which was also won by players representing `r filtered_data %>% filter(tourney_name == 'US Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, finally Wimbledon was won the most often by players from the `r filtered_data %>% filter(tourney_name == 'Wimbledon') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)`. This is due to `r filtered_data %>% count(winner_name, winner_ioc, sort = TRUE) %>% slice(2) %>% summarise(names = paste(winner_name, '(', winner_ioc, ')', collapse = ', ')) %>% pull(names)` having won the second most tournaments in the past 10 years after Novak Djokovic, in addition to other spanish players having won several titles.
 
+### Trends of Winners Over Time
 
+Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. As we move forward, we’ll take a closer look at how these trends correlate with players' ages, match lengths, and other factors.
+
+```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+
+tennis_data <- read.csv("data/cleaned_df_webscraping_data_added.csv") %>%
+  mutate(
+    tourney_date = as.Date(tourney_date),
+    winner_age = as.numeric(winner_age),
+    loser_age = as.numeric(loser_age),
+    minutes = as.numeric(minutes)
+  )
+
+top_winners_per_year <- tennis_data %>%
+  filter(tourney_name %in% c("Australian Open", "Roland Garros", "Wimbledon", "US Open")) %>%
+  drop_na(winner_name) %>%
+  count(year = format(tourney_date, "%Y"), winner_name, name = "wins") %>%
+  group_by(year) %>%
+  slice_max(wins, n = 1) %>%
+  ungroup()
+
+ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_name)) +
+  geom_line() +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(
+    title = "Trends of ATP Winners Over Time in Grand Slams",
+    x = "Year", y = "Number of Wins"
+  ) +
+  scale_x_continuous(breaks = unique(as.integer(top_winners_per_year$year))) +
+  theme(legend.position = "right")
+```
+
+- Novak Djokovic (green line) and Rafael Nadal (blue line) are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
+- Dominic Thiem achieved a win in 2020 but hasn’t sustained dominance compared to Djokovic and Nadal.  
+- Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
 
 
 
