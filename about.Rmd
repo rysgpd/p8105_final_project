@@ -1,10 +1,29 @@
 ---
 title: "About"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
 ---
+
+## Motivation
+
+Due to well-known tournaments, emerging talent, and coverage of controversies by popular media, tennis has become increasingly popular. We aim to understand the trends of men’s tennis matches at the four major championships (Australian Open, French Open, Wimbledon, and US Open) to provide insights into this dynamic and evolving sport, catering to fans, analysts, and industry stakeholders.
+
+## Related Work
+
+Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.tennisabstract.com/charting/meta.html), which many broadcasters and analysts rely on for understanding pro matches. Our project aims to further expand on this work and visualize player and match information.
+
+## Initial Questions
+
+
 
 ## Data Sources:
 
-There exists a Github database with all of the matches information, alongside match statistics and player information in CSV form by year. In addition, there is a page of suspension/doping cases of players that can be webscraped.
+There exists a Github [database](https://github.com/JeffSackmann/tennis_atp) with all of the matches information, alongside match statistics and player information in CSV form by year. The compiled data is mostly complete from 1985 to the present, with intermittent rankings from 1973 to 1984. 
+
+In addition, there is a page of suspension/doping cases of players that can be webscraped.
 
 ## Planned Analyses and Visualizations:
 
@@ -15,3 +34,56 @@ Visualize/analyze trends of winners/matches over multiple years
 Statistic Analysis: Rankings by score, player age information; Compare seed scores to final score
 Look at which tournament a player/country is winning in more
 Track players and their performances with suspensions (doping)
+
+## Data Dictionary
+
+The following variables were used in the final dataset:
+
+- tourney_name: name of tournament
+- tourney_date: eight digits, YYYYMMDD, usually the Monday of the tournament week.
+- winner_id: the player_id used in this repo for the winner of the match
+  - winner_seed: the preliminary ranking given to a player before they enter the tournament
+  - winner_entry: 'WC' = wild card, 'Q' = qualifier, 'LL' = lucky loser, 'PR' = protected ranking, 'ITF' = ITF entry, and there are a few others that are occasionally used.
+  - winner_name
+  - winner_hand: R = right, L = left, U = unknown. For ambidextrous players, this is their serving hand.
+  - winner_ht:  height in centimeters, where available
+  - winner_ioc: three-character country code
+  - winner_age: age, in years, as of the tourney_date
+- loser_id
+  - loser_seed
+  - loser_entry
+  - loser_name
+  - loser_hand
+  - loser_ht
+  - loser_ioc
+  - loser_age
+- score
+- round
+- minutes: match length, where available
+- w_ace: winner's number of aces
+  - w_df:  winner's number of doubles faults
+  - w_svpt: winner's number of serve points
+  - w_1stIn: winner's number of first serves made
+  - w_1stWon: winner's number of first-serve points won
+  - w_2ndWon: winner's number of second-serve points won
+  - w_SvGms: winner's number of serve games
+  - w_bpSaved: winner's number of break points saved
+  - w_bpFaced: winner's number of break points faced
+- L_ace
+  - L_df
+  - L_svpt
+  - l_1stIn
+  - l_1stWon
+  - l_2ndWon
+  - l_SvGms
+  - l_bpSaved
+  - l_bpFaced
+- winner_rank: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the tourney_date
+  - winner_rank_points: number of ranking points, where available
+- loser_rank
+  - loser_rank_points
+
+
+## Doping Cases
+As our secondary analysis focuses on the impact of doping sanctions on player performance in professional tennis, we collected data from both the International Tennis Integrity Agency (ITIA) and Wikipedia to create a comprehensive dataset of doping cases.
+

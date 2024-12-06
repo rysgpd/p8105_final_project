@@ -15,6 +15,8 @@ navbar:
       href: wins.html
     - text: "Suspensions"
       href: suspensions.html
+    - text: "About Us"
+      href: about_us.html
     - icon: fa-github fa-lg
       href: https://github.com/rysgpd/p8105_final_project.github.io
 output:

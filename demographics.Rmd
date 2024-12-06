@@ -2,5 +2,209 @@
 title: "Geographic Information Systems (GIS)"
 ---
 
-## Map and visualize player information (home countries)
+## Map and Visualize Player By Home Countries
+
+Please click for more information!
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(viridis)
+library(dplyr)
+library(ggplot2)
+library(leaflet)
+library(countrycode)
+library(maps)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+```{r include=FALSE}
+# data cleaning
+df = 
+  read.csv("data/cleaned_df.csv") |>
+  janitor::clean_names()
+
+winner_df <- 
+  df |> 
+  select(winner_id, winner_name, winner_hand, winner_ht, winner_ioc, winner_age) |> 
+  rename(
+    player_id = winner_id,
+    player_name = winner_name,
+    player_hand = winner_hand,
+    player_ht = winner_ht,
+    player_ioc = winner_ioc,
+    player_age = winner_age
+  )
+
+loser_df <- 
+  df |> 
+  select(loser_id, loser_name, loser_hand, loser_ht, loser_ioc, loser_age) |> 
+  rename(
+    player_id = loser_id,
+    player_name = loser_name,
+    player_hand = loser_hand,
+    player_ht = loser_ht,
+    player_ioc = loser_ioc,
+    player_age = loser_age
+  )
+
+#player_df =
+#  bind_rows(winner_df, loser_df) |> 
+#  distinct(player_id, .keep_all = TRUE)
+
+player_df <- 
+  bind_rows(winner_df, loser_df) |> 
+  group_by(player_id) |> 
+  summarize(
+    player_name = first(player_name),
+    player_hand = first(player_hand),
+    player_ht = max(player_ht),
+    player_ioc = first(player_ioc),
+    player_age = mean(player_age, na.rm = TRUE)
+  )
+
+```
+
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+manual_mapping <- tibble(
+  player_ioc = c("BAR", "BUL", "CHI", "CRO", "DEN", "GER", "GRE", "LAT", "NED", "POR", "RSA", "SLO", "SUI", "TPE", "URU"),
+  country_name = c("Barbados", "Bulgaria", "Chile", "Croatia", "Denmark", "Germany", "Greece", "Latvia", "Netherlands", "Portugal", 
+                   "South Africa", "Slovenia", "Switzerland", "Taiwan", "Uruguay")
+)
+
+player_df = 
+  player_df |>
+  mutate(
+    country_name = countrycode(player_ioc, "iso3c", "country.name"),
+  ) |>
+  left_join(manual_mapping, by = "player_ioc", suffix = c("_countrycode", "_manual")) |>
+  mutate(
+    country_name = ifelse(!is.na(country_name_manual), country_name_manual, country_name_countrycode), 
+    player_info = paste(
+      "<b>Name:</b>", player_name, "<br>",
+      "<b>Hand:</b>", player_hand, "<br>",
+      "<b>Age:</b>", player_age, "<br>",
+      "<b>Height:</b>", player_ht, "<br>",
+      "<b>Country:</b>", country_name
+  ))
+
+player_df = player_df |>
+  mutate(
+    country_name = case_when(
+      country_name == "United States" ~ "USA",
+      country_name == "United Kingdom" ~ "UK",
+      TRUE ~ country_name
+    )
+  )
+
+country_coords =
+  map_data("world") |>
+  group_by(region) |>
+  summarise(lat = mean(range(lat)), long = mean(range(long)))
+
+country_coords = country_coords |>
+  mutate(
+    lat = ifelse(region == "USA", 39.8283, lat),
+    long = ifelse(region == "USA", -98.5795, long)
+  )
+
+player_coords =
+  player_df |>
+  left_join(country_coords, by = c("country_name" = "region"))
+
+set.seed(42) 
+player_coords <- player_coords |> 
+  mutate(
+    lat = lat + runif(n(), -0.5, 0.5),  
+    long = long + runif(n(), -0.5, 0.5)
+  )
+
+leaflet(player_coords) |>
+  addTiles() |>  
+  addCircleMarkers(
+    ~long, ~lat,  
+    radius = 6, 
+    color = "firebrick",  
+    popup = ~player_info,  
+    label = ~player_name, 
+    fillOpacity = 0.8
+  ) |> 
+  setView(lng = 0, lat = 20, zoom = 2)  
+```
+
+
+Note: The point is based on the player's home country only and does not reflect their city or specific location details.
+
+### Number of Players by Country
+
+```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
+player_counts = player_df |>
+  count(country_name, name = "player_count") 
+
+
+ggplot(player_counts, aes(y = reorder(country_name, player_count), x = player_count)) +
+  geom_bar(stat = "identity", fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Number of Players"
+  ) 
+
+```
+
+
+The chart reveals that the top five countries producing the most players in the past ten years are the USA, France, Australia, Spain, and Italy.  
+  
+To gain deeper insights, we filter out countries with fewer than 5 players and analyze the average age and height distributions of the remaining players.  
+
+### Age Distribution of Players by Country
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+filtered_player_df <- 
+  player_df |> 
+  count(country_name, name = "player_count") |> 
+  filter(player_count >= 5) |>                 
+  inner_join(player_df, by = "country_name")  
+
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_age, median), x = player_age)) +
+  geom_boxplot(fill = "firebrick", color = "black", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Age"
+  ) 
+
+```
+
+Here, the age represents the players' average age across all matches during the observed years. The plot indicates that the majority of players fall within the age range of 20 to 35. Countries such as China, USA, Australia, UK, and Poland are notable for having the youngest players. In contrast, the Spain, Taiwan, India, Germany, Switzerland are represented by older players on average.
+
+
+### Height Distribution of Players by Country
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_ht, median), x = player_ht)) +
+  geom_violin(fill = "firebrick", alpha = 0.7) +
+  labs(
+    y = "Country",
+    x = "Height (cm)"
+  ) 
+
+```
+
+
+The chart shows that players' heights range from 170 cm to 210 cm. The USA stands out with the widest range of heights and the highest median height. Countries such as the UK, Switzerland, Spain, and the Netherlands also have higher median heights. On the other hand, countries like Taiwan, Portugal, India, Brazil, and Russia have players with shorter median heights.
 

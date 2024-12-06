@@ -2,4 +2,529 @@
 title: "Statistic Analysis"
 ---
 
-## Rankings by score, player age information; Compare seed scores to final score
+## Statistical and Exploratory Analyses on Match Winners (Seeding, Ages, etc)
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(ggplot2)
+library(lubridate)
+library(dplyr)
+library(plotly)
+library(leaflet)
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "100%",
+	dpi=300
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+df = read.csv("data/cleaned_df_webscraping_data_added.csv")
+df2 = read.csv("data/cleaned_df.csv")
+
+winners_losers = read.csv("data/winners_losers_df.csv")
+
+```
+
+
+### Distribution of Seeds of Grand Slam Final Winners from 2014-2024
+
+* As an initial exploratory analysis, we display the distribution of overall grand slam winners and their seeds. Not surprisingly, the majority of the winners were seeded #1 coming into the tournament, so they were expected to win. For this analysis, being "seeded higher" means that you are closer to 1 and have higher expectations of winning while "seeded lower" means you are further away from 1. 
+* It is notable that there were no winners that were not unseeded in the past 10 years for men. 
+
+```{r seed_distrib, echo = FALSE, warning = FALSE, message = FALSE}
+
+df2 %>% 
+  filter(
+    round == "F"
+  ) %>% 
+  ggplot(aes(x = winner_seed, fill = as.factor(winner_seed))) +
+  geom_histogram(binwidth = 1) +
+  scale_x_continuous(breaks=seq(1,20,1))+
+  scale_y_continuous(breaks=seq(1,20,1))+
+  labs(
+    title = "Distribution of Seeds of Grand Slam Winners from 2014-2024",
+    x = "Seed",
+    y = "Number of Winners"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+  
+
+```
+
+
+* There were, however, many ranked past the top 5, which were definitely surprises. We show the players who were seeded beyond 5 and ended up winning the tournament in the table below.
+* These are all very familiar tennis favorites. Roger Federer, Novak Djokovic, and Rafael Nadal are all amongst the three greatest male players in tennis, so although they were seeded low, they were still favorites amongst the audience to win. At this point, some were close to retirement or came back from injuries and didn't play many tournaments prior to the Grand Slams, so their rankings would have been lower. 
+* Stan Wawrinka and Marin Cilic were two players who were always competitive and fan favorites, so while seeded lower, not completely a shock. 
+
+```{r seed_table, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  filter(
+    round == "F",
+    winner_seed > 5
+  ) %>% 
+  mutate(
+    tourney_year = substr(tourney_date, start = 1, stop = 4)
+  ) %>% 
+  select(tourney_name, tourney_year, winner_seed, winner_name) %>% 
+  knitr::kable(
+    col.names = c("Tournament", "Year", "Seed", "Name"),
+    caption = "Grand Slam Winners with Low Seeds",
+    align = "c"
+  )
+```
+
+### Seed Match Types and Winners
+* Now, we want to look at all matches and see the breakdown of matchups. The figure below shows the breakdown by round (for all tournaments and years) of whether both oppoenents were unseeded or if the winner was projected to win or lose (seeded lower/higher). 
+* As expected, the first few rounds had many matches with both opponents unseeded and the majority was won otherwise by the higher seeded player. The turqoise and yellow categories are the most interesting because that means that the winner was projected to win, but lost the match. 
+```{r match_types, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    seed_diff = case_when(
+      is.na(winner_seed) & is.na(loser_seed) ~ "Both Unseeded",
+      !is.na(winner_seed) & is.na(loser_seed) ~ "Winner Seeded, Loser Unseeded",
+      is.na(winner_seed) & !is.na(loser_seed) ~ "Winner Unseeded, Loser Seeded",
+      winner_seed > loser_seed ~ "Winner Seeded Lower",
+      winner_seed < loser_seed ~ "Winner Seeded Higher"
+    ),
+    seed_diff = as.factor(seed_diff),
+    round = fct_relevel(round, "R128", "R64", "R32", "R16", "QF", "SF", "F")
+  ) %>% 
+  group_by(round, seed_diff) %>% 
+  summarise(count = n(), .groups = "drop") %>% 
+  group_by(round) %>%
+  mutate(percent = count / sum(count) * 100) %>% 
+  ggplot(
+    aes(x = round, y = percent, fill = seed_diff)
+  ) +
+  geom_bar(stat = "identity", position = "stack") +
+  labs(
+    title = "Percentage of Match Types per Round",
+    x = "Round",
+    y = "Percentage of Matches"
+    ) +
+  theme(legend.title=element_blank(),
+        plot.title = element_text(hjust = 0.5)) +
+  guides(fill = guide_legend(nrow = 2)) 
+
+```
+
+* We want to see if whether the player being seeded higher won or lost. Using a simple logistic regression, we looked to see if whether the player was seeded lower (was projected to lose) or higher (was projected to win) affected the binary outcome of winning. We combined `Winner Seeded Higher` and `Winner Seeded, Loser Unseeded` together to be one category and the same for `Winner Seeded Lower` and `Winner Unseeded, Loser Seeded`. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being seeded higher has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being seeded higher has an effect on the odds of winning
+* Based on the results, when a player is seeded higher/expected to win, they are 1.735x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
+
+```{r seed_stats, echo = FALSE, warning = FALSE, message = FALSE}
+
+seed_stats_df = 
+  df2 %>% 
+  mutate(
+    seeded_higher = case_when(
+      (winner_seed > loser_seed) | (is.na(winner_seed) & !is.na(loser_seed)) ~ "Loser",
+      (winner_seed < loser_seed) | (!is.na(winner_seed) & is.na(loser_seed)) ~ "Winner"
+    ),
+    seeded_higher = as.factor(seeded_higher),
+    seeded_higher = fct_relevel(seeded_higher, "Loser")
+  )%>% 
+  select(
+    tourney_date, score, round, seeded_higher, minutes
+  )
+
+seeds_merged_df = merge(winners_losers, seed_stats_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    seeded_higher = 
+      case_when(
+        (seeded_higher == "Winner" & won == 1) ~ 1,
+        (seeded_higher == "Winner" & won == 0) ~ 0,
+        (seeded_higher == "Loser" & won == 1) ~ 0,
+        (seeded_higher == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ seeded_higher, data = seeds_merged_df, family = "binomial")
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Seeding (Higher/Lower)"
+  )
+```
+
+
+### Ages of Winners
+
+* This plot shows the ages of all match winners across all years and tournaments. From 2014-2019, the upper limit of ages is slowly increasing, which checks out with the "older" generation (Federer, Djokovic, Nadal) but the lower limit stays about the same with new talent coming in each year. 
+* After the pandemic, however, it seems like the majority of ages dropped to mid to upper 20's and has continued climbing since. 
+* 2023 was interesting because it has two higher density areas, similar to how it was 2014-2016.
+
+```{r age_dist, echo = FALSE, warning = FALSE, message = FALSE}
+df2 %>% 
+  mutate(
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  ggplot(aes(x = tourney_year, y = winner_age, fill = tourney_year)) +
+  geom_violin()+
+  labs(
+    title = "Distribution of Age of Match Winners from 2014-2024",
+    x = "Year",
+    y = "Age"
+    ) +
+  theme(legend.position="none", 
+        plot.title = element_text(hjust = 0.5))
+```
+
+* We want to see if whether a player being older or younger won or lost more. Using a simple logistic regression, we looked to see if whether the player was younger or older affected the binary outcome of winning. 
+  * Null Hypothesis: 
+    * $H_{0}$: Being the older player has no effect on the odds of winning
+  * Alternative Hypothesis: 
+    * $H_{1}$:  Being the older player has an effect on the odds of winning
+* Based on the results across all years (2014-2024), when a player is older, they are not more likely to win than a player who is younger. The p-value was not statistically signficant, so we fail the reject the hypothesis. However, as you tab through the various years of data, there are some years where being older did have an effect (very small) but still statistically significant effect on winning. These loosely follow some trends where we saw the resurgence and fall of older well-known players when they were injured/back or retired. 
+
+### Age Models {.tabset}
+
+#### Overall (2014-2024)
+
+```{r age_stats_all, echo = FALSE, warning = FALSE, message = FALSE}
+age_df = 
+  df2 %>% 
+  mutate(
+    older_opponent = as.factor(ifelse(winner_age > loser_age, "Winner", "Loser")),
+    older_opponent = fct_relevel(older_opponent, "Winner", "Loser"),
+    tourney_year = as.factor(substr(tourney_date, start = 1, stop = 4))
+  ) %>% 
+  select(
+    tourney_date, score, round, older_opponent, minutes, tourney_year
+  )
+
+age_merged_df = merge(winners_losers, age_df, by.x=c("tourney_date", "score", "minutes"), by.y=c("tourney_date", "score", "minutes")) %>% 
+  filter(
+    !is.na(minutes)
+  ) %>% 
+  distinct() %>% 
+  mutate(
+    older_opponent = 
+      case_when(
+        (older_opponent == "Winner" & won == 1) ~ 1,
+        (older_opponent == "Winner" & won == 0) ~ 0,
+        (older_opponent == "Loser" & won == 1) ~ 0,
+        (older_opponent == "Loser" & won == 0) ~ 1,
+      )
+  )
+
+glm_model <- glm(won ~ older_opponent, data = age_merged_df, family = "binomial")
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger)"
+  )
+```
+
+
+#### 2014
+```{r age_stats_2014, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2014
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2014"
+  )
+```
+#### 2015
+```{r age_stats_2015, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2015
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2015"
+  )
+
+```
+#### 2016
+```{r age_stats_2016, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2016
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2016"
+  )
+
+```
+
+#### 2017
+```{r age_stats_2017, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2017
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2017"
+  )
+
+```
+
+#### 2018
+```{r age_stats_2018, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2018
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2018"
+  )
+
+```
+
+#### 2019
+```{r age_stats_2019, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2019
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2019"
+  )
+
+```
+
+#### 2020
+```{r age_stats_2020, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2020
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2020"
+  )
+
+```
+
+#### 2021
+```{r age_stats_2021, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2021
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2021"
+  )
+
+```
+
+#### 2022
+```{r age_stats_2022, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2022
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2022"
+  )
+
+```
+
+#### 2023
+```{r age_stats_2023, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2023
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2023"
+  )
+
+```
+
+#### 2024
+```{r age_stats_2024, echo = FALSE, warning = FALSE, message = FALSE}
+glm_model <- glm(won ~ older_opponent, data = (
+  age_merged_df %>% 
+    filter(
+      tourney_year == 2024
+    )), family = "binomial"
+)
+
+glm_model %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  knitr::kable(
+    col.names = c("Term", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    caption = "Logistic Regression Results of Winning Result and Age (Older/Younger) for 2024"
+  )
+
+```
+
+### Pre-Match Regression Model
+
+* We wanted to know: could we predict whether a player would win their match based on pre-existing data? Variables used will be `seeded_higher`, `older_opponent`, `preferred hand`, `height`, `age`, `ATP rank`.
+* There are some statistically significant variables: 
+  * `Higher Seed`: if the player has the higher seed, they are more likely to win (consistent with the above)
+  * `Height`: the taller the player, the more likely they are to win. Makes sense because the taller you are, the more power you have
+  * `Rank`: similar to the higher seed, but a little different because all players have a rank. The higher you are ranked, the more likely you are to win.
+
+```{r pre_match_reg, echo = FALSE, warning = FALSE, message = FALSE}
+regression_df = merge(seeds_merged_df, (age_merged_df %>% select(tourney_date, score, id, older_opponent)), by.x=c("tourney_date", "score", "id"), by.y=c("tourney_date", "score", "id")) %>% 
+  distinct() %>% 
+  mutate(
+    sets = str_count(score, "-"),
+    won = as.factor(won),
+    hand = as.factor(hand),
+    seeded_higher = as.factor(seeded_higher),
+    older_opponent = as.factor(older_opponent)
+  ) %>% 
+  filter(
+    score != "W/O",
+    !is.na(won),
+    hand != "U"
+  ) 
+
+
+regression1_fit = glm(won ~ seeded_higher + older_opponent + hand + ht + age + rank, data = regression_df, family="binomial")
+
+regression1_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "seeded_higher1" ~ "Higher Seed",
+    term == "older_opponent1" ~ "Older Opponent",
+    term == "handR" ~ "Player's Preferred Hand",
+    term == "ht" ~ "Height",
+    term == "age" ~ "Age",
+    term == "rank" ~ "Rank",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
+
+### Match Metrics Regression Model
+
+* We wanted to know if match metrics collected during the match can indicate who ultimately won the match. Variables used are `Length of Match`, `Aces`, `Double Faults`, `Serve Points`, `1st Serves Made`, `1st Serves Won`, `2nd Serves Won`, `% of Break Points Saved`, `Number of Sets Played`.
+* There were many that were statistically significant:
+  * `Length of Match`/`Number of Sets Played`: Longer the match, the more likely you are to win - this one is interesting to think about. Maybe certain players thrive on longer matches and gives them more energy to fight for.
+  * `Number of Aces`: This was interesting because it was a negative association. Maybe those who rely on their serves too much get more aces at times, but are more inconsistent and double fault, leading them to lose the match.
+  * `Number of Serve Points/Games`: The more times you have to serve, the less likely that you are to win. This makes sense because serving a lot may lead to fatigue.
+  * `Number of 1st & 2nd Serves Won`: These both make a lot of sense. This also lines up with how many points a player wins, which is a good indicator of if they ultimately win.
+  * `% of Break Points Saved`: The more break points you save, the more likely you are to win. This is also very self-explanatory because if you lose a break point, your opponent wins a game that you are supposed to win.
+* This regression's results aligns with logic in tennis. The only ones that may be debatable is the length of match/number of sets played. These variables can be calculated during a match to inform live viewers of how the players performance is at that point, which is what the announcers at, for example, ESPN will do for viewers at home.
+
+```{r post_match_reg, echo = FALSE, warning = FALSE, message = FALSE}
+
+regression2_df = regression_df %>% 
+  mutate(
+    bp_pct = bp_saved/bp_faced
+  )
+
+regression2_fit = glm(won ~ minutes + ace + df + svpt + X1st_in + X1st_won + X2nd_won + sv_gms + bp_pct + sets, data = regression2_df, family="binomial")
+
+regression2_fit %>% 
+  broom::tidy(exponentiate = TRUE) %>% 
+  mutate(term = case_when(
+    term == "(Intercept)" ~ "Intercept",
+    term == "minutes" ~ "Length of Match",
+    term == "ace" ~ "Number of Aces",
+    term == "df" ~ "Number of Double Faults",
+    term == "svpt" ~ "Number of Serve Points",
+    term == "X1st_in" ~ "Number of 1st Serves Made",
+    term == "X1st_won" ~ "Number of 1st Serves Won",
+    term == "X2nd_won" ~ "Number of 2nd Serves Won",
+    term == "sv_gms" ~ "Number of Serve Games",
+    term == "bp_pct" ~ "% of Break Points Saved",
+    term == "sets" ~ "Number of Sets Played",
+    TRUE ~ term # Keep other terms unchanged
+  )) %>% 
+  knitr::kable(
+    col.names = c("Variable", "Estimate", "Std.Error", "Statistic", "P-Value"),
+    digits = 3
+  )
+
+```
+
+
+
+
+

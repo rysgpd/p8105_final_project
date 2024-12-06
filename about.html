@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
@@ -60,6 +63,7 @@ if (window.hljs) {
 
 
 
+<link rel="stylesheet" href="styles.css" type="text/css" />
 
 
 
@@ -221,6 +225,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -228,6 +295,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -266,6 +343,9 @@ $(document).ready(function () {
   <a href="suspensions.html">Suspensions</a>
 </li>
 <li>
+  <a href="about_us.html">About Us</a>
+</li>
+<li>
   <a href="https://github.com/rysgpd/p8105_final_project.github.io">
     <span class="fa fa-github fa-lg"></span>
      
@@ -285,12 +365,36 @@ $(document).ready(function () {
 </div>
 
 
+<div id="motivation" class="section level2">
+<h2>Motivation</h2>
+<p>Due to well-known tournaments, emerging talent, and coverage of
+controversies by popular media, tennis has become increasingly popular.
+We aim to understand the trends of men’s tennis matches at the four
+major championships (Australian Open, French Open, Wimbledon, and US
+Open) to provide insights into this dynamic and evolving sport, catering
+to fans, analysts, and industry stakeholders.</p>
+</div>
+<div id="related-work" class="section level2">
+<h2>Related Work</h2>
+<p>Our team was inspired by Jeff Sackman’s <a
+href="https://www.tennisabstract.com/charting/meta.html">Match Charting
+Project</a>, which many broadcasters and analysts rely on for
+understanding pro matches. Our project aims to further expand on this
+work and visualize player and match information.</p>
+</div>
+<div id="initial-questions" class="section level2">
+<h2>Initial Questions</h2>
+</div>
 <div id="data-sources" class="section level2">
 <h2>Data Sources:</h2>
-<p>There exists a Github database with all of the matches information,
-alongside match statistics and player information in CSV form by year.
-In addition, there is a page of suspension/doping cases of players that
-can be webscraped.</p>
+<p>There exists a Github <a
+href="https://github.com/JeffSackmann/tennis_atp">database</a> with all
+of the matches information, alongside match statistics and player
+information in CSV form by year. The compiled data is mostly complete
+from 1985 to the present, with intermittent rankings from 1973 to
+1984.</p>
+<p>In addition, there is a page of suspension/doping cases of players
+that can be webscraped.</p>
 </div>
 <div id="planned-analyses-and-visualizations" class="section level2">
 <h2>Planned Analyses and Visualizations:</h2>
@@ -303,9 +407,86 @@ information; Compare seed scores to final score Look at which tournament
 a player/country is winning in more Track players and their performances
 with suspensions (doping)</p>
 </div>
+<div id="data-dictionary" class="section level2">
+<h2>Data Dictionary</h2>
+<p>The following variables were used in the final dataset:</p>
+<ul>
+<li>tourney_name: name of tournament</li>
+<li>tourney_date: eight digits, YYYYMMDD, usually the Monday of the
+tournament week.</li>
+<li>winner_id: the player_id used in this repo for the winner of the
+match
+<ul>
+<li>winner_seed: the preliminary ranking given to a player before they
+enter the tournament</li>
+<li>winner_entry: ‘WC’ = wild card, ‘Q’ = qualifier, ‘LL’ = lucky loser,
+‘PR’ = protected ranking, ‘ITF’ = ITF entry, and there are a few others
+that are occasionally used.</li>
+<li>winner_name</li>
+<li>winner_hand: R = right, L = left, U = unknown. For ambidextrous
+players, this is their serving hand.</li>
+<li>winner_ht: height in centimeters, where available</li>
+<li>winner_ioc: three-character country code</li>
+<li>winner_age: age, in years, as of the tourney_date</li>
+</ul></li>
+<li>loser_id
+<ul>
+<li>loser_seed</li>
+<li>loser_entry</li>
+<li>loser_name</li>
+<li>loser_hand</li>
+<li>loser_ht</li>
+<li>loser_ioc</li>
+<li>loser_age</li>
+</ul></li>
+<li>score</li>
+<li>round</li>
+<li>minutes: match length, where available</li>
+<li>w_ace: winner’s number of aces
+<ul>
+<li>w_df: winner’s number of doubles faults</li>
+<li>w_svpt: winner’s number of serve points</li>
+<li>w_1stIn: winner’s number of first serves made</li>
+<li>w_1stWon: winner’s number of first-serve points won</li>
+<li>w_2ndWon: winner’s number of second-serve points won</li>
+<li>w_SvGms: winner’s number of serve games</li>
+<li>w_bpSaved: winner’s number of break points saved</li>
+<li>w_bpFaced: winner’s number of break points faced</li>
+</ul></li>
+<li>L_ace
+<ul>
+<li>L_df</li>
+<li>L_svpt</li>
+<li>l_1stIn</li>
+<li>l_1stWon</li>
+<li>l_2ndWon</li>
+<li>l_SvGms</li>
+<li>l_bpSaved</li>
+<li>l_bpFaced</li>
+</ul></li>
+<li>winner_rank: winner’s ATP or WTA rank, as of the tourney_date, or
+the most recent ranking date before the tourney_date
+<ul>
+<li>winner_rank_points: number of ranking points, where available</li>
+</ul></li>
+<li>loser_rank
+<ul>
+<li>loser_rank_points</li>
+</ul></li>
+</ul>
+</div>
+<div id="doping-cases" class="section level2">
+<h2>Doping Cases</h2>
+<p>As our secondary analysis focuses on the impact of doping sanctions
+on player performance in professional tennis, we collected data from
+both the International Tennis Integrity Agency (ITIA) and Wikipedia to
+create a comprehensive dataset of doping cases.</p>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -338,6 +519,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
