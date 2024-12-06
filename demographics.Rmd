@@ -64,9 +64,20 @@ loser_df <-
     player_age = loser_age
   )
 
-player_df =
+#player_df =
+#  bind_rows(winner_df, loser_df) |> 
+#  distinct(player_id, .keep_all = TRUE)
+
+player_df <- 
   bind_rows(winner_df, loser_df) |> 
-  distinct(player_id, .keep_all = TRUE)
+  group_by(player_id) |> 
+  summarize(
+    player_name = first(player_name),
+    player_hand = first(player_hand),
+    player_ht = max(player_ht),
+    player_ioc = first(player_ioc),
+    player_age = mean(player_age, na.rm = TRUE)
+  )
 
 ```
 
@@ -158,12 +169,19 @@ ggplot(player_counts, aes(y = reorder(country_name, player_count), x = player_co
 ```
 
 
-The chart reveals that the top five countries producing the most players in the past ten years are the USA, France, Australia, Spain, and Italy.
+The chart reveals that the top five countries producing the most players in the past ten years are the USA, France, Australia, Spain, and Italy.  
+  
+To gain deeper insights, we filter out countries with fewer than 5 players and analyze the average age and height distributions of the remaining players.  
 
 ### Age Distribution of Players by Country
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+filtered_player_df <- 
+  player_df |> 
+  count(country_name, name = "player_count") |> 
+  filter(player_count >= 5) |>                 
+  inner_join(player_df, by = "country_name")  
 
-```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
-ggplot(player_df, aes(y = reorder(country_name, player_age, median), x = player_age)) +
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_age, median), x = player_age)) +
   geom_boxplot(fill = "firebrick", color = "black", alpha = 0.7) +
   labs(
     y = "Country",
@@ -172,16 +190,14 @@ ggplot(player_df, aes(y = reorder(country_name, player_age, median), x = player_
 
 ```
 
-
-The plot indicates that the majority of players fall within the age range of 20 to 35. Countries such as Norway, Greece, Mexico, South Korea, Finland, Sweden, and Bulgaria are notable for having the youngest players. In contrast, the Dominican Republic, Romania, Luxembourg, and Tunisia are represented by older players on average.
+Here, the age represents the players' average age across all matches during the observed years. The plot indicates that the majority of players fall within the age range of 20 to 35. Countries such as China, USA, Australia, UK, and Poland are notable for having the youngest players. In contrast, the Spain, Taiwan, India, Germany, Switzerland are represented by older players on average.
 
 
 ### Height Distribution of Players by Country
 
-```{r echo = FALSE, warning = FALSE, message = FALSE, fig.width=12, fig.height=6}
-
-ggplot(player_df, aes(y = reorder(country_name, player_ht, median), x = player_ht)) +
-  geom_violin( fill = "firebrick", alpha = 0.7) +
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(filtered_player_df, aes(y = reorder(country_name, player_ht, median), x = player_ht)) +
+  geom_violin(fill = "firebrick", alpha = 0.7) +
   labs(
     y = "Country",
     x = "Height (cm)"
@@ -190,4 +206,5 @@ ggplot(player_df, aes(y = reorder(country_name, player_ht, median), x = player_h
 ```
 
 
-The chart shows that players' heights range from 170 cm to 210 cm. The USA stands out with the widest range of heights and the highest median height. Countries such as the UK, Switzerland, Spain, and the Netherlands also have higher median heights. On the other hand, countries like the Dominican Republic, Israel, Lithuania, Moldova, Japan, and Taiwan have players with shorter median heights.
+The chart shows that players' heights range from 170 cm to 210 cm. The USA stands out with the widest range of heights and the highest median height. Countries such as the UK, Switzerland, Spain, and the Netherlands also have higher median heights. On the other hand, countries like Taiwan, Portugal, India, Brazil, and Russia have players with shorter median heights.
+

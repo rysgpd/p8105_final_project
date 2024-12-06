@@ -1,17 +1,22 @@
 ---
 title: "Challengers: P8105 Edition"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    css: styles.css
 ---
 ## Welcome to Challengers (p8105 Edition) !
 <img src="images/tennis.jpeg" style="width:50%">
 
-### Group Member 
-Laura Henze (lah2231). 
-Rebecca Shyu (rs4338). 
-HsiYu Chen (hc3448). 
-Stacey Dai (sd3730). 
-Vaiju Raja (vr2576). 
+### Group Members
+- Laura Henze (lah2231)
+- Rebecca Shyu (rs4338)
+- HsiYu Chen (hc3448)
+- Stacey Dai (sd3730) 
+- Vaiju Raja (vr2576) 
 
 ### Introduction
-With Challengers coming out this year, tennis has become incredibly popular. There have also been many public controversies, especially with Jannik Sinner and his recent doping case that have drawn more people to tennis as well. We want to understand the trends of ATP (men’s tennis) matches at the four grand slams (Australian Open, French Open, Wimbledon, and US Open)
+Tennis has seen a surge in popularity in recent years, amplified by the release of the film *Challengers* and several high-profile controversies, such as Jannik Sinner’s recent doping case. These events have drawn renewed attention to the sport, sparking interest in the dynamics of player performance at major tournaments. 
 
-A descriptive report of male tennis players and their performances in the grand slams within the past 10 years. This will be displayed as a website on Github and will be screencasted with explanations.
+Our project focuses on analyzing trends of ATP (professional men’s tennis) matches at the four Grand Slam tournaments – the Australian Open, French Open, Wimbledon, and US Open – over the past 10 years. We aim to explore how player performance is shaped by external factors such as seeding, match duration, and player origins. Additionally, we will investigate how doping cases intersect with performance metrics. 

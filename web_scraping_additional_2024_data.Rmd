@@ -12,13 +12,13 @@ library(tidyverse)
 library(rvest)
 ```
 
-
+## loading cleaned data
 ```{r}
 cleaned_data <- read.csv("data/cleaned_df.csv")
 
 head(cleaned_data)
 ```
-
+## getting roland garros data
 ```{r}
 
 library(dplyr)
@@ -55,6 +55,7 @@ print(processed_data)
 
 ```
 
+## getting us open data
 ```{r}
 library(dplyr)
 library(readr)
@@ -90,6 +91,7 @@ print(processed_us_open_data)
 #View(processed_us_open_data)
 ```
 
+## getting wimbledon data
 ```{r}
 library(dplyr)
 library(readr)
@@ -126,7 +128,7 @@ print(processed_wimbledon_data)
 ```
 
 
-
+## combining roland garros, us open and wimbledon
 ```{r}
 
 library(dplyr)
@@ -147,22 +149,373 @@ print(head(cleaned_df_webscraping_data_added))
 write.csv(cleaned_df_webscraping_data_added, "data/cleaned_df_webscraping_data_added.csv", row.names = FALSE)
 #View(cleaned_df_webscraping_data_added)
 ```
+## Finding Seed and full name data
+```{r}
+library(rvest)
+
+url <- "https://en.wikipedia.org/wiki/2024_Wimbledon_Championships_–_Men%27s_singles"
+dl_data <- read_html(url) %>% html_nodes("dl") %>% html_text(trim = TRUE)
+
+print(dl_data)
+```
+## seeds with full names
+```{r}
+library(tidyverse)
+
+# Process the dl_data into a clean table
+seed_table <- str_split(dl_data, "\n") %>%  # Split by lines
+  unlist() %>%                             # Convert list to vector
+  tibble(raw = .) %>%                      # Create a tibble
+  mutate(
+    Seed = str_extract(raw, "^\\d+"),                        # Extract the seed number
+    Player_Info = str_remove(raw, "^\\d+\\.\\s+"),           # Remove the seed and leading text
+    Player_Info = str_remove(Player_Info, "\\(.*\\)"),       # Remove the round/result info
+    Player_Info = str_trim(Player_Info)                     # Trim any extra spaces
+  ) %>%
+  select(Seed, Player_Info)                                  # Keep only relevant columns
+
+# View the table
+print(seed_table)
+```
+## Replacing names
+```{r}
+library(tidyverse)
+
+# Input data for Last Name and Initial
+last_initial <- c(
+  "Fognini F.", "Shang J.", "Ruud C.", "Coric B.", "Struff J.L.", "Dimitrov G.",
+  "Shapovalov D.", "Tiafoe F.", "Thompson J.", "Zhang Zh.", "Berrettini M.",
+  "Nakashima B.", "Monfils G.", "Medvedev D.", "Wawrinka S.", "Muller A.",
+  "Altmaier D.", "Alcaraz C.", "Harris L.", "Cazaux A.", "Humbert U.",
+  "Vukic A.", "Bublik A.", "Van De Zandschulp B.", "Bautista Agut R.",
+  "Sonego L.", "Griekspoor T.", "Sinner J.", "Virtanen O.", "Paul T.",
+  "Kecmanovic M.", "Nishioka Y.", "Seyboth Wild T.", "Mpetshi G.", 
+  "Musetti L.", "Darderi L.", "Hurkacz H.", "De Minaur A.", "Munar J.", 
+  "Popyrin A.", "Etcheverry T.", "Comesana F.", "Shelton B.", "Fearnley J.", 
+  "Walton A.", "Zverev A.", "Djokovic N.", "Fils A.", "Tsitsipas S.", 
+  "Rune H.", "Giron M.", "Draper J.", "Cobolli F.", "Norrie C.", "Fritz T.", 
+  "Halys Q.", "Khachanov K.", "Safiullin R.", "Ruusuvuori E.", "Pouille L.", 
+  "Rinderknech A.", "Machac T.", "Tabilo A.", "Kokkinakis T."
+)
+
+# Full Name mapping
+full_name <- c(
+  "Fabio Fognini", "Shang Juncheng", "Casper Ruud", "Borna Coric", "Jan-Lennard Struff", 
+  "Grigor Dimitrov", "Denis Shapovalov", "Frances Tiafoe", "Jordan Thompson", 
+  "Zhang Zhizhen", "Matteo Berrettini", "Brandon Nakashima", "Gaël Monfils", 
+  "Daniil Medvedev", "Stan Wawrinka", "Alexandre Müller", "Daniel Altmaier", 
+  "Carlos Alcaraz", "Lloyd Harris", "Arthur Cazaux", "Ugo Humbert", "Aleksandar Vukic", 
+  "Alexander Bublik", "Botic van de Zandschulp", "Roberto Bautista Agut", 
+  "Lorenzo Sonego", "Tallon Griekspoor", "Jannik Sinner", "Otto Virtanen", 
+  "Tommy Paul", "Miomir Kecmanovic", "Yoshihito Nishioka", "Thiago Seyboth Wild", 
+  "Giovanni Mpetshi Perricard", "Lorenzo Musetti", "Luciano Darderi", "Hubert Hurkacz", 
+  "Alex de Minaur", "Jaume Munar", "Alexei Popyrin", "Tomás Martín Etcheverry", 
+  "Francisco Comesaña", "Ben Shelton", "Jacob Fearnley", "Adam Walton", 
+  "Alexander Zverev", "Novak Djokovic", "Arthur Fils", "Stefanos Tsitsipas", 
+  "Holger Rune", "Marcos Giron", "Jack Draper", "Flavio Cobolli", "Cameron Norrie", 
+  "Taylor Fritz", "Quentin Halys", "Karen Khachanov", "Roman Safiullin", 
+  "Emil Ruusuvuori", "Lucas Pouille", "Arthur Rinderknech", "Tomas Machac", 
+  "Alejandro Tabilo", "Thanasi Kokkinakis"
+)
+
+# Country Code mapping
+country_code <- c(
+  "ITA", "CHN", "NOR", "CRO", "GER", "BUL", "CAN", "USA", "AUS", "CHN", "ITA", 
+  "USA", "FRA", "RUS", "SUI", "FRA", "GER", "ESP", "RSA", "FRA", "FRA", "AUS", 
+  "KAZ", "NED", "ESP", "ITA", "NED", "ITA", "FIN", "USA", "SRB", "JPN", "BRA", 
+  "FRA", "ITA", "ITA", "POL", "AUS", "ESP", "AUS", "ARG", "ARG", "USA", "GBR", 
+  "AUS", "GER", "SRB", "FRA", "GRE", "DEN", "USA", "GBR", "ITA", "GBR", "USA", 
+  "FRA", "RUS", "FIN", "FRA", "FRA", "CZE", "CHI", "AUS"
+)
+
+# Pad shorter vectors with NA
+while (length(country_code) < length(last_initial)) {
+  country_code <- c(country_code, NA)
+}
+while (length(full_name) < length(last_initial)) {
+  full_name <- c(full_name, NA)
+}
+
+# Create the final table
+full_names_for_wimbledon <- tibble(
+  last_initial = last_initial,
+  full_name = full_name,
+  country_code = country_code
+)
+
+# View final table
+print(full_names_for_wimbledon)
+
+# Save as CSV
+write_csv(full_names_for_wimbledon, "full_names_for_wimbledon.csv")
+
+```
+
+## Replacing shortened names
+```{r}
+library(tidyverse)
+
+# Perform the replacement
+cleaned_df_updated <- cleaned_df_webscraping_data_added %>%
+  # Update winner_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c("winner_name" = "last_initial")) %>%
+  mutate(winner_name = if_else(!is.na(full_name), full_name, winner_name)) %>%
+  select(-full_name) %>% # Remove the temporary full_name column
+  # Update loser_name by matching with full_names_for_wimbledon
+  left_join(full_names_for_wimbledon, by = c("loser_name" = "last_initial")) %>%
+  mutate(loser_name = if_else(!is.na(full_name), full_name, loser_name)) %>%
+  select(-full_name) # Remove the temporary full_name column
+
+# View the updated table
+print(cleaned_df_updated)
+#View(cleaned_df_updated)
+
+# Save the updated table as a CSV file
+write_csv(cleaned_df_updated, "cleaned_df_updated.csv")
+```
+
+```{r}
+# Load the file
+cleaned_df_updated_2 <- read.csv("data/cleaned_df_updated_99.csv")
+
+# View the first few rows
+head(cleaned_df_updated_2)
+
+# Or open in a viewer pane
+#View(cleaned_df_updated_2)
+```
+## organizing IDs 
+```{r}
+library(dplyr)
+
+# Step 1: Create a lookup table with unique player names and their IDs
+player_lookup <- cleaned_df_updated_2 %>%
+  select(winner_name, winner_id) %>%
+  rename(player_name = winner_name, player_id = winner_id) %>%
+  bind_rows(
+    cleaned_df_updated_2 %>%
+      select(loser_name, loser_id) %>%
+      rename(player_name = loser_name, player_id = loser_id)
+  ) %>%
+  # Ensure one unique ID per player
+  group_by(player_name) %>%
+  summarize(player_id = first(na.omit(player_id)), .groups = "drop") %>%
+  mutate(player_id = ifelse(is.na(player_id), sprintf("%06d", sample(1e5:999999, n(), replace = FALSE)), player_id))
+
+# Step 2: Update the `winner_id` and `loser_id` columns in the original dataset
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  left_join(player_lookup, by = c("winner_name" = "player_name")) %>%
+  mutate(winner_id = coalesce(as.character(player_id), as.character(winner_id))) %>%
+  select(-player_id) %>%
+  left_join(player_lookup, by = c("loser_name" = "player_name")) %>%
+  mutate(loser_id = coalesce(as.character(player_id), as.character(loser_id))) %>%
+  select(-player_id)
+
+# Step 3: Convert IDs back to integers if needed
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  mutate(winner_id = as.integer(winner_id),
+         loser_id = as.integer(loser_id))
+
+# Step 4: View the updated dataset
+#View(cleaned_df_updated_2)
+
+```
+
+
+## Adding seeds for wimbledon
+```{r}
+library(dplyr)
+
+# Filter rows 5329 to 5461 in cleaned_df_updated_2
+rows_to_update <- cleaned_df_updated_2[5335:5461, ]
+
+# Match seeds and update the specific rows
+rows_to_update <- rows_to_update %>%
+  # Join with the seed table based on winner_name
+  left_join(seed_table, by = c("winner_name" = "Player_Info")) %>%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %>%
+  select(-Seed) %>%
+  # Join with the seed table based on loser_name
+  left_join(seed_table, by = c("loser_name" = "Player_Info")) %>%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %>%
+  select(-Seed)
+
+# Replace rows 5329–5461 in the original dataset
+cleaned_df_updated_2[5335:5461, ] <- rows_to_update
+
+# View the updated dataset
+#View(cleaned_df_updated_2)
+
+```
+
+
+```{r}
+library(rvest)
+library(tidyverse)
+
+# Step 1: Scrape data from the US Open website
+url <- "https://en.wikipedia.org/wiki/2024_US_Open_–_Men%27s_singles"
+dl_data <- read_html(url) %>% 
+  html_nodes("dl") %>% 
+  html_text(trim = TRUE)
+
+# Step 2: Process the scraped data into a clean table
+us_open_seed_table <- str_split(dl_data, "\n") %>%  # Split by lines
+  unlist() %>%                                     # Convert list to vector
+  tibble(raw = .) %>%                              # Create a tibble
+  mutate(
+    Seed = str_extract(raw, "^\\d+"),                        # Extract the seed number
+    Player_Info = str_remove(raw, "^\\d+\\.\\s+"),           # Remove the seed and leading text
+    Player_Info = str_remove(Player_Info, "\\(.*\\)"),       # Remove the round/result info
+    Player_Info = str_trim(Player_Info)                     # Trim any extra spaces
+  ) %>%
+  filter(!is.na(Seed)) %>%                                  # Keep only rows with seeds
+  select(Seed, Player_Info)                                 # Keep only relevant columns
+
+# View the US Open seed table
+print(us_open_seed_table)
+```
+
+## adding us open seeds
+```{r}
+library(dplyr)
+
+# Filter rows 5329 to 5461 in cleaned_df_updated_2
+rows_to_update <- cleaned_df_updated_2[5208:5334, ]
+
+# Match seeds and update the specific rows
+rows_to_update <- rows_to_update %>%
+  # Join with the US Open seed table based on winner_name
+  left_join(us_open_seed_table, by = c("winner_name" = "Player_Info")) %>%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %>%
+  select(-Seed) %>%
+  # Join with the US Open seed table based on loser_name
+  left_join(us_open_seed_table, by = c("loser_name" = "Player_Info")) %>%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %>%
+  select(-Seed)
+
+# Replace rows 5329–5461 in the original dataset
+cleaned_df_updated_2[5208:5334, ] <- rows_to_update
+
+# View the updated dataset
+#View(cleaned_df_updated_2)
+```
+
+
+```{r}
+library(rvest)
+library(tidyverse)
+
+# Step 1: Scrape data from the French Open website
+url <- "https://en.wikipedia.org/wiki/2024_French_Open_–_Men%27s_singles"
+dl_data <- read_html(url) %>% 
+  html_nodes("dl") %>% 
+  html_text(trim = TRUE)
+
+# Step 2: Process the scraped data into a clean table
+french_open_seed_table <- str_split(dl_data, "\n") %>%  # Split by lines
+  unlist() %>%                                         # Convert list to vector
+  tibble(raw = .) %>%                                  # Create a tibble
+  mutate(
+    Seed = str_extract(raw, "^\\d+"),                        # Extract the seed number
+    Player_Info = str_remove(raw, "^\\d+\\.\\s+"),           # Remove the seed and leading text
+    Player_Info = str_remove(Player_Info, "\\(.*\\)"),       # Remove the round/result info
+    Player_Info = str_trim(Player_Info)                     # Trim any extra spaces
+  ) %>%
+  filter(!is.na(Seed)) %>%                                  # Keep only rows with seeds
+  select(Seed, Player_Info)                                 # Keep only relevant columns
+
+# View the French Open seed table
+print(french_open_seed_table)
+
+# Step 3: Update the dataset `cleaned_df_updated_2`
+library(dplyr)
+
+# Filter rows 5329 to 5461 in cleaned_df_updated_2
+rows_to_update <- cleaned_df_updated_2[5081:5207, ]
+
+# Match seeds and update the specific rows
+rows_to_update <- rows_to_update %>%
+  # Join with the French Open seed table based on winner_name
+  left_join(french_open_seed_table, by = c("winner_name" = "Player_Info")) %>%
+  mutate(winner_seed = coalesce(as.character(Seed), as.character(winner_seed))) %>%
+  select(-Seed) %>%
+  # Join with the French Open seed table based on loser_name
+  left_join(french_open_seed_table, by = c("loser_name" = "Player_Info")) %>%
+  mutate(loser_seed = coalesce(as.character(Seed), as.character(loser_seed))) %>%
+  select(-Seed)
+
+# Replace rows 5329–5461 in the original dataset
+cleaned_df_updated_2[5081:5207, ] <- rows_to_update
+
+# View the updated dataset
+#View(cleaned_df_updated_2)
+```
+
+```{r}
+library(dplyr)
+
+# Create a lookup table for winner_name and their country codes
+winner_country_lookup <- cleaned_df_updated_2 %>%
+  filter(!is.na(winner_ioc)) %>%  # Keep only rows with known country codes
+  select(winner_name, winner_ioc) %>%
+  distinct()                      # Remove duplicates
+
+# Create a lookup table for loser_name and their country codes
+loser_country_lookup <- cleaned_df_updated_2 %>%
+  filter(!is.na(loser_ioc)) %>%   # Keep only rows with known country codes
+  select(loser_name, loser_ioc) %>%
+  distinct()                      # Remove duplicates
+
+# Fill in missing country codes for winner_ioc
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  left_join(winner_country_lookup, by = "winner_name", suffix = c("", "_lookup")) %>%
+  mutate(winner_ioc = if_else(is.na(winner_ioc), winner_ioc_lookup, winner_ioc)) %>%
+  select(-winner_ioc_lookup)
+
+# Fill in missing country codes for loser_ioc
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  left_join(loser_country_lookup, by = "loser_name", suffix = c("", "_lookup")) %>%
+  mutate(loser_ioc = if_else(is.na(loser_ioc), loser_ioc_lookup, loser_ioc)) %>%
+  select(-loser_ioc_lookup)
+
+# View the updated table
+#View(cleaned_df_updated_2)
+```
+
+```{r}
+# Ensure that full_names_for_wimbledon has the necessary columns
+# full_names_for_wimbledon should have "full_name" and "country_code"
+
+# Update winner_ioc based on matching winner_name to full_name
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  left_join(full_names_for_wimbledon, by = c("winner_name" = "full_name")) %>%
+  mutate(winner_ioc = if_else(is.na(winner_ioc), country_code, winner_ioc)) %>%
+  select(-country_code)  # Remove the temporary country_code column
+
+# Update loser_ioc based on matching loser_name to full_name
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  left_join(full_names_for_wimbledon, by = c("loser_name" = "full_name")) %>%
+  mutate(loser_ioc = if_else(is.na(loser_ioc), country_code, loser_ioc)) %>%
+  select(-country_code)  # Remove the temporary country_code column
+
+# View the updated table
+#View(cleaned_df_updated_2)
+```
 
 
 
+```{r}
+# Remove unnecessary columns
+cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
+  select(-last_initial.x, -last_initial.y, -country_code.x, -country_code.y)
 
+# Save the cleaned dataset to a CSV file
+write_csv(cleaned_df_updated_2, "cleaned_data_with_full_2024_data_added.csv")
 
-
-
-
-
-
-
-
-
-
-
-
+# Confirm by viewing the updated dataset
+#View(cleaned_df_updated_2)
+```
 
 
 
