@@ -482,14 +482,11 @@ cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
 
 
 ```{r}
-# Remove unnecessary columns
 cleaned_df_updated_2 <- cleaned_df_updated_2 %>%
   select(-last_initial.x, -last_initial.y, -country_code.x, -country_code.y)
 
-# Save the cleaned dataset to a CSV file
-write_csv(cleaned_df_updated_2, "cleaned_data_with_full_2024_data_added.csv")
+write_csv(cleaned_df_updated_2, "data/cleaned_data_with_full_2024_data_added.csv")
 
-# Confirm by viewing the updated dataset
 #View(cleaned_df_updated_2)
 ```
 
