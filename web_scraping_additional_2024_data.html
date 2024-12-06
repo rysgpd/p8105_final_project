@@ -19021,22 +19021,22 @@ data</h2>
 <span id="cb37-17"><a href="#cb37-17" tabindex="-1"></a>  <span class="fu">left_join</span>(winner_country_lookup, <span class="at">by =</span> <span class="st">&quot;winner_name&quot;</span>, <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;_lookup&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb37-18"><a href="#cb37-18" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">winner_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(winner_ioc), winner_ioc_lookup, winner_ioc)) <span class="sc">%&gt;%</span></span>
 <span id="cb37-19"><a href="#cb37-19" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>winner_ioc_lookup)</span></code></pre></div>
-<pre><code>## Warning in left_join(., winner_country_lookup, by = &quot;winner_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and
-## `y`.
+<pre><code>## Warning in left_join(., winner_country_lookup, by = &quot;winner_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x`
+## and `y`.
 ## ℹ Row 1404 of `x` matches multiple rows in `y`.
 ## ℹ Row 1 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+## ℹ If a many-to-many relationship is expected, set
+##   `relationship = &quot;many-to-many&quot;` to silence this warning.</code></pre>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
 <span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>  <span class="fu">left_join</span>(loser_country_lookup, <span class="at">by =</span> <span class="st">&quot;loser_name&quot;</span>, <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;_lookup&quot;</span>)) <span class="sc">%&gt;%</span></span>
 <span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">loser_ioc =</span> <span class="fu">if_else</span>(<span class="fu">is.na</span>(loser_ioc), loser_ioc_lookup, loser_ioc)) <span class="sc">%&gt;%</span></span>
 <span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>loser_ioc_lookup)</span></code></pre></div>
-<pre><code>## Warning in left_join(., loser_country_lookup, by = &quot;loser_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x` and
-## `y`.
+<pre><code>## Warning in left_join(., loser_country_lookup, by = &quot;loser_name&quot;, suffix = c(&quot;&quot;, : Detected an unexpected many-to-many relationship between `x`
+## and `y`.
 ## ℹ Row 1466 of `x` matches multiple rows in `y`.
 ## ℹ Row 32 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.</code></pre>
+## ℹ If a many-to-many relationship is expected, set
+##   `relationship = &quot;many-to-many&quot;` to silence this warning.</code></pre>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="co">#View(cleaned_df_updated_2)</span></span></code></pre></div>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>cleaned_df_updated_2 <span class="ot">&lt;-</span> cleaned_df_updated_2 <span class="sc">%&gt;%</span></span>
 <span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>  <span class="fu">left_join</span>(full_names_for_wimbledon, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;winner_name&quot;</span> <span class="ot">=</span> <span class="st">&quot;full_name&quot;</span>)) <span class="sc">%&gt;%</span></span>
