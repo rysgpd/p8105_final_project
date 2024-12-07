@@ -119,6 +119,7 @@ ggplot(top_players, aes(x = reorder(winner_name, -wins), y = wins, fill = winner
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
 The player with the most wins at the Australian Open is `r top_players %>% filter(tourney_name == "Australian Open") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Australian Open") %>% slice(1) %>% pull(wins)` wins, at Roland Garros, the top player is also `r top_players %>% filter(tourney_name == "Roland Garros") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Roland Garros") %>% slice(1) %>% pull(wins)` wins, at Wimbledon the top player is also `r top_players %>% filter(tourney_name == "Wimbledon") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Wimbledon") %>% slice(1) %>% pull(wins)` wins and at the US Open the top player is also `r top_players %>% filter(tourney_name == "US Open") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "US Open") %>% slice(1) %>% pull(wins)` wins.
 
 ## Participation trends over time
@@ -161,7 +162,7 @@ The countries with the most players over the years are `r top_countries[1]`, `r 
 
 ## Trends of Winners Over Time
 
-Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. As we move forward, we’ll take a closer look at how these trends correlate with players' ages, match lengths, and other factors.
+Over the years, the landscape of tennis has seen significant changes in terms of who wins and how often. This first graph shows the trends in the number of titles won by players in Grand Slam tournaments, illustrating the dominance of certain players over time. 
 
 ```{r winners, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
@@ -194,12 +195,6 @@ ggplot(top_winners_per_year, aes(x = as.integer(year), y = wins, color = winner_
   theme(legend.position = "right")
 ```
 
-- Novak Djokovic (green line) and Rafael Nadal (blue line) are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
+- Novak Djokovic and Rafael Nadal are the most prominent players, with a consistent high number of Grand Slam wins over the years.  
 - Dominic Thiem achieved a win in 2020 but hasn’t sustained dominance compared to Djokovic and Nadal.  
-- Jannik Sinner appears as a new entrant, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
-
-
-
-
-
-
+- Jannik Sinner appears as a new competitor, indicating the rise of younger talent breaking into Grand Slam victories in recent years.  
