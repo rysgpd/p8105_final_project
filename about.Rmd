@@ -6,6 +6,8 @@ output:
     toc_float: true
     css: styles.css
     code_folding: hide
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Motivation
@@ -47,6 +49,7 @@ There exists a Github [database](https://github.com/JeffSackmann/tennis_atp) wit
     * For Regressions/statistics, we made a winners_losers dataframe that had two rows per match, but one row was the winner and had `won` = 1 and the other row was the loser and had `won` = 0. 
 
 ```{r message = FALSE, warning = FALSE, eval = FALSE}
+
 seed_types = c("WC", "Q", "LL")
 
 df_2024 = read_csv("data/atp_matches_2024.csv") %>% 
@@ -101,6 +104,7 @@ loser_df = df_updated %>%
 player_df = rbind(winner_df, loser_df)
 
 write_csv(player_df, "data/winners_losers_df.csv")
+
 ```
 
 * Supplementary Match Data
@@ -118,7 +122,7 @@ Key steps that were undertaken:
 - Final Output: Redundant columns were removed, and the final dataset was saved as a CSV file.
 
 In the following, we can see a web scraping example that retrieves French Open 2024 data, formats the scores and dates, renames the tournament to "Roland Garros," and selects and processes columns for consistency.
-```{r}
+```{r message = FALSE, warning = FALSE}
 library(dplyr)
 library(ggplot2)
 library(readr)
@@ -147,8 +151,8 @@ processed_data <- tennis_data %>%
     score
   )
 
-print(processed_data)
-#View(processed_data)
+knitr::kable(head(processed_data, 12))
+
 ```
 
 * Suspension/Doping Data
@@ -631,8 +635,8 @@ df2 %>%
         plot.title = element_text(hjust = 0.5))
 ```
 
-# Tournament Analysis
-## Country winning the most
+### Tournament Analysis
+#### Country winning the most
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
 library(ggplot2)
@@ -663,7 +667,7 @@ ggplot(filtered_data, aes(x = winner_ioc, fill = tourney_name)) +
 For this plot, we counted the number of tournament wins for the top 7 countries across the four Grand Slam tournaments, grouped them by tournament, and displayed the results as a dodged bar chart.
 We can see that the French Open was won by players from `r filtered_data %>% filter(tourney_name == 'Roland Garros') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, the Australian Open was also won by `r filtered_data %>% filter(tourney_name == 'Australian Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, as well as the US Open which was also won by players representing `r filtered_data %>% filter(tourney_name == 'US Open') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)` the most often, finally Wimbledon was won the most often by players from the `r filtered_data %>% filter(tourney_name == 'Wimbledon') %>% count(winner_ioc, sort = TRUE) %>% slice(1) %>% pull(winner_ioc)`. This is due to `r filtered_data %>% count(winner_name, winner_ioc, sort = TRUE) %>% slice(2) %>% summarise(names = paste(winner_name, '(', winner_ioc, ')', collapse = ', ')) %>% pull(names)` having won the second most tournaments in the past 10 years after Novak Djokovic, in addition to other spanish players having won several titles.
 
-## Surface Matters
+#### Surface Matters
 The Grand Slam tennis tournaments are played on different surfaces, potentially affecting player performance. The Australian and US Opens use hard courts, the French Open is played on clay, and Wimbledon is played on grass. In this plot, we calculated the number of wins for the top 5 countries on each surface type across Grand Slam tournaments, adjusted for weighting hard court wins by half, and grouped the results by surface.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
@@ -717,7 +721,7 @@ Grass court tournaments were most often won by players from `r top_country_summa
 Hard court tournaments were most often won by players from `r top_country_summary %>% filter(surface == "Hard Courts") %>% pull(winner_ioc)`.  
 
 
-## Top players for each tournament
+#### Top players for each tournament
 ```{r top-players, echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyr)
 
@@ -746,7 +750,7 @@ ggplot(top_players, aes(x = reorder(winner_name, -wins), y = wins, fill = winner
 For this plot, we calculated the number of wins for the top 5 players at each Grand Slam tournament and grouped the results by tournament.
 The player with the most wins at the Australian Open is `r top_players %>% filter(tourney_name == "Australian Open") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Australian Open") %>% slice(1) %>% pull(wins)` wins, at Roland Garros, the top player is also `r top_players %>% filter(tourney_name == "Roland Garros") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Roland Garros") %>% slice(1) %>% pull(wins)` wins, at Wimbledon the top player is also `r top_players %>% filter(tourney_name == "Wimbledon") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "Wimbledon") %>% slice(1) %>% pull(wins)` wins and at the US Open the top player is also `r top_players %>% filter(tourney_name == "US Open") %>% slice(1) %>% pull(winner_name)` with `r top_players %>% filter(tourney_name == "US Open") %>% slice(1) %>% pull(wins)` wins.
 
-## Participation trends over time
+#### Participation trends over time
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)

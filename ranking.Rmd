@@ -125,7 +125,7 @@ df2 %>%
     * $H_{0}$: Being seeded higher has no effect on the odds of winning
   * Alternative Hypothesis: 
     * $H_{1}$:  Being seeded higher has an effect on the odds of winning
-* Based on the results, when a player is seeded higher/expected to win, they are 1.735x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
+* Based on the results, when a player is seeded higher/expected to win, they are 11.9x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
 
 ```{r seed_stats, echo = FALSE, warning = FALSE, message = FALSE}
 

@@ -6,7 +6,6 @@ output:
     toc_float: true
     css: styles.css
 ---
-## Welcome to Challengers (P8105 Edition) !
 <figure>
   <img src="images/tennis1.jpg" alt="(Source: Wentworth Puzzles)" style="width:50%">
   <figcaption>(Source: Wentworth Puzzles)</figcaption>
