@@ -104,11 +104,12 @@ write_csv(player_df, "data/winners_losers_df.csv")
 ```
 
 * Supplementary Match Data
-The dataset only included data up to the Australian Open which took place in January of 2024. We used web scraping methods to add data for Wimbledon, Roland Garros, and the US Open of 2024 to our dataset. Several challenges were encountered during the web scraping process for additional 2024 data: it was difficult to find tables containing all players with their full names, as most sources only used last names; there were also inconsistencies in name spellings due to the use of accents or lack thereof. Furthermore, tennis game scores were recorded in various formats, which complicated the web scraping process further, for example, sometimes the number of sets was mentioned, sometimes not; tiebreaks were sometimes recorded in parentheses, sometimes not, sometimes dashes were used or only the number of points was mentioned. Additionally, data such as the country of origin or first names for some lesser-known players in the early rounds had to be added manually.
+  * The dataset only included data up to the Australian Open which took place in January of 2024. We used web scraping methods to add data for Wimbledon, Roland Garros, and the US Open of 2024 to our dataset. Several challenges were encountered during the web scraping process for additional 2024 data: it was difficult to find tables containing all players with their full names, as most sources only used last names; there were also inconsistencies in name spellings due to the use of accents or lack thereof. Furthermore, tennis game scores were recorded in various formats, which complicated the web scraping process further, for example, sometimes the number of sets was mentioned, sometimes not; tiebreaks were sometimes recorded in parentheses, sometimes not, sometimes dashes were used or only the number of points was mentioned. Additionally, data such as the country of origin or first names for some lesser-known players in the early rounds had to be added manually.
 
 We expanded the dataset to include Roland Garros, Wimbledon, and the US Open 2024 using web scraping and data integration, addressing challenges like inconsistent scores, abbreviated names, and missing seeds or countries, ensuring consistency and completeness for data analysis.
 
 Key steps that were undertaken:
+
 - Data Retrieval: Match data for the additional tournaments was obtained from online sources using read_csv and rvest.
 - Data Cleaning: Scores and metadata were standardized using mutate and string processing functions (str_trim, str_replace).
 - Resolving Player Names: Full names were matched and replaced using a lookup table created with scraped seed and country data.
@@ -151,7 +152,68 @@ print(processed_data)
 ```
 
 * Suspension/Doping Data
-  * In addition, there is a page of suspension/doping cases of players that can be webscraped.
+  * A key component of analyzing doping in tennis involved web scraping to gather supplementary data from multiple sources. Since there is no centralized, publicly accessible database for tennis doping cases, we relied on scraping data from sources such as news articles and official sanction announcements on websites like the International Tennis Integrity Agency (ITIA). The creation of the ITIA in 2020 marked a significant shift in how doping cases were reported and recorded as well. 
+
+  * Web scraping introduced challenges, such as extracting structured data from unstructured HTML pages, handling inconsistencies in the reporting format, and dealing with incomplete or ambiguous information. For example, suspension types were often inconsistently reported, requiring verification and alignment with other sources. 
+  
+  * Problems:
+    * The ITIA website's sanctions page lacked a standardized table format, requiring complex scraping logic to extract information from accordion-style elements
+    * Player names often appeared in different formats across sources, making it difficult to match them with match data
+    * Most players lacked detailed sanction information
+    * Merging data from multiple sources (ITIA, Wikipedia, match results) required extensive QA and standardization
+    * Some players appeared with different name variations across datasets
+    * Sanction durations were often reported inconsistently or incompletely, whereas substances weren’t reported at all
+
+```{r message = FALSE, warning = FALSE, eval = FALSE}
+
+# Scrape data from ITIA sanctions page
+url <- "https://www.itia.tennis/sanctions/"
+page <- read_html(url)
+
+# Extract and process sanction data
+itia_sanctions <- page %>%
+  html_nodes(".accordion__item") %>%
+  map_df(function(item) {
+    # Extract player name
+    name_element <- item %>% 
+      html_node(".accordion__column:nth-child(1)")
+    
+    surname <- name_element %>%
+      html_node(".sort1") %>%
+      html_text(trim = TRUE)
+    
+    full_name <- name_element %>%
+      html_text(trim = TRUE)
+    player_name <- str_trim(str_replace(full_name, paste0("^", surname), ""))
+    
+    # Extract program, sanction, and dates
+    program <- item %>% 
+      html_node(".accordion__column:nth-child(2)") %>% 
+      html_text(trim = TRUE)
+    
+    sanction <- item %>% 
+      html_node(".accordion__column:nth-child(3)") %>% 
+      html_text(trim = TRUE)
+    
+    dates <- item %>% 
+      html_node(".accordion__item-content") %>% 
+      html_text(trim = TRUE) %>%
+      str_extract_all("\\d{2}/\\d{2}/\\d{4}") %>%
+      unlist()
+    
+    start_date <- if(length(dates) >= 1) dates[1] else NA
+    end_date <- if(length(dates) >= 2) dates[2] else NA
+    
+    tibble(player_name = player_name, 
+      program = program, 
+      sanction = sanction, 
+      start_date = start_date,
+      end_date = end_date
+    )
+  })
+
+
+```
 
 
 #### Data Dictionary
