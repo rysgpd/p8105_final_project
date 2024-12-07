@@ -52,7 +52,6 @@ processed_data <- tennis_data %>%
 
 print(processed_data)
 #View(processed_data)
-
 ```
 
 ## getting us open data

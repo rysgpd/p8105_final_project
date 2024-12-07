@@ -88,7 +88,7 @@ grass_courts_winners <- paste(top_country_summary %>% filter(surface == "Grass")
 
 ```
 
-Clay court tournaments,often associated with extensive training on slower surfaces like in Spain, were most often won by players from `r top_country_summary %>% filter(surface == "Clay") %>% pull(winner_ioc)`.  
+Clay court tournaments, often associated with extensive training on slower surfaces like in Spain, were most often won by players from `r top_country_summary %>% filter(surface == "Clay") %>% pull(winner_ioc)`.  
 Grass court tournaments were most often won by players from `r top_country_summary %>% filter(surface == "Grass") %>% pull(winner_ioc)`.
 Hard court tournaments were most often won by players from `r top_country_summary %>% filter(surface == "Hard Courts") %>% pull(winner_ioc)`.  
 
@@ -127,6 +127,7 @@ The player with the most wins at the Australian Open is `r top_players %>% filte
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(ggplot2)
+library(readr)
 
 participants <- tennis_data %>%
   filter(tourney_name %in% c("Wimbledon", "Roland Garros", "US Open", "Australian Open")) %>%
