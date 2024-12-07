@@ -437,7 +437,7 @@ print(full_names_for_wimbledon)
     ## # ℹ 54 more rows
 
 ``` r
-write_csv(full_names_for_wimbledon, "full_names_for_wimbledon.csv")
+write_csv(full_names_for_wimbledon, "data/full_names_for_wimbledon.csv")
 ```
 
 ## Replacing shortened names
@@ -18247,7 +18247,7 @@ print(cleaned_df_updated)
 ``` r
 #View(cleaned_df_updated)
 
-write_csv(cleaned_df_updated, "cleaned_df_updated.csv")
+write_csv(cleaned_df_updated, "data/cleaned_df_updated.csv")
 ```
 
 ``` r
