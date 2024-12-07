@@ -449,7 +449,7 @@ df2 %>%
 
 #### Wins by Seed
 
-Seed rankings play an important role in predicting match outcomes in tennis. This visualization presents the number of wins achieved by players of different seed ranks over time. A higher seed generally indicates a greater likelihood of victory, but this graph helps us understand how the seeding system correlates with actual tournament success.
+Seed rankings play an important role in predicting match outcomes in tennis. This visualization takes a closer look at the number of wins achieved by players of different seed ranks over time. As shown here, a players with higher seeds generally have a higher total number of wins compared to low-seeded players.
 
 ```{r message = FALSE, warning = FALSE}
 library(tidyverse)
@@ -485,7 +485,7 @@ ggplot(seed_performance, aes(x = as.factor(winner_seed), y = total_wins)) +
 
 #### Ages of Winners and Losers
 
-Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these high-stakes tournaments.
+Age is a crucial factor in the game of tennis. The next visualization reveals how the average age of both winners and losers has evolved over time. As the sport becomes more physically demanding, it’s interesting to see if younger or older players are succeeding in these tournaments.
 
 ```{r message = FALSE, warning = FALSE}
 player_ages <- tennis_data %>%
@@ -1470,6 +1470,7 @@ There were many analyses done that looked into individual variables (`age`, `see
 We did two regression models: 1) pre-match using established data such as seeding compared to their opponent `seeded_higher`, if they were older than their opponent `older_opponent`, `preferred hand` to use to play, `height`, `age` in general, and `ATP Rank`. We found that the `seeded_higher` and `ATP Rank` which were related to begin with were large indicators, which backed up our previous exploratory statistical analysis. 2) post-match using the match metrics for each players using `Length of Match`, `Aces`, `Double Faults`, `Serve Points`, `1st Serves Made`, `1st Serves Won`, `2nd Serves Won`, `% of Break Points Saved`, `Number of Sets Played`. These are all very common metrics to see on ESPN after each set and match to help the audience see how well the player performed. Many of the significant ones made a lot of sense - the more serves/points you win and save indicate that you're winning the match. Some were interesting to think about such as number of aces, which may indicate that you're relying too much on your serve and being inconsistent with other points. Some were a little confusing and shows future analysis needed to explain like the longer the length of a match and sets played, the more likely you are to win. A limitation is we stuck to a simple linear regression and there are more factors not included in the dataset, such as injuries, player likability, outside influences, etc. 
 
 ### Tournament Analyses
+From the analyses looking at trends of winners, we see several key players winning the Grand Slams. The trends of ATP winners over time in Grand Slams visualizations highlights the continued dominance of Novak Djokovic and Rafael Nadal, who consistently win Grand Slam tournaments. This trend highlights their strong performance and consistency in tennis. As seen in the plot, opportunities for new and younger players like Jannik Sinner may have potential to increase and reshape the competitive landscape. 
 
 ### Suspensions & Doping
 Doping remains a contentious topic in tennis, raising critical questions about fairness, athlete integrity, and the governance of the sport. By including this analysis, we sought to determine whether trends in performance and player demographics correlate with reported doping cases. Our key objectives included examining the prevalence of doping among different ranking tiers and regions and investigating whether implicated players perform differently from their peers.
