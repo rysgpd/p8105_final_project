@@ -10,11 +10,11 @@ output:
 
 ## Motivation
 
-Due to well-known tournaments, emerging talent, and coverage of controversies by popular media, tennis has become increasingly popular. We aim to understand the trends of men’s tennis matches at the four major championships (Australian Open, French Open, Wimbledon, and US Open) to provide insights into this dynamic and evolving sport, catering to fans, analysts, and industry stakeholders.
+Due to well-known tournaments, emerging talent, and coverage of controversies by popular media, tennis has become increasingly popular. We aim to understand the trends of men’s tennis matches at the four major championships (Australian Open, French Open, Wimbledon, and US Open) to provide insights into this dynamic and evolving sport, catering to fans, analysts, and industry stakeholders, especially with the US Open in New York. With prominent players getting suspensions for doping, we also wanted to understand the process more and attempt to track players who had in the past gotten sanctioned. 
 
 ## Related Work
 
-Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.tennisabstract.com/charting/meta.html), which many broadcasters and analysts rely on for understanding pro matches. Our project aims to further expand on this work and visualize player and match information.
+Our team was inspired by Jeff Sackman's [Match Charting Project](https://www.tennisabstract.com/charting/meta.html), which many broadcasters and analysts rely on for understanding pro matches. Often, metrics and demographic information is shown during and after matches to understand player performance. Our project aims to further expand on this work and visualize player and match information for a lay audience who may not be familiar with tennis.
 
 ## Initial Questions
 For our initial questions, we were interested in understanding the following, and expanded some for our formal analyses:
@@ -22,15 +22,15 @@ For our initial questions, we were interested in understanding the following, an
 1. What is the geographical distribution of the home countries of tennis players from 2014 to 2024? How do age and height distributions vary by country?
 2. What trends can be seen in the performance of players in Grand Slam tournaments in the last 10 years (2014-2024)?
 3. Which player characteristics and match statistics have an effect on outcomes (winning) in Grand Slam matches?
-  + Does seeding of players in the tournament matter for matches and eventually the entire tournament?
-  + How have previous winners been seeded?
-  + How does age affect win outcome?
-  + How do metrics during the match help indicate a player's performance?
+    * Does seeding of players in the tournament matter for matches and eventually the entire tournament?
+    * How have previous winners been seeded?
+    * How does age affect win outcome?
+    * How do metrics during the match help indicate a player's performance?
 4. What impact do controversies, such as doping, have on the performance of players?
-    + What trends can be observed in doping violations in men’s tennis?
-    + Which countries of origin are most affected by doping violations?
-    + What impact do doping violations have on player performance and career trajectories?
-    + How does the inconsistency in doping data reporting affect research and transparency in tennis?
+    * What trends can be observed in doping violations in men’s tennis?
+    * Which countries of origin are most affected by doping violations?
+    * What impact do doping violations have on player performance and career trajectories?
+    * How does the inconsistency in doping data reporting affect research and transparency in tennis?
 
 
 
@@ -131,8 +131,8 @@ The following variables were used in the final dataset:
   - `loser_ht`
   - `loser_ioc`
   - `loser_age`
-- `score.`  
-- `round.`  
+- `score`  
+- `round`: round of the tournament (R128 to F)  
 - `minutes`: match length, where available.  
 - `w_ace`: winner's number of aces.  
   - `w_df`:  winner's number of doubles faults
@@ -153,9 +153,9 @@ The following variables were used in the final dataset:
   - `l_bpSaved`
   - `l_bpFaced`
 - `winner_rank`: winner's ATP or WTA rank, as of the tourney_date, or the most recent ranking date before the `tourney_date.`  
-  - `winner_rank_points`: number of ranking points, where available.  
+- `winner_rank_points`: number of ranking points, where available.  
 - `loser_rank.`  
-  - `loser_rank_points.`  
+- `loser_rank_points.`  
 
 ## Exploratory Analyses
 
@@ -1080,7 +1080,7 @@ df2 %>%
     * $H_{0}$: Being seeded higher has no effect on the odds of winning
   * Alternative Hypothesis: 
     * $H_{1}$:  Being seeded higher has an effect on the odds of winning
-* Based on the results, when a player is seeded higher/expected to win, they are 1.735x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
+* Based on the results, when a player is seeded higher/expected to win, they are 11.9x more likely to win than a player who is seeded lower. The p-value was incredibly small and statistically significant. 
 
 ```{r warning = FALSE, message = FALSE}
 seed_stats_df = 
@@ -1465,6 +1465,9 @@ The analysis reveals that the USA, France, Australia, Spain, and Italy dominate 
 The dominance of the USA, France, Australia, Spain, and Italy suggests the impact of strong sports programs and infrastructure. Age distributions indicate that younger players from countries like China and Poland may represent emerging talent, while older players in Spain and Switzerland suggest longer career spans or delayed development. Height variations, with the USA showcasing the widest range, underline the influence of physical attributes on player profiles. These findings emphasize how cultural, geographic, and strategic factors shape global sports landscapes.
 
 ### Match and Player Analyses
+There were many analyses done that looked into individual variables (`age`, `seed`) and comparisons between the players in each match. We looked at how seeding affects winning the match, and overwhelmingly (11x more likely) we found that your seed matters a lot because it is a good indication of how well you are performing at that point in time. Seeds are closely related to ATP rankings, which is the overall performance with other tournaments other than grand slams as well. Sometimes, however, there are upsets and as you can see from the different seed types, while most winners are seeded higher, there are still quite a few surprises. There was not an overall grand slam winner from 2014-2024 that was not ranked at least 17th seed though. Age was also an interesting factor to look into. To a regular person who's not a fan of tennis, it would make sense that the older a player is, the worse their performance may be. However, as you can see, older players (such as Djokovic, Nadal, Federer, etc) actually performed a lot better in certain years. Overall, it did not indicate that being older was more likely to win. Younger talent continues to enter every year, but the younger generation struggles to win against the older, fan-favorites at grand slams often.  
+
+We did two regression models: 1) pre-match using established data such as seeding compared to their opponent `seeded_higher`, if they were older than their opponent `older_opponent`, `preferred hand` to use to play, `height`, `age` in general, and `ATP Rank`. We found that the `seeded_higher` and `ATP Rank` which were related to begin with were large indicators, which backed up our previous exploratory statistical analysis. 2) post-match using the match metrics for each players using `Length of Match`, `Aces`, `Double Faults`, `Serve Points`, `1st Serves Made`, `1st Serves Won`, `2nd Serves Won`, `% of Break Points Saved`, `Number of Sets Played`. These are all very common metrics to see on ESPN after each set and match to help the audience see how well the player performed. Many of the significant ones made a lot of sense - the more serves/points you win and save indicate that you're winning the match. Some were interesting to think about such as number of aces, which may indicate that you're relying too much on your serve and being inconsistent with other points. Some were a little confusing and shows future analysis needed to explain like the longer the length of a match and sets played, the more likely you are to win. A limitation is we stuck to a simple linear regression and there are more factors not included in the dataset, such as injuries, player likability, outside influences, etc. 
 
 ### Tournament Analyses
 
